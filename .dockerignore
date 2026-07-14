@@ -1,0 +1,11 @@
+.git
+.dockerignore
+Dockerfile
+nginx.conf
+README.md
+LICENSE
+.DS_Store
+
+
+# EXCEPTION: Allow nginx.conf to be read by the build context
+!nginx.conf
