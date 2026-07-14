@@ -95,8 +95,9 @@ function renderPreview(){
       <div class="style-label">${esc(item.style||"")}</div>
       <div class="stats-row">
         <div class="stat"><div class="value">${formatAbv(item.abv)}</div><div class="stat-label">ABV</div></div>
-        <div class="stat ibu-stat"><div class="value">${formatIbu(item.ibu)}</div><div class="stat-label">IBU</div>${bitternessMeter(item.ibu,item.sg)}</div>
+        <div class="stat"><div class="value">${formatIbu(item.ibu)}</div><div class="stat-label">IBU</div></div>
       </div>
+      ${bitternessMeter(item.ibu,item.sg)}
     </div>
   </article>`).join("");
   applySettings();

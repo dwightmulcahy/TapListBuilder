@@ -28,13 +28,15 @@ Then open `http://localhost:8000`.
 Static files only — works as-is on GitHub Pages (Settings → Pages → deploy from branch, root of this folder).
 
 ### Docker
-`Dockerfile`, `.dockerignore`, and `nginx.conf` build a small nginx image serving these static files. `.github/workflows/docker-release.yml` builds a multi-arch (amd64 + arm64) image and pushes it to Docker Hub whenever a GitHub Release is published (or via manual dispatch from the Actions tab).
+`Dockerfile`, `.dockerignore`, and `nginx.conf` build a small nginx image serving these static files. `.github/workflows/docker-release.yml` builds a multi-arch (amd64 + arm64) image and pushes it to Docker Hub as `<DOCKERHUB_USERNAME>/taplistbuilder` on:
+- any push to a `release` branch — tagged `release` and `latest`
+- any push of a `v*.*.*` tag — tagged with the semver version(s) and `latest`
+
+Every build also gets a `sha-<short-sha>` tag, and the image is labeled with the resolved version and build date (from a `v*.*.*` tag if present, otherwise `dev-<short-sha>`).
 
 Required repo secrets (Settings → Secrets and variables → Actions):
 - `DOCKERHUB_USERNAME` — your Docker Hub username
 - `DOCKERHUB_TOKEN` — a Docker Hub access token (hub.docker.com → Account Settings → Security → New Access Token)
-
-Tag releases with semver (e.g. `v1.2.0`) so the version-numbered image tags get populated; `latest` is always updated too. Rename `IMAGE_NAME` in the workflow if your Docker Hub repo isn't called `taplistbuilder`.
 
 ### Running on a QNAP (Container Station)
 `docker-compose.yml` is a ready-to-import example — set your Docker Hub username in it, then in Container Station: Create → Create Application → paste or upload the file. Defaults to `http://<nas-ip>:8081`; see comments in the file for adjusting the port or mounting your own `data/` folder to override the sample menu without rebuilding.

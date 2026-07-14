@@ -6,6 +6,12 @@
 # below to `COPY TapListBuilder/ /usr/share/nginx/html/`.
 FROM nginx:1.27-alpine
 
+ARG APP_VERSION=dev
+ARG BUILD_DATE
+LABEL org.opencontainers.image.title="TapListBuilder" \
+      org.opencontainers.image.version="${APP_VERSION}" \
+      org.opencontainers.image.created="${BUILD_DATE}"
+
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY . /usr/share/nginx/html/
 
