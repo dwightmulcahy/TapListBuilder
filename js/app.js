@@ -4,10 +4,10 @@
 const defaultState={
   version:2.45,
   settings:{
-    pageSize:"a4",logoScale:1,watermarkScale:1,watermarkOpacity:.22,
+    pageSize:"letter",logoScale:0.67,watermarkScale:1.33,watermarkOpacity:0.83,
     taproomLabel:"TAPROOM:",taproomHours:"NOON–5PM DAILY",
     phone:"+506 8733 7046",location:"3KM W OF DANIEL ODUBER AIRPORT",
-    footerAutoFit:true,taproomFontSize:20,phoneFontSize:20,locationFontSize:19,globalDescriptionFontSize:11.75,language:"en"
+    footerAutoFit:true,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,language:"en"
   },
   items:[] // populated from data/beer-styles.json during boot()
 };
