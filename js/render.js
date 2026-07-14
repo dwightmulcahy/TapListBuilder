@@ -1,0 +1,104 @@
+// DOM rendering: editor cards, tap-list preview, and small formatting helpers.
+function esc(v){return String(v??"").replace(/[&<>"']/g,s=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[s]))}
+
+function editorCard(item,i){
+  return `<fieldset class="beer-card" style="--item-color:${esc(item.color)}">
+    <legend>Item ${i+1}</legend>
+    <div class="card-actions">
+      <button class="icon-button" title="Move up" ${i===0?'disabled':''} onclick="moveItem(${i},-1)">↑</button>
+      <button class="icon-button" title="Move down" ${i===state.items.length-1?'disabled':''} onclick="moveItem(${i},1)">↓</button>
+      <button class="icon-button" title="Duplicate" onclick="duplicateItem(${i})">⧉</button>
+      <button class="icon-button danger" title="Remove" onclick="removeItem(${i})">×</button>
+    </div>
+    <div class="grid2">
+      <label>Name<input value="${esc(item.name)}" oninput="setItem(${i},'name',this.value)"></label>
+      <label>Accent color<input type="color" value="${esc(item.color)}" oninput="setItem(${i},'color',this.value);this.closest('fieldset').style.setProperty('--item-color',this.value)"></label>
+    </div>
+    <label>Beer style<input value="${esc(item.style)}" oninput="setItem(${i},'style',this.value)"></label>
+    <div class="grid2">
+      <label>Original gravity (SG)<input inputmode="decimal" placeholder="e.g. 1.050" value="${esc(item.sg)}" oninput="setItem(${i},'sg',this.value);updateAbvField(${i})"></label>
+      <label>Final gravity (FG)<input inputmode="decimal" placeholder="e.g. 1.010" value="${esc(item.fg)}" oninput="setItem(${i},'fg',this.value);updateAbvField(${i})"></label>
+    </div>
+    <div class="grid4">
+      <label>ABV %<span id="abvCalcTag-${i}" class="calc-tag">${isAbvCalculated(item)?" (calculated)":""}</span><input id="abvInput-${i}" inputmode="decimal" value="${esc(item.abv)}" ${isAbvCalculated(item)?"readonly":""} oninput="setItem(${i},'abv',this.value)"></label>
+      <label>IBU<input inputmode="numeric" value="${esc(item.ibu)}" oninput="setItem(${i},'ibu',this.value)"></label>
+      <label>Gluten free<select onchange="setItem(${i},'glutenFree',this.value==='true')"><option value="false" ${!item.glutenFree?'selected':''}>No</option><option value="true" ${item.glutenFree?'selected':''}>Yes</option></select></label>
+      <label>Icon<select onchange="setItem(${i},'icon',this.value,true)">${iconOptions(item.icon)}</select></label>
+    </div>
+    <p id="abvHelp-${i}" class="help" style="${isAbvCalculated(item)?"":"display:none"}">ABV is calculated from SG/FG. Clear either gravity field to enter ABV manually.</p>
+    ${item.icon==='custom'?`<label class="custom-icon-row">Upload icon<input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onchange="uploadCustomIcon(${i},event)"></label>`:''}
+    <div class="item-library-actions"><button onclick="toggleItemTranslation(${i})">${item.language==="es"?"Translate to English":"Translate to Spanish"}</button><button onclick="saveItemToLibrary(${i})">Save item to library</button></div>
+    <label>Description<textarea oninput="setItem(${i},'description',this.value)">${esc(item.description)}</textarea></label>
+    <label>Description font size
+      <div class="range-with-value">
+        <input class="description-font-slider" data-item-index="${i}" type="range" min="8" max="16" step="0.25" value="${esc(clampDescriptionFontSize(item.descriptionFontSize))}" oninput="setItem(${i},'descriptionFontSize',Number(this.value));document.getElementById('descFontSizeValue-${i}').value=formatDescriptionFontSize(Number(this.value))">
+        <output id="descFontSizeValue-${i}">${esc(formatDescriptionFontSize(item.descriptionFontSize))}</output>
+      </div>
+    </label>
+  </fieldset>`;
+}
+function updateAbvField(i){
+  const item=state.items[i];
+  if(!item)return;
+  const calculated=isAbvCalculated(item);
+  const input=document.getElementById(`abvInput-${i}`);
+  if(input){
+    input.value=item.abv;
+    input.readOnly=calculated;
+  }
+  const tag=document.getElementById(`abvCalcTag-${i}`);
+  if(tag)tag.textContent=calculated?" (calculated)":"";
+  const help=document.getElementById(`abvHelp-${i}`);
+  if(help)help.style.display=calculated?"":"none";
+}
+function renderEditor(){
+  document.getElementById("editor").innerHTML=state.items.map(editorCard).join("");
+  const s=state.settings;
+  document.getElementById("pageSize").value=s.pageSize;
+  document.getElementById("logoScale").value=s.logoScale;
+  document.getElementById("logoScaleValue").value=`${Math.round(Number(s.logoScale)*100)}%`;
+  document.getElementById("watermarkOpacity").value=s.watermarkOpacity;
+  document.getElementById("watermarkOpacityValue").value=`${Math.round(Number(s.watermarkOpacity)*100)}%`;
+  document.getElementById("watermarkScale").value=s.watermarkScale;
+  document.getElementById("watermarkScaleValue").value=`${Math.round(Number(s.watermarkScale)*100)}%`;
+  document.getElementById("globalDescriptionFontSize").value=clampDescriptionFontSize(s.globalDescriptionFontSize);
+  updateGlobalDescriptionControl();
+  document.getElementById("taproomLabel").value=s.taproomLabel;
+  document.getElementById("taproomHours").value=s.taproomHours;
+  document.getElementById("phone").value=s.phone;
+  document.getElementById("location").value=s.location;
+  document.getElementById("footerAutoFit").value=String(Boolean(s.footerAutoFit));
+  document.getElementById("taproomFontSize").value=s.taproomFontSize;
+  document.getElementById("taproomFontSizeValue").value=`${String(Number(s.taproomFontSize).toFixed(1)).replace(/\.0$/,"")} pt`;
+  document.getElementById("phoneFontSize").value=s.phoneFontSize;
+  document.getElementById("phoneFontSizeValue").value=`${String(Number(s.phoneFontSize).toFixed(1)).replace(/\.0$/,"")} pt`;
+  document.getElementById("locationFontSize").value=s.locationFontSize;
+  document.getElementById("locationFontSizeValue").value=`${String(Number(s.locationFontSize).toFixed(1)).replace(/\.0$/,"")} pt`;
+  const translateButton=document.getElementById("translateMenuButton");
+  if(translateButton)translateButton.textContent=s.language==="es"?"Translate menu to English":"Translate menu to Spanish";
+  renderSavedBeverageLibrary();
+}
+
+function formatAbv(value){const v=String(value??"").trim();return v?`${esc(v)}%`:"—"}
+function formatIbu(value){const v=String(value??"").trim();return v?esc(v):"—"}
+function glutenFreeBadge(){return state.settings.language==="es"?"SIN GLUTEN":"GLUTEN FREE"}
+function renderPreview(){
+  const list=document.getElementById("tapList");
+  list.innerHTML=state.items.map(item=>`<article class="tap-row" style="color:${esc(item.color)}">
+    <div class="icon-wrap">${renderedIcon(item)}</div>
+    <div class="tap-divider"></div>
+    <div class="item-copy">
+      <h2 class="item-name">${esc(item.name)}${item.glutenFree?`<span class="badge">${glutenFreeBadge()}</span>`:''}</h2>
+      <p class="desc" style="--desc-font-size:${clampDescriptionFontSize(item.descriptionFontSize)}pt">${esc(item.description)}</p>
+    </div>
+    <div class="stats">
+      <div class="style-label">${esc(item.style||"")}</div>
+      <div class="stats-row">
+        <div class="stat"><div class="value">${formatAbv(item.abv)}</div><div class="stat-label">ABV</div></div>
+        <div class="stat ibu-stat"><div class="value">${formatIbu(item.ibu)}</div><div class="stat-label">IBU</div>${bitternessMeter(item.ibu,item.sg)}</div>
+      </div>
+    </div>
+  </article>`).join("");
+  applySettings();
+  requestAnimationFrame(fitMenu);
+}

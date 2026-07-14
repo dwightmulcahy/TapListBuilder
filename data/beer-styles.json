@@ -1,0 +1,129 @@
+{
+  "defaultItems": [
+    {
+      "name": "America IPA",
+      "abv": "6.3",
+      "ibu": "37",
+      "glutenFree": false,
+      "color": "#19459c",
+      "icon": "hop",
+      "descriptionFontSize": 11.75,
+      "description": "Dry hopped with a generous amount of Citra, Mosaic and Galaxy hops. Intensely fruity and juicy.",
+      "sg": "1.060",
+      "fg": "1.012"
+    },
+    {
+      "name": "Blonde Ale",
+      "abv": "5.0",
+      "ibu": "32",
+      "glutenFree": false,
+      "color": "#b5a600",
+      "icon": "citrus",
+      "descriptionFontSize": 11.75,
+      "description": "Dry hopped with a single hop variety: Citra. Orange peel and tropical fruit flavors will tickle your tongue.",
+      "sg": "1.048",
+      "fg": "1.010"
+    },
+    {
+      "name": "Monopils",
+      "abv": "5.0",
+      "ibu": "31",
+      "glutenFree": false,
+      "color": "#87531f",
+      "icon": "pilsner",
+      "descriptionFontSize": 11.75,
+      "description": "Refreshing German pilsner with delicate floral and spicy noble hop aromas over a clean malt backbone.",
+      "sg": "1.048",
+      "fg": "1.010"
+    },
+    {
+      "name": "NZ Pale Ale",
+      "abv": "5.5",
+      "ibu": "40",
+      "glutenFree": false,
+      "color": "#ed7b16",
+      "icon": "leaf",
+      "descriptionFontSize": 11.75,
+      "description": "Crisp malt backbone and balanced bitterness, delivering a juicy, clean finish that showcases Motueka and Citra hops.",
+      "sg": "1.052",
+      "fg": "1.010"
+    },
+    {
+      "name": "Vanilla Gorilla Stout",
+      "abv": "7.5",
+      "ibu": "32",
+      "glutenFree": false,
+      "color": "#111111",
+      "icon": "vanilla",
+      "descriptionFontSize": 11.75,
+      "description": "Notes of roasted malt, dark chocolate and coffee, finished with smooth natural Madagascar vanilla beans.",
+      "sg": "1.070",
+      "fg": "1.013"
+    },
+    {
+      "name": "Maracuyá Sour",
+      "abv": "4.1",
+      "ibu": "",
+      "glutenFree": false,
+      "color": "#c72025",
+      "icon": "passionfruit",
+      "descriptionFontSize": 11.75,
+      "description": "Refreshing sour ale with vibrant maracuyá (passion fruit), balanced by tartness and juicy citrus notes.",
+      "sg": "1.045",
+      "fg": "1.014"
+    },
+    {
+      "name": "Cas Cider",
+      "abv": "4.5",
+      "ibu": "",
+      "glutenFree": true,
+      "color": "#587b20",
+      "icon": "apple",
+      "descriptionFontSize": 11.75,
+      "description": "Made with 100% cas fruit, giving it the signature tartness of Costa Rica’s beloved fruit in a cider.",
+      "sg": "1.044",
+      "fg": "1.010"
+    },
+    {
+      "name": "Maracuyá Cas Cider",
+      "abv": "4.5",
+      "ibu": "",
+      "glutenFree": true,
+      "color": "#762091",
+      "icon": "passionfruit",
+      "descriptionFontSize": 11.75,
+      "description": "We take our Cas Cider and add more maracuyá (passion fruit).",
+      "sg": "1.044",
+      "fg": "1.010"
+    }
+  ],
+  "styleNameTranslations": {
+    "enToEs": {
+      "america ipa": "IPA Americana",
+      "american ipa": "IPA Americana",
+      "blonde ale": "Ale Rubia",
+      "monopils": "Monopils",
+      "nz pale ale": "Pale Ale NZ",
+      "vanilla gorilla stout": "Stout Vanilla Gorilla",
+      "maracuyá sour": "Sour de Maracuyá",
+      "maracuya sour": "Sour de Maracuyá",
+      "cas cider": "Sidra de Cas",
+      "maracuyá cas cider": "Sidra de Cas y Maracuyá",
+      "maracuya cas cider": "Sidra de Cas y Maracuyá",
+      "maracas cider": "Sidra Maracuyá"
+    },
+    "esToEn": {
+      "ipa americana": "America IPA",
+      "ale rubia": "Blonde Ale",
+      "monopils": "Monopils",
+      "pale ale nz": "NZ Pale Ale",
+      "stout vanilla gorilla": "Vanilla Gorilla Stout",
+      "sour de maracuyá": "Maracuyá Sour",
+      "sour de maracuya": "Maracuyá Sour",
+      "sidra de cas": "Cas Cider",
+      "sidra de cas y maracuyá": "Maracuyá Cas Cider",
+      "sidra de cas y maracuya": "Maracuyá Cas Cider",
+      "sidra maracuyá": "Maracuyá Cider"
+    }
+  }
+}

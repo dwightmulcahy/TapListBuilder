@@ -1,0 +1,245 @@
+{
+  "descriptionExactEsFromEn": {
+    "dry hopped with a generous amount of citra, mosaic and galaxy hops. intensely fruity and juicy.": "Dry hop con una generosa cantidad de lúpulos Citra, Mosaic y Galaxy. Intensamente frutal y jugosa.",
+    "dry hopped with a single hop variety: citra. orange peel and tropical fruit flavors will tickle your tongue.": "Dry hop con una sola variedad de lúpulo: Citra. Sabores de cáscara de naranja y fruta tropical que te harán cosquillas en la lengua.",
+    "refreshing german pilsner with delicate floral and spicy noble hop aromas over a clean malt backbone.": "Pilsner alemana refrescante con delicados aromas florales y especiados de lúpulos nobles sobre una base limpia de malta.",
+    "crisp malt backbone and balanced bitterness, delivering a juicy, clean finish that showcases motueka and citra hops.": "Base de malta crujiente y amargor equilibrado, con un final jugoso y limpio que destaca los lúpulos Motueka y Citra.",
+    "notes of roasted malt, dark chocolate and coffee, finished with smooth natural madagascar vanilla beans.": "Notas de malta tostada, chocolate oscuro y café, con un final suave de vainas naturales de vainilla de Madagascar.",
+    "refreshing sour ale with vibrant maracuyá (passion fruit), balanced by tartness and juicy citrus notes.": "Sour ale refrescante con vibrante maracuyá (fruta de la pasión), equilibrada con acidez y notas cítricas jugosas.",
+    "made with 100% cas fruit, giving it the signature tartness of costa rica’s beloved fruit in a cider.": "Hecha con 100% fruta de cas, aportando la acidez característica de una de las frutas más queridas de Costa Rica en una sidra.",
+    "made with 100% cas fruit giving it the signature tartness of costa rica’s beloved fruit in a cider.": "Hecha con 100% fruta de cas, aportando la acidez característica de una de las frutas más queridas de Costa Rica en una sidra.",
+    "we take our cas cider and add more maracuyá (passion fruit).": "Tomamos nuestra sidra de cas y añadimos más maracuyá (fruta de la pasión).",
+    "we take our cas cider and add more maracuya (passion fruit).": "Tomamos nuestra sidra de cas y añadimos más maracuyá (fruta de la pasión).",
+    "enter the beverage description here.": "Escribe aquí la descripción de la bebida."
+  },
+  "phraseMap": [
+    [
+      "Madagascar vanilla beans",
+      "vainas de vainilla de Madagascar"
+    ],
+    [
+      "Costa Rica’s beloved fruit",
+      "una de las frutas más queridas de Costa Rica"
+    ],
+    [
+      "Costa Rica's beloved fruit",
+      "una de las frutas más queridas de Costa Rica"
+    ],
+    [
+      "tropical fruit flavors",
+      "sabores de fruta tropical"
+    ],
+    [
+      "orange peel",
+      "cáscara de naranja"
+    ],
+    [
+      "single hop variety",
+      "una sola variedad de lúpulo"
+    ],
+    [
+      "generous amount of",
+      "generosa cantidad de"
+    ],
+    [
+      "Dry hopped with",
+      "Dry hop con"
+    ],
+    [
+      "dry hopped with",
+      "dry hop con"
+    ],
+    [
+      "German pilsner",
+      "pilsner alemana"
+    ],
+    [
+      "noble hop aromas",
+      "aromas de lúpulos nobles"
+    ],
+    [
+      "clean malt backbone",
+      "base limpia de malta"
+    ],
+    [
+      "crisp malt backbone",
+      "base de malta crujiente"
+    ],
+    [
+      "balanced bitterness",
+      "amargor equilibrado"
+    ],
+    [
+      "juicy, clean finish",
+      "final jugoso y limpio"
+    ],
+    [
+      "roasted malt",
+      "malta tostada"
+    ],
+    [
+      "dark chocolate",
+      "chocolate oscuro"
+    ],
+    [
+      "natural",
+      "natural"
+    ],
+    [
+      "refreshing sour ale",
+      "sour ale refrescante"
+    ],
+    [
+      "vibrant maracuyá",
+      "vibrante maracuyá"
+    ],
+    [
+      "vibrant maracuya",
+      "vibrante maracuyá"
+    ],
+    [
+      "passion fruit",
+      "fruta de la pasión"
+    ],
+    [
+      "juicy citrus notes",
+      "notas cítricas jugosas"
+    ],
+    [
+      "citrus notes",
+      "notas cítricas"
+    ],
+    [
+      "Made with",
+      "Hecha con"
+    ],
+    [
+      "made with",
+      "hecha con"
+    ],
+    [
+      "signature tartness",
+      "acidez característica"
+    ],
+    [
+      "in a cider",
+      "en una sidra"
+    ],
+    [
+      "We take our",
+      "Tomamos nuestra"
+    ],
+    [
+      "we take our",
+      "tomamos nuestra"
+    ],
+    [
+      "and add more",
+      "y añadimos más"
+    ],
+    [
+      "finished with",
+      "con un final de"
+    ],
+    [
+      "Notes of",
+      "Notas de"
+    ],
+    [
+      "notes of",
+      "notas de"
+    ],
+    [
+      "Refreshing",
+      "Refrescante"
+    ],
+    [
+      "refreshing",
+      "refrescante"
+    ],
+    [
+      "delicate",
+      "delicados"
+    ],
+    [
+      "floral",
+      "florales"
+    ],
+    [
+      "spicy",
+      "especiados"
+    ],
+    [
+      "over a",
+      "sobre una"
+    ],
+    [
+      "showcases",
+      "destaca"
+    ],
+    [
+      "hops",
+      "lúpulos"
+    ],
+    [
+      "hop",
+      "lúpulo"
+    ],
+    [
+      "ale",
+      "ale"
+    ],
+    [
+      "sour",
+      "sour"
+    ],
+    [
+      "cider",
+      "sidra"
+    ],
+    [
+      "stout",
+      "stout"
+    ],
+    [
+      "coffee",
+      "café"
+    ],
+    [
+      "chocolate",
+      "chocolate"
+    ],
+    [
+      "fruity",
+      "frutal"
+    ],
+    [
+      "juicy",
+      "jugosa"
+    ],
+    [
+      "tartness",
+      "acidez"
+    ],
+    [
+      "balanced by",
+      "equilibrada con"
+    ],
+    [
+      "will tickle your tongue",
+      "te harán cosquillas en la lengua"
+    ],
+    [
+      "delivering",
+      "con"
+    ],
+    [
+      "with",
+      "con"
+    ],
+    [
+      "and",
+      "y"
+    ]
+  ]
+}

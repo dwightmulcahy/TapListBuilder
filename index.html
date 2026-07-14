@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Monkey Head Brewing Tap List Builder</title>
+<style id="printPageStyle">@page{size:A4 portrait;margin:0}</style>
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/menu.css">
+<link rel="stylesheet" href="css/print.css">
+</head>
+<body>
+<button class="exit-preview" onclick="togglePreview()">Exit preview</button>
+<div class="app">
+  <aside class="panel">
+    <h1>Monkey Head Tap List Builder</h1>
+    <p class="intro">Build a print-ready one-page tap menu with the logo, illustrated beverage icons, colored accents, adjustable watermark, and footer shown in the reference design.</p>
+
+    <div class="toolbar">
+      <button class="primary" onclick="printMenu()">Print / Save PDF</button>
+      <button onclick="addItem()">Add item</button>
+      <button id="translateMenuButton" onclick="toggleMenuTranslation()">Translate menu to Spanish</button>
+      <button onclick="togglePreview()">Full preview</button>
+      <button onclick="downloadJSON()">Save data</button>
+      <label class="file-label">Load data<input type="file" accept=".json,application/json" onchange="loadJSON(event)"></label>
+      <button onclick="resetSample()">Restore sample</button>
+    </div>
+
+    <div id="fitStatus" class="status">Menu fits on one page.</div>
+
+    <fieldset>
+      <legend>Saved beverage library</legend>
+      <label>Saved item
+        <select id="savedBeverageSelect"></select>
+      </label>
+      <div class="saved-library-actions">
+        <button id="addSavedBeverageButton" onclick="addSavedBeverage()">Add selected item</button>
+        <button onclick="saveAllItemsToLibrary()">Save all current items</button>
+        <button id="deleteSavedBeverageButton" class="danger" onclick="deleteSavedBeverage()">Delete selected</button>
+      </div>
+      <p id="savedLibraryStatus" class="saved-library-summary">Save an item from its editor card, then add it to a future menu from here.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Page and branding</legend>
+      <div class="grid2">
+        <label>PDF output size
+          <select id="pageSize" onchange="setSetting('pageSize',this.value)">
+            <option value="a4">Full page — A4 portrait</option>
+            <option value="letter">Full page — US Letter portrait</option>
+            <option value="4x6">4×6 card portrait</option>
+          </select>
+        </label>
+        <label>Logo size
+          <div class="range-with-value">
+            <input id="logoScale" type="range" min="0.60" max="1.50" step="0.01" oninput="setSetting('logoScale',Number(this.value));document.getElementById('logoScaleValue').value=Math.round(Number(this.value)*100)+'%'">
+            <output id="logoScaleValue">100%</o>
+          </div>
+        </label>
+      </div>
+      <label>Watermark strength
+        <div class="range-with-value">
+          <input id="watermarkOpacity" type="range" min="0" max="1" step="0.01" oninput="setSetting('watermarkOpacity',Number(this.value));document.getElementById('watermarkOpacityValue').value=Math.round(Number(this.value)*100)+'%'">
+          <output id="watermarkOpacityValue">22%</o>
+        </div>
+      </label>
+      <label>Watermark size
+        <div class="range-with-value">
+          <input id="watermarkScale" type="range" min="0.50" max="1.80" step="0.01" oninput="setSetting('watermarkScale',Number(this.value));document.getElementById('watermarkScaleValue').value=Math.round(Number(this.value)*100)+'%'">
+          <output id="watermarkScaleValue">100%</o>
+        </div>
+      </label>
+      <p class="help">Choose a full-page PDF (A4 or US Letter) or a 4×6 card PDF. The 4×6 option is much tighter and works best with fewer or shorter items. In 4×6 mode the page also uses a corner-safe mask so text stays out of the holder tabs.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Description typography</legend>
+      <label>Set all description font sizes
+        <div class="range-with-value">
+          <input id="globalDescriptionFontSize" type="range" min="8" max="16" step="0.25" oninput="setAllDescriptionFontSizes(Number(this.value))">
+          <output id="globalDescriptionFontSizeValue">11.75 pt</o>
+        </div>
+      </label>
+      <p class="help">Moving this slider immediately applies the same font size to every description. You can still override individual descriptions afterward.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Footer</legend>
+      <div class="grid2">
+        <label>Taproom label<input id="taproomLabel" oninput="setSetting('taproomLabel',this.value)"></label>
+        <label>Hours<input id="taproomHours" oninput="setSetting('taproomHours',this.value)"></label>
+      </div>
+      <label>Phone<input id="phone" oninput="setSetting('phone',this.value)"></label>
+      <label>Location<input id="location" oninput="setSetting('location',this.value)"></label>
+      <label>Fit footer automatically
+        <select id="footerAutoFit" onchange="setSetting('footerAutoFit',this.value==='true')">
+          <option value="true">Yes</option>
+          <option value="false">No — use manual font sizes</option>
+        </select>
+      </label>
+      <div class="grid3">
+        <label>Taproom font size
+          <div class="range-with-value">
+            <input id="taproomFontSize" type="range" min="10" max="32" step="0.5" oninput="setSetting('taproomFontSize',Number(this.value));document.getElementById('taproomFontSizeValue').value=Number(this.value).toFixed(1).replace(/\.0$/,'')+' pt'">
+            <output id="taproomFontSizeValue">20 pt</o>
+          </div>
+        </label>
+        <label>Phone font size
+          <div class="range-with-value">
+            <input id="phoneFontSize" type="range" min="10" max="32" step="0.5" oninput="setSetting('phoneFontSize',Number(this.value));document.getElementById('phoneFontSizeValue').value=Number(this.value).toFixed(1).replace(/\.0$/,'')+' pt'">
+            <output id="phoneFontSizeValue">20 pt</o>
+          </div>
+        </label>
+        <label>Location font size
+          <div class="range-with-value">
+            <input id="locationFontSize" type="range" min="10" max="32" step="0.5" oninput="setSetting('locationFontSize',Number(this.value));document.getElementById('locationFontSizeValue').value=Number(this.value).toFixed(1).replace(/\.0$/,'')+' pt'">
+            <output id="locationFontSizeValue">19 pt</o>
+          </div>
+        </label>
+      </div>
+      <p class="help">If automatic footer fitting is on, the taproom, phone, and location text will shrink only when needed to avoid collisions. Turn it off if you want full manual control.</p>
+    </fieldset>
+
+    <div id="editor"></div>
+  </aside>
+
+  <main class="preview-wrap">
+    <section class="page" id="page" aria-label="Tap list preview">
+      <div class="corner-overlay" id="cornerOverlay" aria-hidden="true">
+        <span class="corner tl"></span>
+        <span class="corner tr"></span>
+        <span class="corner br"></span>
+        <span class="corner bl"></span>
+      </div>
+      <header class="header">
+        <img class="logo" id="logo" src="assets/logo/mhb_logo_transparent.png" alt="Monkey Head Brewing Company logo">
+      </header>
+      <div class="tap-list" id="tapList"></div>
+      <footer class="footer">
+        <div class="footer-top">
+          <div class="footer-block">
+            <span class="footer-icon" id="glassIcon"></span>
+            <span class="taproom-text"><span class="taproom-label" id="pTaproomLabel"></span><span class="taproom-hours" id="pTaproomHours"></span></span>
+          </div>
+          <div class="footer-block">
+            <span class="footer-icon" id="phoneIcon"></span>
+            <span class="phone-text" id="pPhone"></span>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span class="footer-icon" id="locationIcon"></span>
+          <span class="location-text" id="pLocation"></span>
+        </div>
+      </footer>
+    </section>
+  </main>
+</div>
+
+<script src="js/icons.js"></script>
+<script src="js/ibu.js"></script>
+<script src="js/translation.js"></script>
+<script src="js/library.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/render.js"></script>
+<script src="js/pdf.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
