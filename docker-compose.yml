@@ -1,0 +1,22 @@
+# Example Compose file for running TapListBuilder on a QNAP NAS via Container Station.
+#
+# Setup:
+#   1. Replace YOUR_DOCKERHUB_USERNAME below with the account the image was pushed to.
+#   2. On the QNAP, open Container Station -> Create -> Create Application, and either
+#      paste this file's contents or upload it directly.
+#   3. Once running, the tap list builder is at http://<nas-ip>:8081
+#
+# Port 8081 is used on the host side to avoid clashing with QNAP's own admin UI
+# (often on 8080). Change the left-hand side of "ports" if 8081 is already taken.
+services:
+  taplistbuilder:
+    image: YOUR_DOCKERHUB_USERNAME/taplistbuilder:latest
+    container_name: taplistbuilder
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    # Optional: override the sample data without rebuilding the image, e.g. to swap in
+    # your own default beer list. Uncomment and point at a folder on the NAS containing
+    # your own beer-styles.json / translations.json.
+    # volumes:
+    #   - /share/Container/taplistbuilder/data:/usr/share/nginx/html/data:ro

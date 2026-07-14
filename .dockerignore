@@ -1,11 +1,10 @@
 .git
-.dockerignore
-Dockerfile
-nginx.conf
+.github
+.gitignore
 README.md
-LICENSE
-.DS_Store
-
-
-# EXCEPTION: Allow nginx.conf to be read by the build context
-!nginx.conf
+Dockerfile
+.dockerignore
+docker-compose.yml
+nginx.conf
+*.md
+node_modules
