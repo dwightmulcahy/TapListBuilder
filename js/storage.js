@@ -20,10 +20,32 @@ function mergeSavedBeverages(entries){
   return count;
 }
 
-function downloadJSON(){
+async function downloadJSON(){
   const exportData={...state,savedBeverages:deepCopy(savedBeverages)};
-  const blob=new Blob([JSON.stringify(exportData,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="mhb-tap-list-and-library.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  const json=JSON.stringify(exportData,null,2);
+  const defaultName="mhb-tap-list-and-library.json";
+  if(typeof window.showSaveFilePicker==="function"){
+    try{
+      const handle=await window.showSaveFilePicker({
+        suggestedName:defaultName,
+        types:[{description:"Tap list JSON",accept:{"application/json":[".json"]}}]
+      });
+      const writable=await handle.createWritable();
+      await writable.write(json);
+      await writable.close();
+      return;
+    }catch(err){
+      if(err&&err.name==="AbortError")return; // user cancelled the save dialog
+      console.warn("File System Access save failed, falling back to download:",err);
+    }
+  }
+  let fileName=prompt("Save as filename:",defaultName);
+  if(fileName===null)return; // user cancelled the prompt
+  fileName=fileName.trim()||defaultName;
+  fileName=fileName.replace(/[\\/:*?"<>|]/g,"-");
+  if(!/\.json$/i.test(fileName))fileName+=".json";
+  const blob=new Blob([json],{type:"application/json"});
+  const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=fileName;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 function loadJSON(event){
   const file=event.target.files?.[0];if(!file)return;
