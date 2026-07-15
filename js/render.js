@@ -137,7 +137,7 @@ function renderPreview(){
         <div class="stat"><div class="value">${formatAbv(item.abv)}</div><div class="stat-label">ABV</div></div>
         <div class="stat"><div class="value">${formatIbu(item.ibu)}</div><div class="stat-label">IBU</div></div>
       </div>
-      ${bitternessMeter(item.ibu,item.sg)}
+      ${bitternessMeter(item.ibu,item.sg,item.fg)}
     </div>
   </article>`).join("");
   applySettings();
