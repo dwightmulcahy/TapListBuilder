@@ -32,17 +32,22 @@ function editorCard(item,i){
             <label>Accent color<input type="color" value="${esc(item.color)}" oninput="setItem(${i},'color',this.value);this.closest('fieldset').style.setProperty('--item-color',this.value)"></label>
           </div>
           <label>Beer style<input list="styleOptions" value="${esc(item.style)}" oninput="setItem(${i},'style',this.value)"></label>
-          <div class="grid2">
-            <label>Original gravity (SG)<input inputmode="decimal" placeholder="e.g. 1.050" value="${esc(item.sg)}" oninput="setItem(${i},'sg',this.value);updateAbvField(${i})"></label>
-            <label>Final gravity (FG)<input inputmode="decimal" placeholder="e.g. 1.010" value="${esc(item.fg)}" oninput="setItem(${i},'fg',this.value);updateAbvField(${i})"></label>
-          </div>
           <div class="grid4">
             <label>ABV %<span id="abvCalcTag-${i}" class="calc-tag">${isAbvCalculated(item)?" (calculated)":""}</span><input id="abvInput-${i}" inputmode="decimal" value="${esc(item.abv)}" ${isAbvCalculated(item)?"readonly":""} oninput="setItem(${i},'abv',this.value)"></label>
             <label>IBU<input inputmode="numeric" value="${esc(item.ibu)}" oninput="setItem(${i},'ibu',this.value)"></label>
             <label>Gluten free<select onchange="setItem(${i},'glutenFree',this.value==='true')"><option value="false" ${!item.glutenFree?'selected':''}>No</option><option value="true" ${item.glutenFree?'selected':''}>Yes</option></select></label>
             <label>Icon<select onchange="setItem(${i},'icon',this.value,true)">${iconOptions(item.icon)}</select></label>
           </div>
-          <p id="abvHelp-${i}" class="help" style="${isAbvCalculated(item)?"":"display:none"}">ABV is calculated from SG/FG. Clear either gravity field to enter ABV manually.</p>
+          <details class="advanced-abv" id="advancedAbv-${i}" ${isAbvCalculated(item)?"open":""}>
+            <summary>Advanced: calculate ABV from gravity (SG/FG)</summary>
+            <div class="section-body">
+              <div class="grid2">
+                <label>Original gravity (SG)<input inputmode="decimal" placeholder="e.g. 1.050" value="${esc(item.sg)}" oninput="setItem(${i},'sg',this.value);updateAbvField(${i})"></label>
+                <label>Final gravity (FG)<input inputmode="decimal" placeholder="e.g. 1.010" value="${esc(item.fg)}" oninput="setItem(${i},'fg',this.value);updateAbvField(${i})"></label>
+              </div>
+              <p id="abvHelp-${i}" class="help" style="${isAbvCalculated(item)?"":"display:none"}">ABV is calculated from SG/FG. Clear either gravity field to enter ABV manually.</p>
+            </div>
+          </details>
           ${item.icon==='custom'?`<label class="custom-icon-row">Upload icon<input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onchange="uploadCustomIcon(${i},event)"></label>`:''}
           <div class="item-library-actions"><button id="translateItemBtn-${i}" onclick="toggleItemTranslation(${i})">${item.language==="es"?"Translate to English":"Translate to Spanish"}</button><button onclick="saveItemToLibrary(${i})">Save item to library</button></div>
           <label>Description<textarea oninput="setItem(${i},'description',this.value)">${esc(item.description)}</textarea></label>
@@ -77,6 +82,10 @@ function updateAbvField(i){
   if(tag)tag.textContent=calculated?" (calculated)":"";
   const help=document.getElementById(`abvHelp-${i}`);
   if(help)help.style.display=calculated?"":"none";
+  if(calculated){
+    const details=document.getElementById(`advancedAbv-${i}`);
+    if(details)details.open=true;
+  }
 }
 function renderEditor(){
   document.getElementById("editor").innerHTML=state.items.map(editorCard).join("");
