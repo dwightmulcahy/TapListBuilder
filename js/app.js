@@ -190,8 +190,7 @@ function pushItemsUndoSnapshot(){
   updateUndoButton();
 }
 function updateUndoButton(){
-  const button=document.getElementById("undoItemsButton");
-  if(button)button.disabled=itemsUndoStack.length===0;
+  document.querySelectorAll(".undo-button").forEach(button=>{button.disabled=itemsUndoStack.length===0});
 }
 function undoItems(){
   if(!itemsUndoStack.length)return;
@@ -273,9 +272,11 @@ function resetSample(){
   autosave();renderEditor();renderPreview();
 }
 
-function closeMoreMenu(){
-  const menu=document.querySelector(".more-menu");
-  if(menu)menu.open=false;
+function closeAppMenus(){
+  document.querySelectorAll(".app-menu-item[open]").forEach(menu=>{menu.open=false});
+}
+function showAbout(){
+  alert("Monkey Head Brewing — Tap List Builder\n\nBuild a print-ready tap menu: item names, styles, ABV/IBU, descriptions, and a live BU:GU bitterness gradient, with English/Spanish translation and named menu profiles.\n\nRuns entirely in your browser — nothing is uploaded except optional live-translation requests.");
 }
 
 async function boot(){
@@ -296,8 +297,9 @@ async function boot(){
   window.addEventListener("resize",()=>requestAnimationFrame(fitMenu));
   window.addEventListener("beforeprint",fitMenu);
   document.addEventListener("click",(event)=>{
-    const menu=document.querySelector(".more-menu");
-    if(menu&&menu.open&&!menu.contains(event.target))menu.open=false;
+    document.querySelectorAll(".app-menu-item[open]").forEach(menu=>{
+      if(!menu.contains(event.target))menu.open=false;
+    });
   });
 }
 boot();

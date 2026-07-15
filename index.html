@@ -11,28 +11,50 @@
 <link rel="stylesheet" href="css/print.css">
 </head>
 <body>
-<button class="exit-preview" onclick="togglePreview()">Exit preview</button>
+<header class="app-menubar">
+  <div class="app-brand"><img src="assets/logo/mhb_logo_transparent.png" alt=""><span>Tap List Builder</span></div>
+  <nav class="app-menu">
+    <details class="app-menu-item">
+      <summary>File</summary>
+      <div class="app-menu-dropdown">
+        <button onclick="downloadJSON();closeAppMenus()">Save</button>
+        <label class="file-label">Load<input type="file" accept=".json,application/json" onchange="loadJSON(event);closeAppMenus()"></label>
+        <hr>
+        <button onclick="resetSample();closeAppMenus()">Restore sample</button>
+      </div>
+    </details>
+    <details class="app-menu-item">
+      <summary>Edit</summary>
+      <div class="app-menu-dropdown">
+        <button onclick="addItem();closeAppMenus()">Add item</button>
+        <button class="undo-button" onclick="undoItems();closeAppMenus()" disabled title="Undo the last add/remove/duplicate/reorder">Undo</button>
+      </div>
+    </details>
+    <details class="app-menu-item">
+      <summary>View</summary>
+      <div class="app-menu-dropdown">
+        <button onclick="setDisplayMode('edit');closeAppMenus()">Edit</button>
+        <button onclick="setDisplayMode('preview');closeAppMenus()">Preview</button>
+      </div>
+    </details>
+    <details class="app-menu-item">
+      <summary>Help</summary>
+      <div class="app-menu-dropdown">
+        <button onclick="showAbout();closeAppMenus()">About</button>
+      </div>
+    </details>
+  </nav>
+</header>
+
+<div class="app-toolbar">
+  <button onclick="addItem()">+ Add item</button>
+  <button class="primary" onclick="printMenu()">Print / Save PDF</button>
+  <button id="translateMenuButton" onclick="toggleMenuTranslation()">Translate menu to Spanish</button>
+  <button class="undo-button" onclick="undoItems()" disabled title="Undo the last add/remove/duplicate/reorder">Undo</button>
+</div>
+
 <div class="app">
   <aside class="panel">
-    <h1>Monkey Head Tap List Builder</h1>
-    <p class="intro">Build a print-ready one-page tap menu with the logo, illustrated beverage icons, colored accents, adjustable watermark, and footer shown in the reference design.</p>
-
-    <div class="toolbar">
-      <button class="primary" onclick="printMenu()">Print / Save PDF</button>
-      <button onclick="addItem()">Add item</button>
-      <button id="translateMenuButton" onclick="toggleMenuTranslation()">Translate menu to Spanish</button>
-      <button onclick="togglePreview()">Full preview</button>
-      <button onclick="downloadJSON()">Save</button>
-      <details class="more-menu">
-        <summary>More ▾</summary>
-        <div class="more-menu-body">
-          <button id="undoItemsButton" onclick="undoItems();closeMoreMenu()" disabled title="Undo the last add/remove/duplicate/reorder">Undo</button>
-          <label class="file-label">Load<input type="file" accept=".json,application/json" onchange="loadJSON(event);closeMoreMenu()"></label>
-          <button onclick="resetSample();closeMoreMenu()">Restore sample</button>
-        </div>
-      </details>
-    </div>
-
     <div id="fitStatus" class="status">Menu fits on one page.</div>
 
     <details class="settings-section">
@@ -165,39 +187,46 @@
       </div>
     </details>
 
+    <h2 class="sidebar-items-heading">Items</h2>
     <div id="editor"></div>
     <datalist id="styleOptions"></datalist>
   </aside>
 
-  <main class="preview-wrap">
-    <section class="page" id="page" aria-label="Tap list preview">
-      <div class="corner-overlay" id="cornerOverlay" aria-hidden="true">
-        <span class="corner tl"></span>
-        <span class="corner tr"></span>
-        <span class="corner br"></span>
-        <span class="corner bl"></span>
-      </div>
-      <header class="header">
-        <img class="logo" id="logo" src="assets/logo/mhb_logo_transparent.png" alt="Monkey Head Brewing Company logo">
-      </header>
-      <div class="tap-list" id="tapList"></div>
-      <footer class="footer">
-        <div class="footer-top">
-          <div class="footer-block">
-            <span class="footer-icon" id="glassIcon"></span>
-            <span class="taproom-text"><span class="taproom-label" id="pTaproomLabel"></span><span class="taproom-hours" id="pTaproomHours"></span></span>
-          </div>
-          <div class="footer-block">
-            <span class="footer-icon" id="phoneIcon"></span>
-            <span class="phone-text" id="pPhone"></span>
-          </div>
+  <main class="display-area">
+    <div class="display-tabs">
+      <button id="editTabButton" class="display-tab active" onclick="setDisplayMode('edit')">Edit</button>
+      <button id="previewTabButton" class="display-tab" onclick="setDisplayMode('preview')">Preview</button>
+    </div>
+    <div class="preview-wrap">
+      <section class="page" id="page" aria-label="Tap list preview">
+        <div class="corner-overlay" id="cornerOverlay" aria-hidden="true">
+          <span class="corner tl"></span>
+          <span class="corner tr"></span>
+          <span class="corner br"></span>
+          <span class="corner bl"></span>
         </div>
-        <div class="footer-bottom">
-          <span class="footer-icon" id="locationIcon"></span>
-          <span class="location-text" id="pLocation"></span>
-        </div>
-      </footer>
-    </section>
+        <header class="header">
+          <img class="logo" id="logo" src="assets/logo/mhb_logo_transparent.png" alt="Monkey Head Brewing Company logo">
+        </header>
+        <div class="tap-list" id="tapList"></div>
+        <footer class="footer">
+          <div class="footer-top">
+            <div class="footer-block">
+              <span class="footer-icon" id="glassIcon"></span>
+              <span class="taproom-text"><span class="taproom-label" id="pTaproomLabel"></span><span class="taproom-hours" id="pTaproomHours"></span></span>
+            </div>
+            <div class="footer-block">
+              <span class="footer-icon" id="phoneIcon"></span>
+              <span class="phone-text" id="pPhone"></span>
+            </div>
+          </div>
+          <div class="footer-bottom">
+            <span class="footer-icon" id="locationIcon"></span>
+            <span class="location-text" id="pLocation"></span>
+          </div>
+        </footer>
+      </section>
+    </div>
   </main>
 </div>
 

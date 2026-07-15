@@ -90,5 +90,11 @@ function fitMenu(){
   }
 }
 
-function togglePreview(){document.body.classList.toggle("preview-only")}
+function setDisplayMode(mode){
+  const isPreview=mode==="preview";
+  document.body.classList.toggle("preview-only",isPreview);
+  document.getElementById("editTabButton")?.classList.toggle("active",!isPreview);
+  document.getElementById("previewTabButton")?.classList.toggle("active",isPreview);
+  requestAnimationFrame(fitMenu);
+}
 function printMenu(){fitMenu();window.print()}
