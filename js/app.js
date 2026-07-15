@@ -8,7 +8,8 @@ const defaultState={
     taproomLabel:"TAPROOM:",taproomHours:"NOON–5PM DAILY",
     phone:"+506 8733 7046",location:"3KM W OF DANIEL ODUBER AIRPORT",
     footerAutoFit:true,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,language:"en",
-    translationContactEmail:""
+    translationContactEmail:"",
+    newBadgeStyle:"pill"
   },
   items:[] // populated from data/beer-styles.json during boot()
 };
@@ -104,6 +105,7 @@ function normalizeState(raw){
   settings.globalDescriptionFontSize=clampDescriptionFontSize(settings.globalDescriptionFontSize);
   settings.language=settings.language==="es"?"es":"en";
   settings.translationContactEmail=String(settings.translationContactEmail??"").trim();
+  settings.newBadgeStyle=["pill","text","outline","starburst"].includes(settings.newBadgeStyle)?settings.newBadgeStyle:"pill";
   if(raw.header){
     if(raw.header.phone)settings.phone=raw.header.phone;
     if(raw.header.location)settings.location=raw.header.location;

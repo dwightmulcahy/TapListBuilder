@@ -97,6 +97,14 @@
             <output id="watermarkScaleValue">100%</o>
           </div>
         </label>
+        <label>"New" badge style
+          <select id="newBadgeStyle" onchange="setSetting('newBadgeStyle',this.value)">
+            <option value="pill">Solid pill</option>
+            <option value="text">Bold tilted text</option>
+            <option value="outline">Outlined</option>
+            <option value="starburst">Starburst sticker</option>
+          </select>
+        </label>
         <p class="help">Choose a full-page PDF (A4 or US Letter) or a 4×6 card PDF. The 4×6 option is much tighter and works best with fewer or shorter items. In 4×6 mode the page also uses a corner-safe mask so text stays out of the holder tabs.</p>
       </div>
     </details>
