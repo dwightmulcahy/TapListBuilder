@@ -29,11 +29,11 @@ function editorCard(item,i){
           </span>
         </summary>
         <div class="beer-card-body">
-          <div class="grid2">
+          <div class="grid-name-row">
             <label>Name<input value="${esc(item.name)}" oninput="setItem(${i},'name',this.value)"></label>
+            <label>Beer style<input list="styleOptions" value="${esc(item.style)}" oninput="setItem(${i},'style',this.value)"></label>
             <label>Accent color<input type="color" value="${esc(item.color)}" oninput="setItem(${i},'color',this.value);this.closest('fieldset').style.setProperty('--item-color',this.value)"></label>
           </div>
-          <label>Beer style<input list="styleOptions" value="${esc(item.style)}" oninput="setItem(${i},'style',this.value)"></label>
           <label class="checkbox-row"><input type="checkbox" ${item.isNew?"checked":""} onchange="setItem(${i},'isNew',this.checked)"> Mark as "New"</label>
           <div class="grid4">
             <label>ABV %<span id="abvCalcTag-${i}" class="calc-tag">${isAbvCalculated(item)?" (calculated)":""}</span><input id="abvInput-${i}" inputmode="decimal" value="${esc(item.abv)}" ${isAbvCalculated(item)?"readonly":""} oninput="setItem(${i},'abv',this.value)"></label>
