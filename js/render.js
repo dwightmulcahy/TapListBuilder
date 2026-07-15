@@ -1,6 +1,22 @@
 // DOM rendering: editor cards, tap-list preview, and small formatting helpers.
 function esc(v){return String(v??"").replace(/[&<>"']/g,s=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[s]))}
 
+const CURATED_BEER_STYLES=[
+  "IPA","Hazy IPA","Session IPA","Double IPA","Pale Ale","Blonde Ale","Amber Ale","Brown Ale","Red Ale",
+  "Kölsch","Pilsner","Lager","Helles","Oktoberfest / Märzen",
+  "Stout","Imperial Stout","Porter",
+  "Gose","Berliner Weisse","Sour Ale","Wild Ale",
+  "Saison","Wheat Beer","Witbier","Barleywine",
+  "Cider","Mead","Non-Alcoholic"
+];
+function renderStyleOptions(){
+  const el=document.getElementById("styleOptions");
+  if(!el)return;
+  const custom=state.items.map(item=>item.style).filter(Boolean);
+  const all=[...new Set([...CURATED_BEER_STYLES,...custom])].sort((a,b)=>a.localeCompare(b));
+  el.innerHTML=all.map(style=>`<option value="${esc(style)}">`).join("");
+}
+
 function editorCard(item,i){
   return `<fieldset class="beer-card" style="--item-color:${esc(item.color)}">
     <legend>Item ${i+1}</legend>
@@ -14,7 +30,7 @@ function editorCard(item,i){
       <label>Name<input value="${esc(item.name)}" oninput="setItem(${i},'name',this.value)"></label>
       <label>Accent color<input type="color" value="${esc(item.color)}" oninput="setItem(${i},'color',this.value);this.closest('fieldset').style.setProperty('--item-color',this.value)"></label>
     </div>
-    <label>Beer style<input value="${esc(item.style)}" oninput="setItem(${i},'style',this.value)"></label>
+    <label>Beer style<input list="styleOptions" value="${esc(item.style)}" oninput="setItem(${i},'style',this.value)"></label>
     <div class="grid2">
       <label>Original gravity (SG)<input inputmode="decimal" placeholder="e.g. 1.050" value="${esc(item.sg)}" oninput="setItem(${i},'sg',this.value);updateAbvField(${i})"></label>
       <label>Final gravity (FG)<input inputmode="decimal" placeholder="e.g. 1.010" value="${esc(item.fg)}" oninput="setItem(${i},'fg',this.value);updateAbvField(${i})"></label>
@@ -53,8 +69,11 @@ function updateAbvField(i){
 }
 function renderEditor(){
   document.getElementById("editor").innerHTML=state.items.map(editorCard).join("");
+  renderStyleOptions();
+  updateUndoButton();
   const s=state.settings;
   document.getElementById("pageSize").value=s.pageSize;
+  document.getElementById("translationContactEmail").value=s.translationContactEmail||"";
   document.getElementById("logoScale").value=s.logoScale;
   document.getElementById("logoScaleValue").value=`${Math.round(Number(s.logoScale)*100)}%`;
   document.getElementById("watermarkOpacity").value=s.watermarkOpacity;
@@ -77,6 +96,7 @@ function renderEditor(){
   const translateButton=document.getElementById("translateMenuButton");
   if(translateButton)translateButton.textContent=s.language==="es"?"Translate menu to English":"Translate menu to Spanish";
   renderSavedBeverageLibrary();
+  renderMenuProfiles();
 }
 
 function formatAbv(value){const v=String(value??"").trim();return v?`${esc(v)}%`:"—"}

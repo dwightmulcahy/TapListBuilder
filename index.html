@@ -19,6 +19,7 @@
     <div class="toolbar">
       <button class="primary" onclick="printMenu()">Print / Save PDF</button>
       <button onclick="addItem()">Add item</button>
+      <button id="undoItemsButton" onclick="undoItems()" disabled title="Undo the last add/remove/duplicate/reorder">Undo</button>
       <button id="translateMenuButton" onclick="toggleMenuTranslation()">Translate menu to Spanish</button>
       <button onclick="togglePreview()">Full preview</button>
       <button onclick="downloadJSON()">Save</button>
@@ -27,6 +28,31 @@
     </div>
 
     <div id="fitStatus" class="status">Menu fits on one page.</div>
+
+    <fieldset>
+      <legend>Menu profiles</legend>
+      <label>Saved menu
+        <select id="menuProfileSelect"></select>
+      </label>
+      <div class="saved-library-actions">
+        <button onclick="saveCurrentAsNewProfile()">Save as new</button>
+        <button id="overwriteMenuProfileButton" onclick="overwriteSelectedProfile()">Overwrite selected</button>
+      </div>
+      <div class="saved-library-actions">
+        <button id="loadMenuProfileButton" onclick="loadSelectedProfile()">Load selected</button>
+        <button id="renameMenuProfileButton" onclick="renameSelectedProfile()">Rename selected</button>
+        <button id="deleteMenuProfileButton" class="danger" onclick="deleteSelectedProfile()">Delete selected</button>
+      </div>
+      <p id="menuProfileStatus" class="saved-library-summary">Save the current menu under a name, then switch between named menus here.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Translation</legend>
+      <label>Contact email (optional)
+        <input type="email" id="translationContactEmail" placeholder="you@example.com" oninput="setSetting('translationContactEmail',this.value)">
+      </label>
+      <p class="help">Live translation uses a free public API with a daily limit. Adding an email here (never shown on the menu) raises that limit substantially.</p>
+    </fieldset>
 
     <fieldset>
       <legend>Saved beverage library</legend>
@@ -122,6 +148,7 @@
     </fieldset>
 
     <div id="editor"></div>
+    <datalist id="styleOptions"></datalist>
   </aside>
 
   <main class="preview-wrap">
@@ -160,6 +187,7 @@
 <script src="js/ibu.js"></script>
 <script src="js/translation.js"></script>
 <script src="js/library.js"></script>
+<script src="js/profiles.js"></script>
 <script src="js/storage.js"></script>
 <script src="js/render.js"></script>
 <script src="js/pdf.js"></script>

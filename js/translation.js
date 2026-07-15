@@ -24,22 +24,67 @@ function reverseExactMap(map){
   return reversed;
 }
 
+// Persistent translation cache: once a phrase is translated live, remember it across
+// sessions so repeated menus/reprints don't re-hit the API for text already translated
+// before. Capped to avoid unbounded localStorage growth; oldest entries evicted first.
+const TRANSLATION_CACHE_KEY="mhbTranslationCacheV1";
+const TRANSLATION_CACHE_LIMIT=500;
+let translationCache=null;
+function loadTranslationCache(){
+  if(translationCache)return translationCache;
+  try{
+    const raw=localStorage.getItem(TRANSLATION_CACHE_KEY);
+    translationCache=raw?new Map(Object.entries(JSON.parse(raw))):new Map();
+  }catch(e){
+    translationCache=new Map();
+  }
+  return translationCache;
+}
+function persistTranslationCache(){
+  try{localStorage.setItem(TRANSLATION_CACHE_KEY,JSON.stringify(Object.fromEntries(translationCache)))}catch(e){}
+}
+function cacheTranslation(sourceLang,targetLang,text,translated){
+  const cache=loadTranslationCache();
+  const key=`${sourceLang}>${targetLang}::${normalizeTranslationKey(text)}`;
+  cache.delete(key); // re-insert at the end so it counts as most-recently-used
+  cache.set(key,translated);
+  while(cache.size>TRANSLATION_CACHE_LIMIT)cache.delete(cache.keys().next().value);
+  persistTranslationCache();
+}
+function getCachedTranslation(sourceLang,targetLang,text){
+  return loadTranslationCache().get(`${sourceLang}>${targetLang}::${normalizeTranslationKey(text)}`);
+}
+
+// Known MyMemory quota/error responses. MyMemory returns HTTP 200 even when the daily
+// anonymous quota is exhausted, with a warning string in place of the translation - left
+// undetected, that warning text would get treated as a real translation and printed on
+// the menu.
+const TRANSLATION_API_ERROR_PATTERN=/mymemory warning|you used all available free translations|please select two distinct languages|invalid language pair|is an invalid target language|quota.*exceed/i;
+
 // Live translation via MyMemory's free public API (no key required). Returns null on any
 // failure (offline, timeout, rate limit, bad response) so callers can fall back gracefully.
+// Set state.settings.translationContactEmail to raise MyMemory's anonymous daily quota
+// (roughly 5,000 -> 50,000 words/day) - see the Translation section in the editor.
 async function translateViaApi(text,sourceLang,targetLang){
   const trimmed=String(text||"").trim();
   if(!trimmed)return null;
+  const cached=getCachedTranslation(sourceLang,targetLang,trimmed);
+  if(cached)return cached;
   if(typeof fetch!=="function")return null;
   const controller=typeof AbortController!=="undefined"?new AbortController():null;
   const timeoutId=controller?setTimeout(()=>controller.abort(),8000):null;
   try{
-    const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(trimmed)}&langpair=${sourceLang}|${targetLang}`;
+    const email=state?.settings?.translationContactEmail?.trim();
+    let url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(trimmed)}&langpair=${sourceLang}|${targetLang}`;
+    if(email)url+=`&de=${encodeURIComponent(email)}`;
     const response=await fetch(url,controller?{signal:controller.signal}:undefined);
     if(!response.ok)throw new Error(`Translation request failed (${response.status})`);
     const data=await response.json();
     const translated=data?.responseData?.translatedText;
     if(typeof translated!=="string"||!translated.trim())throw new Error("Empty translation response");
-    if(/please select two distinct languages|invalid language pair/i.test(translated))throw new Error("Translation API rejected the request");
+    if(TRANSLATION_API_ERROR_PATTERN.test(translated))throw new Error(`Translation API returned a warning instead of a translation: ${translated}`);
+    if(data?.responseStatus&&Number(data.responseStatus)!==200)throw new Error(`Translation API responseStatus ${data.responseStatus}`);
+    cacheTranslation(sourceLang,targetLang,trimmed,translated);
     return translated;
   }catch(err){
     console.warn("Live translation unavailable, using offline fallback:",err?.message||err);

@@ -7,7 +7,8 @@ const defaultState={
     pageSize:"letter",logoScale:0.67,watermarkScale:1.33,watermarkOpacity:0.83,
     taproomLabel:"TAPROOM:",taproomHours:"NOON–5PM DAILY",
     phone:"+506 8733 7046",location:"3KM W OF DANIEL ODUBER AIRPORT",
-    footerAutoFit:true,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,language:"en"
+    footerAutoFit:true,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,language:"en",
+    translationContactEmail:""
   },
   items:[] // populated from data/beer-styles.json during boot()
 };
@@ -101,6 +102,7 @@ function normalizeState(raw){
   settings.locationFontSize=clampNumber(settings.locationFontSize,10,32,19);
   settings.globalDescriptionFontSize=clampDescriptionFontSize(settings.globalDescriptionFontSize);
   settings.language=settings.language==="es"?"es":"en";
+  settings.translationContactEmail=String(settings.translationContactEmail??"").trim();
   if(raw.header){
     if(raw.header.phone)settings.phone=raw.header.phone;
     if(raw.header.location)settings.location=raw.header.location;
@@ -180,7 +182,25 @@ function setItem(i,key,value,rerenderEditor=false){
   if(rerenderEditor)renderEditor();
   renderPreview();
 }
+const ITEMS_UNDO_LIMIT=20;
+let itemsUndoStack=[];
+function pushItemsUndoSnapshot(){
+  itemsUndoStack.push(deepCopy(state.items));
+  if(itemsUndoStack.length>ITEMS_UNDO_LIMIT)itemsUndoStack.shift();
+  updateUndoButton();
+}
+function updateUndoButton(){
+  const button=document.getElementById("undoItemsButton");
+  if(button)button.disabled=itemsUndoStack.length===0;
+}
+function undoItems(){
+  if(!itemsUndoStack.length)return;
+  state.items=itemsUndoStack.pop();
+  updateUndoButton();
+  autosave();renderEditor();renderPreview();
+}
 function addItem(){
+  pushItemsUndoSnapshot();
   state.items.push(normalizeItem({name:"New Beer",abv:"5.0",ibu:"",glutenFree:false,color:"#444444",icon:"beer",customIcon:"",descriptionFontSize:clampDescriptionFontSize(state.settings.globalDescriptionFontSize),description:"Enter the beverage description here."}));
   autosave();renderEditor();renderPreview();
   document.querySelector("#editor fieldset:last-child")?.scrollIntoView({behavior:"smooth",block:"center"});
@@ -189,10 +209,18 @@ function removeItem(i){
   const item=state.items[i];
   if(!item)return;
   if(!confirm(`Remove "${item.name||"this item"}" from the menu?`))return;
+  pushItemsUndoSnapshot();
   state.items.splice(i,1);autosave();renderEditor();renderPreview();
 }
-function duplicateItem(i){const copy=deepCopy(state.items[i]);copy.name=`${copy.name} Copy`;copy.translations=copy.translations||{en:{name:"",description:""},es:{name:"",description:""}};copy.translations[copy.language]=copy.translations[copy.language]||{name:"",description:""};copy.translations[copy.language].name=copy.name;state.items.splice(i+1,0,copy);autosave();renderEditor();renderPreview()}
-function moveItem(i,delta){const j=i+delta;if(j<0||j>=state.items.length)return;[state.items[i],state.items[j]]=[state.items[j],state.items[i]];autosave();renderEditor();renderPreview()}
+function duplicateItem(i){
+  pushItemsUndoSnapshot();
+  const copy=deepCopy(state.items[i]);copy.name=`${copy.name} Copy`;copy.translations=copy.translations||{en:{name:"",description:""},es:{name:"",description:""}};copy.translations[copy.language]=copy.translations[copy.language]||{name:"",description:""};copy.translations[copy.language].name=copy.name;state.items.splice(i+1,0,copy);autosave();renderEditor();renderPreview();
+}
+function moveItem(i,delta){
+  const j=i+delta;if(j<0||j>=state.items.length)return;
+  pushItemsUndoSnapshot();
+  [state.items[i],state.items[j]]=[state.items[j],state.items[i]];autosave();renderEditor();renderPreview();
+}
 
 function uploadCustomIcon(i,event){
   const file=event.target.files?.[0];if(!file)return;
@@ -203,6 +231,7 @@ function uploadCustomIcon(i,event){
 }
 function resetSample(){
   if(!confirm("Restore the sample menu and replace the current tap list?"))return;
+  pushItemsUndoSnapshot();
   state=deepCopy(defaultState);state.items=state.items.map(item=>normalizeItem(item));autosave();renderEditor();renderPreview();
 }
 
@@ -217,6 +246,7 @@ async function boot(){
   state=loadAutosave()||deepCopy(defaultState);
   state=normalizeState(state);
   savedBeverages=loadSavedBeverages();
+  menuProfiles=loadMenuProfiles();
 
   Object.entries(footerSvgs).forEach(([key,svg])=>document.getElementById(`${key}Icon`).innerHTML=svg);
   renderEditor();renderPreview();
