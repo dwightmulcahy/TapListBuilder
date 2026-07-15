@@ -42,7 +42,7 @@ button:disabled{opacity:.35;cursor:not-allowed}
   flex:0 0 auto;display:flex;align-items:center;gap:18px;background:#fff;border-bottom:1px solid #b8b8b8;
   padding:7px 14px;z-index:5
 }
-.app-brand{display:flex;align-items:center;gap:8px;font-weight:900;font-size:14px;color:#222;white-space:nowrap}
+.app-brand{display:flex;align-items:center;gap:8px;font-weight:900;font-size:20px;color:#222;white-space:nowrap}
 .app-menu{display:flex;gap:2px}
 .app-menu-item{position:relative}
 .app-menu-item>summary{
@@ -104,6 +104,8 @@ dialog.app-modal::backdrop{background:rgba(20,20,20,.45)}
 }
 .app-modal-header h2{margin:0;font-size:16px}
 .app-modal-body{padding:14px 16px;overflow:auto}
+#aboutModal .app-modal-body p{font-size:15px;line-height:1.5}
+#aboutModal .app-modal-body p.help{font-size:13px;color:#555}
 
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
