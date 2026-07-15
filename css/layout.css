@@ -68,7 +68,7 @@ button:disabled{opacity:.35;cursor:not-allowed}
   background:#fff;padding:16px;overflow:auto;border-right:1px solid #b8b8b8;
   box-shadow:3px 0 12px rgba(0,0,0,.06);z-index:2
 }
-.sidebar-items-heading{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#777;margin:16px 0 8px;padding:0 2px}
+.sidebar-items-heading{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#777;margin:4px 0 8px;padding:0 2px}
 
 .display-area{display:flex;flex-direction:column;min-height:0}
 .display-tabs{flex:0 0 auto;display:flex;gap:2px;background:#eceef0;border-bottom:1px solid #b8b8b8;padding:8px 14px 0}
@@ -78,22 +78,24 @@ button:disabled{opacity:.35;cursor:not-allowed}
 }
 .display-tab:hover{color:#222}
 .display-tab.active{background:#fff;border-color:#b8b8b8;color:#111}
-.status{
-  border-radius:6px;padding:8px 10px;margin:0 0 12px;font-size:12px;font-weight:800;
-  background:#e8f5eb;color:#20612b;border:1px solid #b9dfbf
+.status-bar{
+  flex:0 0 auto;padding:8px 14px;font-size:12px;font-weight:800;
+  background:#e8f5eb;color:#20612b;border-bottom:1px solid #b9dfbf
 }
-.status.warn{background:#fff0e7;color:#8b2f11;border-color:#efc0aa}
+.status-bar.warn{background:#fff0e7;color:#8b2f11;border-color:#efc0aa}
 fieldset{border:0;margin:0;padding:0}
-.settings-section{border:1px solid #c9c9c9;border-radius:9px;margin:0 0 12px;background:#fff;overflow:hidden}
-.settings-section>summary{
-  font-weight:900;font-size:14px;padding:10px 12px;cursor:pointer;list-style:none;
-  display:flex;align-items:center;gap:7px;user-select:none
+dialog.app-modal{
+  border:1px solid #b8b8b8;border-radius:11px;padding:0;width:min(520px,92vw);max-height:85vh;
+  box-shadow:0 20px 50px rgba(0,0,0,.28);color:#222
 }
-.settings-section>summary::-webkit-details-marker{display:none}
-.settings-section>summary::before{content:"▸";display:inline-block;font-size:11px;color:#777;transition:transform .15s ease}
-.settings-section[open]>summary::before{transform:rotate(90deg)}
-.settings-section>summary:hover{background:#f7f7f7}
-.settings-section>.section-body{padding:0 12px 12px}
+dialog.app-modal::backdrop{background:rgba(20,20,20,.45)}
+.app-modal-header{
+  display:flex;align-items:center;justify-content:space-between;padding:14px 16px;
+  border-bottom:1px solid #e2e2e2;position:sticky;top:0;background:#fff;border-radius:11px 11px 0 0
+}
+.app-modal-header h2{margin:0;font-size:16px}
+.app-modal-body{padding:14px 16px;overflow:auto}
+
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .grid4{display:grid;grid-template-columns:1fr 1fr 1.15fr 1.4fr;gap:8px}

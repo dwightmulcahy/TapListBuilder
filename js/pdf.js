@@ -82,10 +82,10 @@ function fitMenu(){
   fitFooter();
   const status=document.getElementById("fitStatus");
   if(overflows()){
-    status.className="status warn";
+    status.className="status-bar warn";
     status.textContent="The menu is overfilled. Shorten descriptions or remove an item before printing.";
   }else{
-    status.className="status";
+    status.className="status-bar";
     status.textContent=fit<.98?`Menu fits after automatic text scaling (${Math.round(fit*100)}%).`:`Menu fits on one page.`;
   }
 }

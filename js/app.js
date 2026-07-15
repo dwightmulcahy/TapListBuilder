@@ -275,6 +275,12 @@ function resetSample(){
 function closeAppMenus(){
   document.querySelectorAll(".app-menu-item[open]").forEach(menu=>{menu.open=false});
 }
+function openModal(id){
+  document.getElementById(id)?.showModal();
+}
+function closeModal(id){
+  document.getElementById(id)?.close();
+}
 function showAbout(){
   alert("Monkey Head Brewing — Tap List Builder\n\nBuild a print-ready tap menu: item names, styles, ABV/IBU, descriptions, and a live BU:GU bitterness gradient, with English/Spanish translation and named menu profiles.\n\nRuns entirely in your browser — nothing is uploaded except optional live-translation requests.");
 }
@@ -299,6 +305,11 @@ async function boot(){
   document.addEventListener("click",(event)=>{
     document.querySelectorAll(".app-menu-item[open]").forEach(menu=>{
       if(!menu.contains(event.target))menu.open=false;
+    });
+  });
+  document.querySelectorAll(".app-modal").forEach(dialog=>{
+    dialog.addEventListener("click",(event)=>{
+      if(event.target===dialog)dialog.close();
     });
   });
 }

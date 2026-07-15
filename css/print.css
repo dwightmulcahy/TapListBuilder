@@ -1,7 +1,7 @@
 @media print{
   html,body{background:#fff;overflow:visible;margin:0;padding:0;width:auto;height:auto}
   body{min-height:100vh;display:block}
-  .panel,.corner-overlay,.app-menubar,.app-toolbar,.display-tabs{display:none!important}
+  .panel,.corner-overlay,.app-menubar,.app-toolbar,.display-tabs,.status-bar,dialog.app-modal{display:none!important}
   .app{display:block;min-height:0}
   .display-area{display:block}
   .preview-wrap{display:flex;justify-content:center;align-items:center;min-height:100vh;padding:0;overflow:visible}
