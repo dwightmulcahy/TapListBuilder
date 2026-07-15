@@ -98,7 +98,7 @@ dialog.app-modal::backdrop{background:rgba(20,20,20,.45)}
 
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.grid4{display:grid;grid-template-columns:1fr 1fr 1.15fr 1.4fr;gap:8px}
+.grid4{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 label{font-size:12px;font-weight:800;display:block;color:#383838}
 input,textarea,select{
   width:100%;margin-top:4px;padding:7px 8px;border:1px solid #aaa;border-radius:5px;
