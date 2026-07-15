@@ -18,7 +18,7 @@ function renderStyleOptions(){
 }
 
 function editorCard(item,i){
-  const metaParts=[item.abv?`${esc(item.abv)}%`:"",item.ibu?`${esc(item.ibu)} IBU`:"",item.style?esc(item.style):""].filter(Boolean);
+  const metaParts=[item.isNew?"NEW":"",item.abv?`${esc(item.abv)}%`:"",item.ibu?`${esc(item.ibu)} IBU`:"",item.style?esc(item.style):""].filter(Boolean);
   return `<fieldset class="beer-card" style="--item-color:${esc(item.color)}">
     <div class="card-header">
       <details class="beer-card-details" ${expandedItemIndices.has(i)?"open":""} ontoggle="onItemDetailsToggle(${i},this.open)">
@@ -32,6 +32,7 @@ function editorCard(item,i){
             <label>Accent color<input type="color" value="${esc(item.color)}" oninput="setItem(${i},'color',this.value);this.closest('fieldset').style.setProperty('--item-color',this.value)"></label>
           </div>
           <label>Beer style<input list="styleOptions" value="${esc(item.style)}" oninput="setItem(${i},'style',this.value)"></label>
+          <label class="checkbox-row"><input type="checkbox" ${item.isNew?"checked":""} onchange="setItem(${i},'isNew',this.checked)"> Mark as "New"</label>
           <div class="grid4">
             <label>ABV %<span id="abvCalcTag-${i}" class="calc-tag">${isAbvCalculated(item)?" (calculated)":""}</span><input id="abvInput-${i}" inputmode="decimal" value="${esc(item.abv)}" ${isAbvCalculated(item)?"readonly":""} oninput="setItem(${i},'abv',this.value)"></label>
             <label>IBU<input inputmode="numeric" value="${esc(item.ibu)}" oninput="setItem(${i},'ibu',this.value)"></label>
@@ -122,13 +123,14 @@ function renderEditor(){
 function formatAbv(value){const v=String(value??"").trim();return v?`${esc(v)}%`:"—"}
 function formatIbu(value){const v=String(value??"").trim();return v?esc(v):"—"}
 function glutenFreeBadge(){return state.settings.language==="es"?"SIN GLUTEN":"GLUTEN FREE"}
+function newBadge(){return state.settings.language==="es"?"NUEVO":"NEW"}
 function renderPreview(){
   const list=document.getElementById("tapList");
   list.innerHTML=state.items.map(item=>`<article class="tap-row" style="color:${esc(item.color)}">
     <div class="icon-wrap">${renderedIcon(item)}</div>
     <div class="tap-divider"></div>
     <div class="item-copy">
-      <h2 class="item-name">${esc(item.name)}${item.glutenFree?`<span class="badge">${glutenFreeBadge()}</span>`:''}</h2>
+      <h2 class="item-name">${esc(item.name)}${item.isNew?`<span class="badge badge-new">${newBadge()}</span>`:''}${item.glutenFree?`<span class="badge">${glutenFreeBadge()}</span>`:''}</h2>
       <p class="desc" style="--desc-font-size:${clampDescriptionFontSize(item.descriptionFontSize)}pt">${esc(item.description)}</p>
     </div>
     <div class="stats">

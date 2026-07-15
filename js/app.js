@@ -79,6 +79,7 @@ function normalizeItem(item={},defaultLanguage="en"){
     abv:(()=>{const calculated=calculateAbv(item.sg,item.fg);return calculated!==null?calculated.toFixed(1):String(item.abv??"");})(),
     ibu:String(item.ibu??""),
     glutenFree:Boolean(item.glutenFree),
+    isNew:Boolean(item.isNew),
     color:/^#[0-9a-f]{6}$/i.test(item.color||"")?item.color:"#444444",
     icon:ICONS[item.icon]?item.icon:inferIcon(item.name),
     customIcon:item.customIcon||"",
