@@ -21,6 +21,13 @@ COPY . /usr/share/nginx/html/
 # in-app About dialog (Help -> About) can show the actual tag/commit/build date.
 RUN printf '{"version":"%s","sha":"%s","buildDate":"%s"}' "${APP_VERSION}" "${VCS_REF}" "${BUILD_DATE}" > /usr/share/nginx/html/version.json
 
+# Cache-bust every local css/js reference in index.html with this build's version+sha.
+# This makes a new image always serve genuinely different URLs for its assets, so no
+# caching layer (Cloudflare edge, browser, an intermediate proxy) can serve stale CSS/JS
+# after a deploy, regardless of what Cache-Control/TTL it thinks applies.
+RUN CACHE_BUST="${APP_VERSION}-${VCS_REF}" \
+    && sed -i "s#\(href=\"css/[A-Za-z0-9_-]\{1,\}\.css\)\"#\1?v=${CACHE_BUST}\"#g; s#\(src=\"js/[A-Za-z0-9_-]\{1,\}\.js\)\"#\1?v=${CACHE_BUST}\"#g" /usr/share/nginx/html/index.html
+
 EXPOSE 80
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \

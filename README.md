@@ -38,6 +38,8 @@ Required repo secrets (Settings → Secrets and variables → Actions):
 - `DOCKERHUB_USERNAME` — your Docker Hub username
 - `DOCKERHUB_TOKEN` — a Docker Hub access token (hub.docker.com → Account Settings → Security → New Access Token)
 
+**Cache-busting**: the Dockerfile appends `?v=<version>-<sha>` to every local CSS/JS reference in `index.html` at build time, and `nginx.conf` long-caches those versioned URLs while explicitly no-caching `index.html` itself. This means a new deploy is immune to stale-asset problems from *any* caching layer (browser, an intermediate CDN like Cloudflare, a proxy) — the URLs genuinely change on every build, rather than relying on a TTL that a cache in front of the origin might not honor.
+
 ### Running on a QNAP (Container Station)
 `docker-compose.yml` is a ready-to-import example — set your Docker Hub username in it, then in Container Station: Create → Create Application → paste or upload the file. Defaults to `http://<nas-ip>:8081`; see comments in the file for adjusting the port or mounting your own `data/` folder to override the sample menu without rebuilding.
 
