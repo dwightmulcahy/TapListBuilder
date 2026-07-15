@@ -59,7 +59,12 @@
 
 <div class="app-toolbar">
   <button onclick="addItem()">+ Add item</button>
-  <button onclick="openModal('typographyModal')">Font Size</button>
+  <select id="pageSize" onchange="setSetting('pageSize',this.value)" aria-label="PDF output size">
+    <option value="a4">A4 portrait</option>
+    <option value="letter">US Letter portrait</option>
+    <option value="4x6">4×6 card portrait</option>
+  </select>
+  <button onclick="openModal('pageModal')">Page</button>
   <button class="undo-button" onclick="undoItems()" disabled title="Undo the last add/remove/duplicate/reorder">Undo</button>
 </div>
 
@@ -68,44 +73,14 @@
 <div class="app">
   <aside class="panel">
     <details class="settings-section">
-      <summary>Header/Page</summary>
+      <summary>Header</summary>
       <div class="section-body">
-        <div class="grid2">
-          <label>PDF output size
-            <select id="pageSize" onchange="setSetting('pageSize',this.value)">
-              <option value="a4">A4 portrait</option>
-              <option value="letter">US Letter portrait</option>
-              <option value="4x6">4×6 card portrait</option>
-            </select>
-          </label>
-          <label>Logo size
-            <div class="range-with-value">
-              <input id="logoScale" type="range" min="0.60" max="1.50" step="0.01" oninput="setSetting('logoScale',Number(this.value));document.getElementById('logoScaleValue').value=Math.round(Number(this.value)*100)+'%'">
-              <output id="logoScaleValue">100%</o>
-            </div>
-          </label>
-        </div>
-        <label>Watermark strength
+        <label>Logo size
           <div class="range-with-value">
-            <input id="watermarkOpacity" type="range" min="0" max="1" step="0.01" oninput="setSetting('watermarkOpacity',Number(this.value));document.getElementById('watermarkOpacityValue').value=Math.round(Number(this.value)*100)+'%'">
-            <output id="watermarkOpacityValue">22%</o>
+            <input id="logoScale" type="range" min="0.60" max="1.50" step="0.01" oninput="setSetting('logoScale',Number(this.value));document.getElementById('logoScaleValue').value=Math.round(Number(this.value)*100)+'%'">
+            <output id="logoScaleValue">100%</o>
           </div>
         </label>
-        <label>Watermark size
-          <div class="range-with-value">
-            <input id="watermarkScale" type="range" min="0.50" max="1.80" step="0.01" oninput="setSetting('watermarkScale',Number(this.value));document.getElementById('watermarkScaleValue').value=Math.round(Number(this.value)*100)+'%'">
-            <output id="watermarkScaleValue">100%</o>
-          </div>
-        </label>
-        <label>"New" badge style
-          <select id="newBadgeStyle" onchange="setSetting('newBadgeStyle',this.value)">
-            <option value="pill">Solid pill</option>
-            <option value="text">Bold tilted text</option>
-            <option value="outline">Outlined</option>
-            <option value="starburst">Starburst sticker</option>
-          </select>
-        </label>
-        <p class="help">Choose a full-page PDF (A4 or US Letter) or a 4×6 card PDF. The 4×6 option is much tighter and works best with fewer or shorter items. In 4×6 mode the page also uses a corner-safe mask so text stays out of the holder tabs.</p>
       </div>
     </details>
 
@@ -235,16 +210,28 @@
   </div>
 </dialog>
 
-<dialog class="app-modal" id="typographyModal">
-  <div class="app-modal-header"><h2>Font Size</h2><button class="icon-button" aria-label="Close" onclick="closeModal('typographyModal')">×</button></div>
+<dialog class="app-modal" id="pageModal">
+  <div class="app-modal-header"><h2>Page</h2><button class="icon-button" aria-label="Close" onclick="closeModal('pageModal')">×</button></div>
   <div class="app-modal-body">
+    <label>Watermark strength
+      <div class="range-with-value">
+        <input id="watermarkOpacity" type="range" min="0" max="1" step="0.01" oninput="setSetting('watermarkOpacity',Number(this.value));document.getElementById('watermarkOpacityValue').value=Math.round(Number(this.value)*100)+'%'">
+        <output id="watermarkOpacityValue">22%</o>
+      </div>
+    </label>
+    <label>Watermark size
+      <div class="range-with-value">
+        <input id="watermarkScale" type="range" min="0.50" max="1.80" step="0.01" oninput="setSetting('watermarkScale',Number(this.value));document.getElementById('watermarkScaleValue').value=Math.round(Number(this.value)*100)+'%'">
+        <output id="watermarkScaleValue">100%</o>
+      </div>
+    </label>
     <label>Set all description font sizes
       <div class="range-with-value">
         <input id="globalDescriptionFontSize" type="range" min="8" max="16" step="0.25" oninput="setAllDescriptionFontSizes(Number(this.value))">
         <output id="globalDescriptionFontSizeValue">11.75 pt</o>
       </div>
     </label>
-    <p class="help">Moving this slider immediately applies the same font size to every description. You can still override individual descriptions afterward.</p>
+    <p class="help">Moving the font size slider immediately applies the same size to every description; you can still override individual descriptions afterward. The 4×6 PDF option (toolbar) uses a corner-safe mask so text stays out of the holder tabs.</p>
   </div>
 </dialog>
 

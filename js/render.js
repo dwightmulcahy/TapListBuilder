@@ -35,6 +35,14 @@ function editorCard(item,i){
             <label>Accent color<input type="color" value="${esc(item.color)}" oninput="setItem(${i},'color',this.value);this.closest('fieldset').style.setProperty('--item-color',this.value)"></label>
           </div>
           <label class="checkbox-row"><input type="checkbox" ${item.isNew?"checked":""} onchange="setItem(${i},'isNew',this.checked)"> Mark as "New"</label>
+          <label>"New" badge style
+            <select onchange="setItem(${i},'newBadgeStyle',this.value)">
+              <option value="pill" ${item.newBadgeStyle==="pill"?"selected":""}>Solid pill</option>
+              <option value="text" ${item.newBadgeStyle==="text"?"selected":""}>Bold tilted text</option>
+              <option value="outline" ${item.newBadgeStyle==="outline"?"selected":""}>Outlined</option>
+              <option value="starburst" ${item.newBadgeStyle==="starburst"?"selected":""}>Starburst sticker</option>
+            </select>
+          </label>
           <div class="grid4">
             <label>ABV %<span id="abvCalcTag-${i}" class="calc-tag">${isAbvCalculated(item)?" (calculated)":""}</span><input id="abvInput-${i}" inputmode="decimal" value="${esc(item.abv)}" ${isAbvCalculated(item)?"readonly":""} oninput="setItem(${i},'abv',this.value)"></label>
             <label>IBU<input inputmode="numeric" value="${esc(item.ibu)}" oninput="setItem(${i},'ibu',this.value)"></label>
@@ -96,7 +104,6 @@ function renderEditor(){
   updateUndoButton();
   const s=state.settings;
   document.getElementById("pageSize").value=s.pageSize;
-  document.getElementById("newBadgeStyle").value=s.newBadgeStyle;
   document.getElementById("translationContactEmail").value=s.translationContactEmail||"";
   document.getElementById("logoScale").value=s.logoScale;
   document.getElementById("logoScaleValue").value=`${Math.round(Number(s.logoScale)*100)}%`;
@@ -127,9 +134,9 @@ function formatAbv(value){const v=String(value??"").trim();return v?`${esc(v)}%`
 function formatIbu(value){const v=String(value??"").trim();return v?esc(v):"—"}
 function glutenFreeBadge(){return state.settings.language==="es"?"SIN GLUTEN":"GLUTEN FREE"}
 function newBadge(){return state.settings.language==="es"?"NUEVO":"NEW"}
-function newBadgeMarkup(){
+function newBadgeMarkup(item){
   const text=newBadge();
-  const style=state.settings.newBadgeStyle||"pill";
+  const style=item.newBadgeStyle||"pill";
   if(style==="starburst")return `<span class="badge badge-new-starburst"><span class="badge-new-starburst-text">${text}</span></span>`;
   const styleClass=style==="outline"?"badge-new-outline":style==="text"?"badge-new-text":"badge-new-pill";
   return `<span class="badge ${styleClass}">${text}</span>`;
@@ -140,7 +147,7 @@ function renderPreview(){
     <div class="icon-wrap">${renderedIcon(item)}</div>
     <div class="tap-divider"></div>
     <div class="item-copy">
-      <h2 class="item-name">${esc(item.name)}${item.isNew?newBadgeMarkup():''}${item.glutenFree?`<span class="badge">${glutenFreeBadge()}</span>`:''}</h2>
+      <h2 class="item-name">${esc(item.name)}${item.isNew?newBadgeMarkup(item):''}${item.glutenFree?`<span class="badge">${glutenFreeBadge()}</span>`:''}</h2>
       <p class="desc" style="--desc-font-size:${clampDescriptionFontSize(item.descriptionFontSize)}pt">${esc(item.description)}</p>
     </div>
     <div class="stats">

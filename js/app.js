@@ -8,8 +8,7 @@ const defaultState={
     taproomLabel:"TAPROOM:",taproomHours:"NOON–5PM DAILY",
     phone:"+506 8733 7046",location:"3KM W OF DANIEL ODUBER AIRPORT",
     footerAutoFit:true,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,language:"en",
-    translationContactEmail:"",
-    newBadgeStyle:"pill"
+    translationContactEmail:""
   },
   items:[] // populated from data/beer-styles.json during boot()
 };
@@ -81,6 +80,7 @@ function normalizeItem(item={},defaultLanguage="en"){
     ibu:String(item.ibu??""),
     glutenFree:Boolean(item.glutenFree),
     isNew:Boolean(item.isNew),
+    newBadgeStyle:["pill","text","outline","starburst"].includes(item.newBadgeStyle)?item.newBadgeStyle:"pill",
     color:/^#[0-9a-f]{6}$/i.test(item.color||"")?item.color:"#444444",
     icon:ICONS[item.icon]?item.icon:inferIcon(item.name),
     customIcon:item.customIcon||"",
@@ -105,7 +105,6 @@ function normalizeState(raw){
   settings.globalDescriptionFontSize=clampDescriptionFontSize(settings.globalDescriptionFontSize);
   settings.language=settings.language==="es"?"es":"en";
   settings.translationContactEmail=String(settings.translationContactEmail??"").trim();
-  settings.newBadgeStyle=["pill","text","outline","starburst"].includes(settings.newBadgeStyle)?settings.newBadgeStyle:"pill";
   if(raw.header){
     if(raw.header.phone)settings.phone=raw.header.phone;
     if(raw.header.location)settings.location=raw.header.location;
