@@ -110,8 +110,9 @@
 }
 .stat-label{font-size:calc(3.2mm * var(--fit) * var(--layout-scale,1));font-weight:900;line-height:1;margin-top:calc(1.2mm * var(--layout-scale,1))}
 .bitterness-meter{margin-top:calc(2mm * var(--layout-scale,1));width:100%;color:currentColor}
-.bitterness-track{position:relative;height:calc(3.2mm * var(--layout-scale,1));border:calc(.32mm * var(--layout-scale,1)) solid currentColor;border-radius:999px;background:linear-gradient(to right,rgba(0,0,0,.05),currentColor)}
-.bitterness-marker{position:absolute;top:50%;left:var(--bitterness-position,0%);width:calc(4.2mm * var(--layout-scale,1));height:calc(4.2mm * var(--layout-scale,1));border:calc(.4mm * var(--layout-scale,1)) solid currentColor;border-radius:50%;background:var(--paper);transform:translate(-50%,-50%);box-shadow:0 0 0 calc(.25mm * var(--layout-scale,1)) rgba(255,255,255,.7)}
+.bitterness-track{position:relative;height:calc(3.2mm * var(--layout-scale,1));border:calc(.32mm * var(--layout-scale,1)) solid currentColor;border-radius:999px;background:linear-gradient(to right,rgba(0,0,0,.05),currentColor);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.bitterness-marker{position:absolute;top:50%;left:var(--bitterness-position,0%);width:calc(4.2mm * var(--layout-scale,1));height:calc(4.2mm * var(--layout-scale,1));border:calc(.4mm * var(--layout-scale,1)) solid currentColor;border-radius:50%;background:var(--paper);transform:translate(-50%,-50%);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.bitterness-marker::before{content:"";position:absolute;inset:calc(-.3mm * var(--layout-scale,1));border-radius:50%;background:rgba(255,255,255,.7);z-index:-1;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .bitterness-labels{display:flex;justify-content:center;gap:1mm;margin-top:calc(.8mm * var(--layout-scale,1));font-family:Arial,Helvetica,sans-serif;font-size:calc(4mm * var(--fit) * var(--layout-scale,1));font-weight:900;line-height:1.15;color:#222;letter-spacing:.02em}
 .bitterness-labels span{min-width:0;max-width:100%;white-space:normal;overflow:visible;text-align:center}
 
