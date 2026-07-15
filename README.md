@@ -1,7 +1,5 @@
 # MHB Tap List Builder
 
-[![Build and Push to Docker Hub](https://github.com/dwightmulcahy/TapListBuilder/actions/workflows/docker-release.yml/badge.svg)](https://github.com/dwightmulcahy/TapListBuilder/actions/workflows/docker-release.yml)
-
 Print-ready one-page tap menu builder for Monkey Head Brewing. Client-side only — no build step, no server-side code.
 
 ## Structure

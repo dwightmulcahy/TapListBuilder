@@ -5,10 +5,10 @@ function editorCard(item,i){
   return `<fieldset class="beer-card" style="--item-color:${esc(item.color)}">
     <legend>Item ${i+1}</legend>
     <div class="card-actions">
-      <button class="icon-button" title="Move up" ${i===0?'disabled':''} onclick="moveItem(${i},-1)">↑</button>
-      <button class="icon-button" title="Move down" ${i===state.items.length-1?'disabled':''} onclick="moveItem(${i},1)">↓</button>
-      <button class="icon-button" title="Duplicate" onclick="duplicateItem(${i})">⧉</button>
-      <button class="icon-button danger" title="Remove" onclick="removeItem(${i})">×</button>
+      <button class="icon-button" title="Move up" aria-label="Move item up" ${i===0?'disabled':''} onclick="moveItem(${i},-1)">↑</button>
+      <button class="icon-button" title="Move down" aria-label="Move item down" ${i===state.items.length-1?'disabled':''} onclick="moveItem(${i},1)">↓</button>
+      <button class="icon-button" title="Duplicate" aria-label="Duplicate item" onclick="duplicateItem(${i})">⧉</button>
+      <button class="icon-button danger" title="Remove" aria-label="Remove item" onclick="removeItem(${i})">×</button>
     </div>
     <div class="grid2">
       <label>Name<input value="${esc(item.name)}" oninput="setItem(${i},'name',this.value)"></label>

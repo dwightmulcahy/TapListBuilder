@@ -185,7 +185,12 @@ function addItem(){
   autosave();renderEditor();renderPreview();
   document.querySelector("#editor fieldset:last-child")?.scrollIntoView({behavior:"smooth",block:"center"});
 }
-function removeItem(i){state.items.splice(i,1);autosave();renderEditor();renderPreview()}
+function removeItem(i){
+  const item=state.items[i];
+  if(!item)return;
+  if(!confirm(`Remove "${item.name||"this item"}" from the menu?`))return;
+  state.items.splice(i,1);autosave();renderEditor();renderPreview();
+}
 function duplicateItem(i){const copy=deepCopy(state.items[i]);copy.name=`${copy.name} Copy`;copy.translations=copy.translations||{en:{name:"",description:""},es:{name:"",description:""}};copy.translations[copy.language]=copy.translations[copy.language]||{name:"",description:""};copy.translations[copy.language].name=copy.name;state.items.splice(i+1,0,copy);autosave();renderEditor();renderPreview()}
 function moveItem(i,delta){const j=i+delta;if(j<0||j>=state.items.length)return;[state.items[i],state.items[j]]=[state.items[j],state.items[i]];autosave();renderEditor();renderPreview()}
 
