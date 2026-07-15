@@ -95,6 +95,8 @@ function setDisplayMode(mode){
   document.body.classList.toggle("preview-only",isPreview);
   document.getElementById("editTabButton")?.classList.toggle("active",!isPreview);
   document.getElementById("previewTabButton")?.classList.toggle("active",isPreview);
+  const viewToggle=document.getElementById("viewToggleMenuItem");
+  if(viewToggle)viewToggle.textContent=isPreview?"Edit":"Preview";
   requestAnimationFrame(fitMenu);
 }
 function printMenu(){fitMenu();window.print()}

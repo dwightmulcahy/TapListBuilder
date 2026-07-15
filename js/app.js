@@ -281,8 +281,26 @@ function openModal(id){
 function closeModal(id){
   document.getElementById(id)?.close();
 }
-function showAbout(){
-  alert("Monkey Head Brewing — Tap List Builder\n\nBuild a print-ready tap menu: item names, styles, ABV/IBU, descriptions, and a live BU:GU bitterness gradient, with English/Spanish translation and named menu profiles.\n\nRuns entirely in your browser — nothing is uploaded except optional live-translation requests.");
+async function showAbout(){
+  const info=document.getElementById("aboutVersionInfo");
+  if(info){
+    info.textContent="Loading version info…";
+    try{
+      const response=await fetch("version.json",{cache:"no-store"});
+      const data=await response.json();
+      const parts=[];
+      if(data.version&&data.version!=="dev")parts.push(`Version ${data.version}`);
+      if(data.sha&&data.sha!=="unknown")parts.push(`commit ${data.sha.slice(0,7)}`);
+      if(data.buildDate&&data.buildDate!=="unknown")parts.push(`built ${data.buildDate}`);
+      info.textContent=parts.length?parts.join(" · "):"Development build (not built via the Docker release workflow).";
+    }catch(err){
+      info.textContent="Version info unavailable.";
+    }
+  }
+  openModal("aboutModal");
+}
+function toggleDisplayMode(){
+  setDisplayMode(document.body.classList.contains("preview-only")?"edit":"preview");
 }
 
 async function boot(){

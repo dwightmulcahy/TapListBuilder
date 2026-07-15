@@ -12,15 +12,18 @@
 </head>
 <body>
 <header class="app-menubar">
-  <div class="app-brand"><img src="assets/logo/mhb_logo_transparent.png" alt=""><span>Tap List Builder</span></div>
+  <div class="app-brand"><span>Tap List Builder</span></div>
   <nav class="app-menu">
     <details class="app-menu-item">
       <summary>File</summary>
       <div class="app-menu-dropdown">
+        <button onclick="printMenu();closeAppMenus()">Print</button>
+        <hr>
         <button onclick="downloadJSON();closeAppMenus()">Save</button>
         <label class="file-label">Load<input type="file" accept=".json,application/json" onchange="loadJSON(event);closeAppMenus()"></label>
         <hr>
         <button onclick="openModal('menuProfilesModal');closeAppMenus()">Menu profiles…</button>
+        <button onclick="openModal('settingsModal');closeAppMenus()">Settings…</button>
         <hr>
         <button onclick="resetSample();closeAppMenus()">Restore sample</button>
       </div>
@@ -35,18 +38,13 @@
     <details class="app-menu-item">
       <summary>View</summary>
       <div class="app-menu-dropdown">
-        <button onclick="setDisplayMode('edit');closeAppMenus()">Edit</button>
-        <button onclick="setDisplayMode('preview');closeAppMenus()">Preview</button>
-        <hr>
-        <button onclick="openModal('brandingModal');closeAppMenus()">Page and branding…</button>
-        <button onclick="openModal('typographyModal');closeAppMenus()">Description typography…</button>
-        <button onclick="openModal('footerModal');closeAppMenus()">Footer…</button>
+        <button id="viewToggleMenuItem" onclick="toggleDisplayMode();closeAppMenus()">Preview</button>
       </div>
     </details>
     <details class="app-menu-item">
       <summary>Tools</summary>
       <div class="app-menu-dropdown">
-        <button onclick="openModal('translationModal');closeAppMenus()">Translation…</button>
+        <button id="translateMenuButton" onclick="toggleMenuTranslation();closeAppMenus()">Translate menu to Spanish</button>
         <button onclick="openModal('libraryModal');closeAppMenus()">Saved beverage library…</button>
       </div>
     </details>
@@ -61,8 +59,7 @@
 
 <div class="app-toolbar">
   <button onclick="addItem()">+ Add item</button>
-  <button class="primary" onclick="printMenu()">Print / Save PDF</button>
-  <button id="translateMenuButton" onclick="toggleMenuTranslation()">Translate menu to Spanish</button>
+  <button onclick="openModal('typographyModal')">Font Size</button>
   <button class="undo-button" onclick="undoItems()" disabled title="Undo the last add/remove/duplicate/reorder">Undo</button>
 </div>
 
@@ -70,9 +67,82 @@
 
 <div class="app">
   <aside class="panel">
+    <details class="settings-section">
+      <summary>Header/Page</summary>
+      <div class="section-body">
+        <div class="grid2">
+          <label>PDF output size
+            <select id="pageSize" onchange="setSetting('pageSize',this.value)">
+              <option value="a4">Full page — A4 portrait</option>
+              <option value="letter">Full page — US Letter portrait</option>
+              <option value="4x6">4×6 card portrait</option>
+            </select>
+          </label>
+          <label>Logo size
+            <div class="range-with-value">
+              <input id="logoScale" type="range" min="0.60" max="1.50" step="0.01" oninput="setSetting('logoScale',Number(this.value));document.getElementById('logoScaleValue').value=Math.round(Number(this.value)*100)+'%'">
+              <output id="logoScaleValue">100%</o>
+            </div>
+          </label>
+        </div>
+        <label>Watermark strength
+          <div class="range-with-value">
+            <input id="watermarkOpacity" type="range" min="0" max="1" step="0.01" oninput="setSetting('watermarkOpacity',Number(this.value));document.getElementById('watermarkOpacityValue').value=Math.round(Number(this.value)*100)+'%'">
+            <output id="watermarkOpacityValue">22%</o>
+          </div>
+        </label>
+        <label>Watermark size
+          <div class="range-with-value">
+            <input id="watermarkScale" type="range" min="0.50" max="1.80" step="0.01" oninput="setSetting('watermarkScale',Number(this.value));document.getElementById('watermarkScaleValue').value=Math.round(Number(this.value)*100)+'%'">
+            <output id="watermarkScaleValue">100%</o>
+          </div>
+        </label>
+        <p class="help">Choose a full-page PDF (A4 or US Letter) or a 4×6 card PDF. The 4×6 option is much tighter and works best with fewer or shorter items. In 4×6 mode the page also uses a corner-safe mask so text stays out of the holder tabs.</p>
+      </div>
+    </details>
+
     <h2 class="sidebar-items-heading">Items</h2>
     <div id="editor"></div>
     <datalist id="styleOptions"></datalist>
+
+    <details class="settings-section">
+      <summary>Footer</summary>
+      <div class="section-body">
+        <div class="grid2">
+          <label>Taproom label<input id="taproomLabel" oninput="setSetting('taproomLabel',this.value)"></label>
+          <label>Hours<input id="taproomHours" oninput="setSetting('taproomHours',this.value)"></label>
+        </div>
+        <label>Phone<input id="phone" oninput="setSetting('phone',this.value)"></label>
+        <label>Location<input id="location" oninput="setSetting('location',this.value)"></label>
+        <label>Fit footer automatically
+          <select id="footerAutoFit" onchange="setSetting('footerAutoFit',this.value==='true')">
+            <option value="true">Yes</option>
+            <option value="false">No — use manual font sizes</option>
+          </select>
+        </label>
+        <div class="grid3">
+          <label>Taproom font size
+            <div class="range-with-value">
+              <input id="taproomFontSize" type="range" min="10" max="32" step="0.5" oninput="setSetting('taproomFontSize',Number(this.value));document.getElementById('taproomFontSizeValue').value=Number(this.value).toFixed(1).replace(/\.0$/,'')+' pt'">
+              <output id="taproomFontSizeValue">20 pt</o>
+            </div>
+          </label>
+          <label>Phone font size
+            <div class="range-with-value">
+              <input id="phoneFontSize" type="range" min="10" max="32" step="0.5" oninput="setSetting('phoneFontSize',Number(this.value));document.getElementById('phoneFontSizeValue').value=Number(this.value).toFixed(1).replace(/\.0$/,'')+' pt'">
+              <output id="phoneFontSizeValue">20 pt</o>
+            </div>
+          </label>
+          <label>Location font size
+            <div class="range-with-value">
+              <input id="locationFontSize" type="range" min="10" max="32" step="0.5" oninput="setSetting('locationFontSize',Number(this.value));document.getElementById('locationFontSizeValue').value=Number(this.value).toFixed(1).replace(/\.0$/,'')+' pt'">
+              <output id="locationFontSizeValue">19 pt</o>
+            </div>
+          </label>
+        </div>
+        <p class="help">If automatic footer fitting is on, the taproom, phone, and location text will shrink only when needed to avoid collisions. Turn it off if you want full manual control.</p>
+      </div>
+    </details>
   </aside>
 
   <main class="display-area">
@@ -132,10 +202,10 @@
   </div>
 </dialog>
 
-<dialog class="app-modal" id="translationModal">
-  <div class="app-modal-header"><h2>Translation</h2><button class="icon-button" aria-label="Close" onclick="closeModal('translationModal')">×</button></div>
+<dialog class="app-modal" id="settingsModal">
+  <div class="app-modal-header"><h2>Settings</h2><button class="icon-button" aria-label="Close" onclick="closeModal('settingsModal')">×</button></div>
   <div class="app-modal-body">
-    <label>Contact email (optional)
+    <label>Translation contact email (optional)
       <input type="email" id="translationContactEmail" placeholder="you@example.com" oninput="setSetting('translationContactEmail',this.value)">
     </label>
     <p class="help">Live translation uses a free public API with a daily limit. Adding an email here (never shown on the menu) raises that limit substantially.</p>
@@ -157,42 +227,8 @@
   </div>
 </dialog>
 
-<dialog class="app-modal" id="brandingModal">
-  <div class="app-modal-header"><h2>Page and branding</h2><button class="icon-button" aria-label="Close" onclick="closeModal('brandingModal')">×</button></div>
-  <div class="app-modal-body">
-    <div class="grid2">
-      <label>PDF output size
-        <select id="pageSize" onchange="setSetting('pageSize',this.value)">
-          <option value="a4">Full page — A4 portrait</option>
-          <option value="letter">Full page — US Letter portrait</option>
-          <option value="4x6">4×6 card portrait</option>
-        </select>
-      </label>
-      <label>Logo size
-        <div class="range-with-value">
-          <input id="logoScale" type="range" min="0.60" max="1.50" step="0.01" oninput="setSetting('logoScale',Number(this.value));document.getElementById('logoScaleValue').value=Math.round(Number(this.value)*100)+'%'">
-          <output id="logoScaleValue">100%</o>
-        </div>
-      </label>
-    </div>
-    <label>Watermark strength
-      <div class="range-with-value">
-        <input id="watermarkOpacity" type="range" min="0" max="1" step="0.01" oninput="setSetting('watermarkOpacity',Number(this.value));document.getElementById('watermarkOpacityValue').value=Math.round(Number(this.value)*100)+'%'">
-        <output id="watermarkOpacityValue">22%</o>
-      </div>
-    </label>
-    <label>Watermark size
-      <div class="range-with-value">
-        <input id="watermarkScale" type="range" min="0.50" max="1.80" step="0.01" oninput="setSetting('watermarkScale',Number(this.value));document.getElementById('watermarkScaleValue').value=Math.round(Number(this.value)*100)+'%'">
-        <output id="watermarkScaleValue">100%</o>
-      </div>
-    </label>
-    <p class="help">Choose a full-page PDF (A4 or US Letter) or a 4×6 card PDF. The 4×6 option is much tighter and works best with fewer or shorter items. In 4×6 mode the page also uses a corner-safe mask so text stays out of the holder tabs.</p>
-  </div>
-</dialog>
-
 <dialog class="app-modal" id="typographyModal">
-  <div class="app-modal-header"><h2>Description typography</h2><button class="icon-button" aria-label="Close" onclick="closeModal('typographyModal')">×</button></div>
+  <div class="app-modal-header"><h2>Font Size</h2><button class="icon-button" aria-label="Close" onclick="closeModal('typographyModal')">×</button></div>
   <div class="app-modal-body">
     <label>Set all description font sizes
       <div class="range-with-value">
@@ -204,42 +240,12 @@
   </div>
 </dialog>
 
-<dialog class="app-modal" id="footerModal">
-  <div class="app-modal-header"><h2>Footer</h2><button class="icon-button" aria-label="Close" onclick="closeModal('footerModal')">×</button></div>
+<dialog class="app-modal" id="aboutModal">
+  <div class="app-modal-header"><h2>About</h2><button class="icon-button" aria-label="Close" onclick="closeModal('aboutModal')">×</button></div>
   <div class="app-modal-body">
-    <div class="grid2">
-      <label>Taproom label<input id="taproomLabel" oninput="setSetting('taproomLabel',this.value)"></label>
-      <label>Hours<input id="taproomHours" oninput="setSetting('taproomHours',this.value)"></label>
-    </div>
-    <label>Phone<input id="phone" oninput="setSetting('phone',this.value)"></label>
-    <label>Location<input id="location" oninput="setSetting('location',this.value)"></label>
-    <label>Fit footer automatically
-      <select id="footerAutoFit" onchange="setSetting('footerAutoFit',this.value==='true')">
-        <option value="true">Yes</option>
-        <option value="false">No — use manual font sizes</option>
-      </select>
-    </label>
-    <div class="grid3">
-      <label>Taproom font size
-        <div class="range-with-value">
-          <input id="taproomFontSize" type="range" min="10" max="32" step="0.5" oninput="setSetting('taproomFontSize',Number(this.value));document.getElementById('taproomFontSizeValue').value=Number(this.value).toFixed(1).replace(/\.0$/,'')+' pt'">
-          <output id="taproomFontSizeValue">20 pt</o>
-        </div>
-      </label>
-      <label>Phone font size
-        <div class="range-with-value">
-          <input id="phoneFontSize" type="range" min="10" max="32" step="0.5" oninput="setSetting('phoneFontSize',Number(this.value));document.getElementById('phoneFontSizeValue').value=Number(this.value).toFixed(1).replace(/\.0$/,'')+' pt'">
-          <output id="phoneFontSizeValue">20 pt</o>
-        </div>
-      </label>
-      <label>Location font size
-        <div class="range-with-value">
-          <input id="locationFontSize" type="range" min="10" max="32" step="0.5" oninput="setSetting('locationFontSize',Number(this.value));document.getElementById('locationFontSizeValue').value=Number(this.value).toFixed(1).replace(/\.0$/,'')+' pt'">
-          <output id="locationFontSizeValue">19 pt</o>
-        </div>
-      </label>
-    </div>
-    <p class="help">If automatic footer fitting is on, the taproom, phone, and location text will shrink only when needed to avoid collisions. Turn it off if you want full manual control.</p>
+    <p>Monkey Head Brewing — Tap List Builder</p>
+    <p class="help">Build a print-ready tap menu: item names, styles, ABV/IBU, descriptions, and a live bitterness gradient, with English/Spanish translation and named menu profiles. Runs entirely in your browser — nothing is uploaded except optional live-translation requests.</p>
+    <p id="aboutVersionInfo" class="help"></p>
   </div>
 </dialog>
 

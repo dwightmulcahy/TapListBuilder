@@ -43,7 +43,6 @@ button:disabled{opacity:.35;cursor:not-allowed}
   padding:7px 14px;z-index:5
 }
 .app-brand{display:flex;align-items:center;gap:8px;font-weight:900;font-size:14px;color:#222;white-space:nowrap}
-.app-brand img{height:22px;width:auto;display:block}
 .app-menu{display:flex;gap:2px}
 .app-menu-item{position:relative}
 .app-menu-item>summary{
@@ -68,6 +67,16 @@ button:disabled{opacity:.35;cursor:not-allowed}
   background:#fff;padding:16px;overflow:auto;border-right:1px solid #b8b8b8;
   box-shadow:3px 0 12px rgba(0,0,0,.06);z-index:2
 }
+.settings-section{border:1px solid #c9c9c9;border-radius:9px;margin:0 0 12px;background:#fff;overflow:hidden}
+.settings-section>summary{
+  font-weight:900;font-size:14px;padding:10px 12px;cursor:pointer;list-style:none;
+  display:flex;align-items:center;gap:7px;user-select:none
+}
+.settings-section>summary::-webkit-details-marker{display:none}
+.settings-section>summary::before{content:"▸";display:inline-block;font-size:11px;color:#777;transition:transform .15s ease}
+.settings-section[open]>summary::before{transform:rotate(90deg)}
+.settings-section>summary:hover{background:#f7f7f7}
+.settings-section>.section-body{padding:0 12px 12px}
 .sidebar-items-heading{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#777;margin:4px 0 8px;padding:0 2px}
 
 .display-area{display:flex;flex-direction:column;min-height:0}
