@@ -273,6 +273,11 @@ function resetSample(){
   autosave();renderEditor();renderPreview();
 }
 
+function closeMoreMenu(){
+  const menu=document.querySelector(".more-menu");
+  if(menu)menu.open=false;
+}
+
 async function boot(){
   const [beerStyles,translations]=await Promise.all([
     fetch("data/beer-styles.json").then(r=>r.json()),
@@ -290,5 +295,9 @@ async function boot(){
   renderEditor();renderPreview();
   window.addEventListener("resize",()=>requestAnimationFrame(fitMenu));
   window.addEventListener("beforeprint",fitMenu);
+  document.addEventListener("click",(event)=>{
+    const menu=document.querySelector(".more-menu");
+    if(menu&&menu.open&&!menu.contains(event.target))menu.open=false;
+  });
 }
 boot();

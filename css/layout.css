@@ -44,7 +44,21 @@ button:disabled{opacity:.35;cursor:not-allowed}
 }
 .panel h1{font-size:22px;line-height:1.1;margin:0 0 7px}
 .panel .intro{font-size:13px;line-height:1.4;margin:0 0 14px;color:#5a5a5a}
-.toolbar{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.toolbar{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;align-items:flex-start}
+.more-menu{position:relative}
+.more-menu>summary{
+  appearance:none;border:1px solid #a3a3a3;background:#f8f8f8;color:#222;border-radius:7px;
+  padding:8px 10px;font-size:13px;font-weight:800;cursor:pointer;list-style:none;user-select:none
+}
+.more-menu>summary::-webkit-details-marker{display:none}
+.more-menu>summary:hover{background:#ececec}
+.more-menu[open]>summary{background:#ececec}
+.more-menu-body{
+  position:absolute;top:calc(100% + 4px);left:0;z-index:10;min-width:170px;
+  background:#fff;border:1px solid #a3a3a3;border-radius:7px;box-shadow:0 6px 18px rgba(0,0,0,.16);
+  padding:6px;display:flex;flex-direction:column;gap:4px
+}
+.more-menu-body button,.more-menu-body .file-label{width:100%;text-align:left;margin:0}
 .status{
   border-radius:6px;padding:8px 10px;margin:0 0 12px;font-size:12px;font-weight:800;
   background:#e8f5eb;color:#20612b;border:1px solid #b9dfbf

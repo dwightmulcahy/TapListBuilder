@@ -20,12 +20,17 @@
     <div class="toolbar">
       <button class="primary" onclick="printMenu()">Print / Save PDF</button>
       <button onclick="addItem()">Add item</button>
-      <button id="undoItemsButton" onclick="undoItems()" disabled title="Undo the last add/remove/duplicate/reorder">Undo</button>
       <button id="translateMenuButton" onclick="toggleMenuTranslation()">Translate menu to Spanish</button>
       <button onclick="togglePreview()">Full preview</button>
       <button onclick="downloadJSON()">Save</button>
-      <label class="file-label">Load<input type="file" accept=".json,application/json" onchange="loadJSON(event)"></label>
-      <button onclick="resetSample()">Restore sample</button>
+      <details class="more-menu">
+        <summary>More ▾</summary>
+        <div class="more-menu-body">
+          <button id="undoItemsButton" onclick="undoItems();closeMoreMenu()" disabled title="Undo the last add/remove/duplicate/reorder">Undo</button>
+          <label class="file-label">Load<input type="file" accept=".json,application/json" onchange="loadJSON(event);closeMoreMenu()"></label>
+          <button onclick="resetSample();closeMoreMenu()">Restore sample</button>
+        </div>
+      </details>
     </div>
 
     <div id="fitStatus" class="status">Menu fits on one page.</div>
