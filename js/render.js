@@ -23,8 +23,10 @@ function editorCard(item,i){
     <div class="card-header">
       <details class="beer-card-details" ${expandedItemIndices.has(i)?"open":""} ontoggle="onItemDetailsToggle(${i},this.open)">
         <summary>
-          <span class="summary-name">${esc(item.name)||`Item ${i+1}`}</span>
-          <span class="summary-meta">${metaParts.join(" · ")}</span>
+          <span class="summary-text">
+            <span class="summary-name">${esc(item.name)||`Item ${i+1}`}</span>
+            <span class="summary-meta">${metaParts.join(" · ")}</span>
+          </span>
         </summary>
         <div class="beer-card-body">
           <div class="grid2">
