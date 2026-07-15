@@ -54,6 +54,8 @@ function loadJSON(event){
     try{
       const raw=JSON.parse(reader.result);
       state=normalizeState(raw);
+      expandedItemIndices=new Set();
+      itemsUndoStack=[];
       const imported=mergeSavedBeverages(raw.savedBeverages);
       autosave();renderEditor();renderPreview();
       if(imported)renderSavedBeverageLibrary(`Loaded the menu and imported ${imported} saved library item${imported===1?"":"s"}.`);

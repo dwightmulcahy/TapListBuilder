@@ -196,12 +196,42 @@ function updateUndoButton(){
 function undoItems(){
   if(!itemsUndoStack.length)return;
   state.items=itemsUndoStack.pop();
+  expandedItemIndices=new Set(); // indices from before the undone action no longer apply reliably
   updateUndoButton();
   autosave();renderEditor();renderPreview();
 }
+
+// Which item cards are expanded, tracked by array index (kept roughly in sync across
+// inserts/removes/reorders below; not worth full item-identity tracking for a UI nicety).
+let expandedItemIndices=new Set();
+function onItemDetailsToggle(i,isOpen){
+  if(isOpen)expandedItemIndices.add(i);
+  else expandedItemIndices.delete(i);
+}
+function shiftExpandedIndicesForInsert(atIndex){
+  const next=new Set();
+  expandedItemIndices.forEach(idx=>next.add(idx>=atIndex?idx+1:idx));
+  expandedItemIndices=next;
+}
+function shiftExpandedIndicesForRemove(atIndex){
+  const next=new Set();
+  expandedItemIndices.forEach(idx=>{
+    if(idx===atIndex)return;
+    next.add(idx>atIndex?idx-1:idx);
+  });
+  expandedItemIndices=next;
+}
+function swapExpandedIndices(i,j){
+  const hasI=expandedItemIndices.has(i),hasJ=expandedItemIndices.has(j);
+  if(hasI===hasJ)return;
+  if(hasI){expandedItemIndices.delete(i);expandedItemIndices.add(j)}
+  else{expandedItemIndices.delete(j);expandedItemIndices.add(i)}
+}
+
 function addItem(){
   pushItemsUndoSnapshot();
   state.items.push(normalizeItem({name:"New Beer",abv:"5.0",ibu:"",glutenFree:false,color:"#444444",icon:"beer",customIcon:"",descriptionFontSize:clampDescriptionFontSize(state.settings.globalDescriptionFontSize),description:"Enter the beverage description here."}));
+  expandedItemIndices.add(state.items.length-1); // open the new item so it's ready to edit
   autosave();renderEditor();renderPreview();
   document.querySelector("#editor fieldset:last-child")?.scrollIntoView({behavior:"smooth",block:"center"});
 }
@@ -210,15 +240,21 @@ function removeItem(i){
   if(!item)return;
   if(!confirm(`Remove "${item.name||"this item"}" from the menu?`))return;
   pushItemsUndoSnapshot();
-  state.items.splice(i,1);autosave();renderEditor();renderPreview();
+  state.items.splice(i,1);
+  shiftExpandedIndicesForRemove(i);
+  autosave();renderEditor();renderPreview();
 }
 function duplicateItem(i){
   pushItemsUndoSnapshot();
-  const copy=deepCopy(state.items[i]);copy.name=`${copy.name} Copy`;copy.translations=copy.translations||{en:{name:"",description:""},es:{name:"",description:""}};copy.translations[copy.language]=copy.translations[copy.language]||{name:"",description:""};copy.translations[copy.language].name=copy.name;state.items.splice(i+1,0,copy);autosave();renderEditor();renderPreview();
+  const copy=deepCopy(state.items[i]);copy.name=`${copy.name} Copy`;copy.translations=copy.translations||{en:{name:"",description:""},es:{name:"",description:""}};copy.translations[copy.language]=copy.translations[copy.language]||{name:"",description:""};copy.translations[copy.language].name=copy.name;state.items.splice(i+1,0,copy);
+  shiftExpandedIndicesForInsert(i+1);
+  expandedItemIndices.add(i+1); // open the new copy
+  autosave();renderEditor();renderPreview();
 }
 function moveItem(i,delta){
   const j=i+delta;if(j<0||j>=state.items.length)return;
   pushItemsUndoSnapshot();
+  swapExpandedIndices(i,j);
   [state.items[i],state.items[j]]=[state.items[j],state.items[i]];autosave();renderEditor();renderPreview();
 }
 
@@ -232,7 +268,9 @@ function uploadCustomIcon(i,event){
 function resetSample(){
   if(!confirm("Restore the sample menu and replace the current tap list?"))return;
   pushItemsUndoSnapshot();
-  state=deepCopy(defaultState);state.items=state.items.map(item=>normalizeItem(item));autosave();renderEditor();renderPreview();
+  state=deepCopy(defaultState);state.items=state.items.map(item=>normalizeItem(item));
+  expandedItemIndices=new Set();
+  autosave();renderEditor();renderPreview();
 }
 
 async function boot(){

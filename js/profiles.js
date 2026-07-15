@@ -102,6 +102,7 @@ function loadSelectedProfile(){
   if(!confirm(`Load "${profile.name}"? This replaces the current menu (unsaved changes will be lost unless you've saved them as a profile).`))return;
   state=normalizeState(deepCopy(profile.state));
   itemsUndoStack=[]; // undo history from the previous menu doesn't apply to the newly loaded one
+  expandedItemIndices=new Set();
   updateUndoButton();
   autosave();renderEditor();renderPreview();
   renderMenuProfiles(`Loaded "${profile.name}".`);

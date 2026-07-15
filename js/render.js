@@ -18,41 +18,52 @@ function renderStyleOptions(){
 }
 
 function editorCard(item,i){
+  const metaParts=[item.abv?`${esc(item.abv)}%`:"",item.ibu?`${esc(item.ibu)} IBU`:"",item.style?esc(item.style):""].filter(Boolean);
   return `<fieldset class="beer-card" style="--item-color:${esc(item.color)}">
-    <legend>Item ${i+1}</legend>
-    <div class="card-actions">
-      <button class="icon-button" title="Move up" aria-label="Move item up" ${i===0?'disabled':''} onclick="moveItem(${i},-1)">↑</button>
-      <button class="icon-button" title="Move down" aria-label="Move item down" ${i===state.items.length-1?'disabled':''} onclick="moveItem(${i},1)">↓</button>
-      <button class="icon-button" title="Duplicate" aria-label="Duplicate item" onclick="duplicateItem(${i})">⧉</button>
-      <button class="icon-button danger" title="Remove" aria-label="Remove item" onclick="removeItem(${i})">×</button>
-    </div>
-    <div class="grid2">
-      <label>Name<input value="${esc(item.name)}" oninput="setItem(${i},'name',this.value)"></label>
-      <label>Accent color<input type="color" value="${esc(item.color)}" oninput="setItem(${i},'color',this.value);this.closest('fieldset').style.setProperty('--item-color',this.value)"></label>
-    </div>
-    <label>Beer style<input list="styleOptions" value="${esc(item.style)}" oninput="setItem(${i},'style',this.value)"></label>
-    <div class="grid2">
-      <label>Original gravity (SG)<input inputmode="decimal" placeholder="e.g. 1.050" value="${esc(item.sg)}" oninput="setItem(${i},'sg',this.value);updateAbvField(${i})"></label>
-      <label>Final gravity (FG)<input inputmode="decimal" placeholder="e.g. 1.010" value="${esc(item.fg)}" oninput="setItem(${i},'fg',this.value);updateAbvField(${i})"></label>
-    </div>
-    <div class="grid4">
-      <label>ABV %<span id="abvCalcTag-${i}" class="calc-tag">${isAbvCalculated(item)?" (calculated)":""}</span><input id="abvInput-${i}" inputmode="decimal" value="${esc(item.abv)}" ${isAbvCalculated(item)?"readonly":""} oninput="setItem(${i},'abv',this.value)"></label>
-      <label>IBU<input inputmode="numeric" value="${esc(item.ibu)}" oninput="setItem(${i},'ibu',this.value)"></label>
-      <label>Gluten free<select onchange="setItem(${i},'glutenFree',this.value==='true')"><option value="false" ${!item.glutenFree?'selected':''}>No</option><option value="true" ${item.glutenFree?'selected':''}>Yes</option></select></label>
-      <label>Icon<select onchange="setItem(${i},'icon',this.value,true)">${iconOptions(item.icon)}</select></label>
-    </div>
-    <p id="abvHelp-${i}" class="help" style="${isAbvCalculated(item)?"":"display:none"}">ABV is calculated from SG/FG. Clear either gravity field to enter ABV manually.</p>
-    ${item.icon==='custom'?`<label class="custom-icon-row">Upload icon<input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onchange="uploadCustomIcon(${i},event)"></label>`:''}
-    <div class="item-library-actions"><button id="translateItemBtn-${i}" onclick="toggleItemTranslation(${i})">${item.language==="es"?"Translate to English":"Translate to Spanish"}</button><button onclick="saveItemToLibrary(${i})">Save item to library</button></div>
-    <label>Description<textarea oninput="setItem(${i},'description',this.value)">${esc(item.description)}</textarea></label>
-    <label>Description font size
-      <div class="range-with-value">
-        <input class="description-font-slider" data-item-index="${i}" type="range" min="8" max="16" step="0.25" value="${esc(clampDescriptionFontSize(item.descriptionFontSize))}" oninput="setItem(${i},'descriptionFontSize',Number(this.value));document.getElementById('descFontSizeValue-${i}').value=formatDescriptionFontSize(Number(this.value))">
-        <output id="descFontSizeValue-${i}">${esc(formatDescriptionFontSize(item.descriptionFontSize))}</output>
+    <div class="card-header">
+      <details class="beer-card-details" ${expandedItemIndices.has(i)?"open":""} ontoggle="onItemDetailsToggle(${i},this.open)">
+        <summary>
+          <span class="summary-name">${esc(item.name)||`Item ${i+1}`}</span>
+          <span class="summary-meta">${metaParts.join(" · ")}</span>
+        </summary>
+        <div class="beer-card-body">
+          <div class="grid2">
+            <label>Name<input value="${esc(item.name)}" oninput="setItem(${i},'name',this.value)"></label>
+            <label>Accent color<input type="color" value="${esc(item.color)}" oninput="setItem(${i},'color',this.value);this.closest('fieldset').style.setProperty('--item-color',this.value)"></label>
+          </div>
+          <label>Beer style<input list="styleOptions" value="${esc(item.style)}" oninput="setItem(${i},'style',this.value)"></label>
+          <div class="grid2">
+            <label>Original gravity (SG)<input inputmode="decimal" placeholder="e.g. 1.050" value="${esc(item.sg)}" oninput="setItem(${i},'sg',this.value);updateAbvField(${i})"></label>
+            <label>Final gravity (FG)<input inputmode="decimal" placeholder="e.g. 1.010" value="${esc(item.fg)}" oninput="setItem(${i},'fg',this.value);updateAbvField(${i})"></label>
+          </div>
+          <div class="grid4">
+            <label>ABV %<span id="abvCalcTag-${i}" class="calc-tag">${isAbvCalculated(item)?" (calculated)":""}</span><input id="abvInput-${i}" inputmode="decimal" value="${esc(item.abv)}" ${isAbvCalculated(item)?"readonly":""} oninput="setItem(${i},'abv',this.value)"></label>
+            <label>IBU<input inputmode="numeric" value="${esc(item.ibu)}" oninput="setItem(${i},'ibu',this.value)"></label>
+            <label>Gluten free<select onchange="setItem(${i},'glutenFree',this.value==='true')"><option value="false" ${!item.glutenFree?'selected':''}>No</option><option value="true" ${item.glutenFree?'selected':''}>Yes</option></select></label>
+            <label>Icon<select onchange="setItem(${i},'icon',this.value,true)">${iconOptions(item.icon)}</select></label>
+          </div>
+          <p id="abvHelp-${i}" class="help" style="${isAbvCalculated(item)?"":"display:none"}">ABV is calculated from SG/FG. Clear either gravity field to enter ABV manually.</p>
+          ${item.icon==='custom'?`<label class="custom-icon-row">Upload icon<input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onchange="uploadCustomIcon(${i},event)"></label>`:''}
+          <div class="item-library-actions"><button id="translateItemBtn-${i}" onclick="toggleItemTranslation(${i})">${item.language==="es"?"Translate to English":"Translate to Spanish"}</button><button onclick="saveItemToLibrary(${i})">Save item to library</button></div>
+          <label>Description<textarea oninput="setItem(${i},'description',this.value)">${esc(item.description)}</textarea></label>
+          <label>Description font size
+            <div class="range-with-value">
+              <input class="description-font-slider" data-item-index="${i}" type="range" min="8" max="16" step="0.25" value="${esc(clampDescriptionFontSize(item.descriptionFontSize))}" oninput="setItem(${i},'descriptionFontSize',Number(this.value));document.getElementById('descFontSizeValue-${i}').value=formatDescriptionFontSize(Number(this.value))">
+              <output id="descFontSizeValue-${i}">${esc(formatDescriptionFontSize(item.descriptionFontSize))}</o>
+            </div>
+          </label>
+        </div>
+      </details>
+      <div class="card-actions">
+        <button class="icon-button" title="Move up" aria-label="Move item up" ${i===0?'disabled':''} onclick="moveItem(${i},-1)">↑</button>
+        <button class="icon-button" title="Move down" aria-label="Move item down" ${i===state.items.length-1?'disabled':''} onclick="moveItem(${i},1)">↓</button>
+        <button class="icon-button" title="Duplicate" aria-label="Duplicate item" onclick="duplicateItem(${i})">⧉</button>
+        <button class="icon-button danger" title="Remove" aria-label="Remove item" onclick="removeItem(${i})">×</button>
       </div>
-    </label>
+    </div>
   </fieldset>`;
 }
+
 function updateAbvField(i){
   const item=state.items[i];
   if(!item)return;
