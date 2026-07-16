@@ -105,6 +105,8 @@ function normalizeState(raw){
   settings.globalDescriptionFontSize=clampDescriptionFontSize(settings.globalDescriptionFontSize);
   settings.language=settings.language==="es"?"es":"en";
   settings.translationContactEmail=String(settings.translationContactEmail??"").trim();
+  settings.locationTranslations={en:String(settings.locationTranslations?.en??""),es:String(settings.locationTranslations?.es??"")};
+  if(!settings.locationTranslations[settings.language])settings.locationTranslations[settings.language]=settings.location;
   if(raw.header){
     if(raw.header.phone)settings.phone=raw.header.phone;
     if(raw.header.location)settings.location=raw.header.location;
@@ -160,7 +162,12 @@ function setAllDescriptionFontSizes(value){
 }
 function setSetting(key,value){
   if(key==="logoScale"||key==="watermarkOpacity"||key==="watermarkScale")value=Number(value);
-  state.settings[key]=value;autosave();renderPreview();
+  state.settings[key]=value;
+  if(key==="location"){
+    state.settings.locationTranslations=state.settings.locationTranslations||{en:"",es:""};
+    state.settings.locationTranslations[state.settings.language]=String(value);
+  }
+  autosave();renderPreview();
 }
 function setItem(i,key,value,rerenderEditor=false){
   if(key==="descriptionFontSize")value=clampDescriptionFontSize(value);

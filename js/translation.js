@@ -192,12 +192,24 @@ async function toggleItemTranslation(index){
     alert("Translation failed. Check your connection and try again.");
   }
 }
+async function translateLocation(targetLang){
+  const sourceLang=targetLang==="es"?"en":"es";
+  state.settings.locationTranslations=state.settings.locationTranslations||{en:"",es:""};
+  if(!state.settings.locationTranslations[sourceLang])state.settings.locationTranslations[sourceLang]=state.settings.location;
+  if(!state.settings.locationTranslations[targetLang]){
+    const sourceText=state.settings.locationTranslations[sourceLang];
+    const translated=await translateViaApi(sourceText,sourceLang,targetLang);
+    state.settings.locationTranslations[targetLang]=translated||sourceText;
+  }
+  state.settings.location=state.settings.locationTranslations[targetLang];
+}
 async function translateAllToSpanish(){
   if(!state.items.length){alert("There are no items to translate.");return}
   const button=document.getElementById("translateMenuButton");
   if(button){button.disabled=true;button.textContent="Translating…";}
   try{
     state.items=await Promise.all(state.items.map(item=>setItemLanguage(item,"es")));
+    await translateLocation("es");
     state.settings.language="es";
     if(normalizeTranslationKey(state.settings.taproomHours)==="noon–5pm daily"||normalizeTranslationKey(state.settings.taproomHours)==="noon-5pm daily")state.settings.taproomHours="MEDIODÍA–5PM DIARIO";
     if(normalizeTranslationKey(state.settings.taproomLabel)==="taproom:")state.settings.taproomLabel="TAPROOM:";
@@ -215,6 +227,7 @@ async function translateAllToEnglish(){
   if(button){button.disabled=true;button.textContent="Translating…";}
   try{
     state.items=await Promise.all(state.items.map(item=>setItemLanguage(item,"en")));
+    await translateLocation("en");
     state.settings.language="en";
     const hours=normalizeTranslationKey(state.settings.taproomHours);
     if(["mediodía–5pm diario","mediodia–5pm diario","mediodía-5pm diario","mediodia-5pm diario"].includes(hours))state.settings.taproomHours="NOON–5PM DAILY";
