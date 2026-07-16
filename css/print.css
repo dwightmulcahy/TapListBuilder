@@ -1,6 +1,8 @@
 @media print{
   html,body{background:#fff;overflow:visible;margin:0;padding:0;width:auto;height:auto}
-  body{min-height:100vh;display:block}
+  body{min-height:100vh}
+  #appShellViewport{overflow:visible;width:auto!important;height:auto!important}
+  #appShell{display:block;min-height:0;width:auto!important;transform:none!important}
   .panel,.corner-overlay,.app-menubar,.app-toolbar,.display-tabs,.status-bar,dialog.app-modal{display:none!important}
   .app{display:block;min-height:0}
   .display-area{display:block}

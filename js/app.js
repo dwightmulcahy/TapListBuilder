@@ -305,6 +305,28 @@ function toggleDisplayMode(){
   setDisplayMode(document.body.classList.contains("preview-only")?"edit":"preview");
 }
 
+const APP_SHELL_DESIGN_WIDTH=1050;
+const APP_SHELL_MIN_SCALE=0.55;
+function fitAppShell(){
+  const viewport=document.getElementById("appShellViewport");
+  const shell=document.getElementById("appShell");
+  if(!viewport||!shell)return;
+  const availableWidth=window.innerWidth;
+  if(availableWidth>=APP_SHELL_DESIGN_WIDTH){
+    shell.style.width="";
+    shell.style.transform="";
+    viewport.style.width="";
+    viewport.style.height="";
+    return;
+  }
+  shell.style.width=`${APP_SHELL_DESIGN_WIDTH}px`;
+  const scale=Math.max(availableWidth/APP_SHELL_DESIGN_WIDTH,APP_SHELL_MIN_SCALE);
+  shell.style.transformOrigin="top left";
+  shell.style.transform=`scale(${scale})`;
+  viewport.style.width=`${APP_SHELL_DESIGN_WIDTH*scale}px`;
+  viewport.style.height=`${shell.offsetHeight*scale}px`;
+}
+
 async function boot(){
   const [beerStyles,translations]=await Promise.all([
     fetch("data/beer-styles.json").then(r=>r.json()),
@@ -320,8 +342,14 @@ async function boot(){
 
   Object.entries(footerSvgs).forEach(([key,svg])=>document.getElementById(`${key}Icon`).innerHTML=svg);
   renderEditor();renderPreview();
+  fitAppShell();
   window.addEventListener("resize",()=>requestAnimationFrame(fitMenu));
+  window.addEventListener("resize",()=>requestAnimationFrame(fitAppShell));
   window.addEventListener("beforeprint",fitMenu);
+  if(typeof ResizeObserver!=="undefined"){
+    const shellEl=document.getElementById("appShell");
+    if(shellEl)new ResizeObserver(()=>requestAnimationFrame(fitAppShell)).observe(shellEl);
+  }
   document.addEventListener("click",(event)=>{
     document.querySelectorAll(".app-menu-item[open]").forEach(menu=>{
       if(!menu.contains(event.target))menu.open=false;
