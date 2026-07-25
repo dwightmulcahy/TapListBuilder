@@ -167,6 +167,6 @@
   font-size:calc(4.6mm * var(--fit) * var(--layout-scale,1));line-height:1.05;margin:0 0 calc(.8mm * var(--layout-scale,1))
 }
 .tap-text-col-body{
-  font-weight:600;
+  font-weight:600;white-space:pre-line;
   font-size:calc(3.4mm * var(--fit) * var(--layout-scale,1));line-height:1.2
 }
