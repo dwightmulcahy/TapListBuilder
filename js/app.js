@@ -1,7 +1,7 @@
 // Core app state: item/state normalization, item CRUD, settings, custom icon upload,
 // and the boot sequence that loads JSON data then does the first render.
 
-const SIZE_KEYS=["logoScale","iconScale","watermarkScale","watermarkOpacity","taproomFontSize","phoneFontSize","locationFontSize","globalDescriptionFontSize"];
+const SIZE_KEYS=["iconScale","watermarkScale","watermarkOpacity","taproomFontSize","phoneFontSize","locationFontSize","globalDescriptionFontSize"];
 const defaultState={
   version:2.45,
   settings:{
@@ -10,9 +10,14 @@ const defaultState={
     phone:"+506 8733 7046",location:"3KM W OF DANIEL ODUBER AIRPORT",
     footerAutoFit:true,language:"en",
     translationContactEmail:"",
+    headerSlots:[
+      {type:"none",text:"",image:"",rotation:0},
+      {type:"logo",text:"",image:"",rotation:0},
+      {type:"none",text:"",image:"",rotation:0}
+    ],
     sizesByPageSize:{
-      letter:{logoScale:0.67,iconScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75},
-      "4x6":{logoScale:0.67,iconScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75}
+      letter:{iconScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,headerSlotScales:[1,0.67,1]},
+      "4x6":{iconScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,headerSlotScales:[1,0.67,1]}
     }
   },
   items:[] // populated from data/beer-styles.json during boot()
@@ -104,15 +109,26 @@ function normalizeItem(item={},defaultLanguage="en"){
 }
 function clampSizeBucket(src){
   src=src&&typeof src==="object"?src:{};
+  const rawScales=Array.isArray(src.headerSlotScales)?src.headerSlotScales:null;
+  const legacyLogoScale=clampNumber(src.logoScale,.30,2.50,.67); // pre-header-slots format
   return {
-    logoScale:clampNumber(src.logoScale,.60,1.50,1),
     iconScale:clampNumber(src.iconScale,.50,1.80,1),
     watermarkScale:clampNumber(src.watermarkScale,.50,1.80,1),
     watermarkOpacity:clampNumber(src.watermarkOpacity,0,1,.22),
     taproomFontSize:clampNumber(src.taproomFontSize,10,32,20),
     phoneFontSize:clampNumber(src.phoneFontSize,10,32,20),
     locationFontSize:clampNumber(src.locationFontSize,10,32,19),
-    globalDescriptionFontSize:clampDescriptionFontSize(src.globalDescriptionFontSize)
+    globalDescriptionFontSize:clampDescriptionFontSize(src.globalDescriptionFontSize),
+    headerSlotScales:rawScales?[0,1,2].map(i=>clampNumber(rawScales[i],.30,2.50,1)):[1,legacyLogoScale,1]
+  };
+}
+function clampHeaderSlot(src,defaultType){
+  src=src&&typeof src==="object"?src:{};
+  return {
+    type:["none","text","logo"].includes(src.type)?src.type:defaultType,
+    text:String(src.text??""),
+    image:String(src.image??""),
+    rotation:clampNumber(src.rotation,-180,180,0)
   };
 }
 function normalizeState(raw){
@@ -129,6 +145,9 @@ function normalizeState(raw){
     "4x6":clampSizeBucket(rawBuckets["4x6"]||legacyFlat)
   };
   SIZE_KEYS.forEach(key=>{delete settings[key]});
+  const rawSlots=Array.isArray(raw.settings?.headerSlots)?raw.settings.headerSlots:null;
+  const defaultSlotTypes=["none","logo","none"]; // matches the old single-centered-logo look
+  settings.headerSlots=[0,1,2].map(i=>clampHeaderSlot(rawSlots?.[i],defaultSlotTypes[i]));
   settings.footerAutoFit = typeof settings.footerAutoFit === "boolean" ? settings.footerAutoFit : true;
   settings.language=settings.language==="es"?"es":"en";
   settings.translationContactEmail=String(settings.translationContactEmail??"").trim();
@@ -328,6 +347,27 @@ function uploadCustomIcon(i,event){
   reader.onload=()=>{state.items[i].customIcon=String(reader.result);autosave();renderPreview()};
   reader.readAsDataURL(file);
 }
+function setHeaderSlot(index,key,value){
+  const slot=state.settings.headerSlots[index];
+  if(!slot)return;
+  slot[key]=key==="rotation"?clampNumber(value,-180,180,0):value;
+  autosave();renderPreview();
+}
+function setHeaderSlotScale(index,value){
+  const scales=state.settings.sizesByPageSize[state.settings.pageSize].headerSlotScales;
+  scales[index]=clampNumber(value,.30,2.50,1);
+  autosave();renderPreview();
+}
+function uploadHeaderSlotImage(index,event){
+  const file=event.target.files?.[0];if(!file)return;
+  if(file.size>1500000){alert("Use an image smaller than 1.5 MB.");event.target.value="";return}
+  const reader=new FileReader();
+  reader.onload=()=>{
+    state.settings.headerSlots[index].image=String(reader.result);
+    autosave();renderPreview();renderHeaderModalBody();
+  };
+  reader.readAsDataURL(file);
+}
 function resetSample(){
   if(!confirm("Restore the sample menu and replace the current tap list?"))return;
   pushItemsUndoSnapshot();
@@ -369,6 +409,7 @@ function toggleDisplayMode(){
 
 const APP_SHELL_DESIGN_WIDTH=1050;
 const APP_SHELL_MIN_SCALE=0.55;
+let currentShellScale=1;
 function fitAppShell(){
   const viewport=document.getElementById("appShellViewport");
   const shell=document.getElementById("appShell");
@@ -379,6 +420,7 @@ function fitAppShell(){
     shell.style.transform="";
     viewport.style.width="";
     viewport.style.height="";
+    currentShellScale=1;
     return;
   }
   shell.style.width=`${APP_SHELL_DESIGN_WIDTH}px`;
@@ -387,6 +429,7 @@ function fitAppShell(){
   shell.style.transform=`scale(${scale})`;
   viewport.style.width=`${APP_SHELL_DESIGN_WIDTH*scale}px`;
   viewport.style.height=`${shell.offsetHeight*scale}px`;
+  currentShellScale=scale;
 }
 
 async function boot(){
@@ -405,8 +448,9 @@ async function boot(){
   Object.entries(footerSvgs).forEach(([key,svg])=>document.getElementById(`${key}Icon`).innerHTML=svg);
   renderEditor();renderPreview();
   fitAppShell();
+  fitHeader();
   window.addEventListener("resize",()=>requestAnimationFrame(fitMenu));
-  window.addEventListener("resize",()=>requestAnimationFrame(fitAppShell));
+  window.addEventListener("resize",()=>requestAnimationFrame(()=>{fitAppShell();fitHeader();}));
   window.addEventListener("beforeprint",fitMenu);
   if(typeof ResizeObserver!=="undefined"){
     const shellEl=document.getElementById("appShell");

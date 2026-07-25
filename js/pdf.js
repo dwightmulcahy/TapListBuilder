@@ -26,10 +26,9 @@ function applySettings(){
     pageEl.style.setProperty("--page-pad-left",`calc(10mm * ${layoutScale})`);
     pageEl.style.setProperty("--corner-cut","0px");
   }
-  const logoScale=clampNumber(sizes.logoScale,.60,1.50,1);
-  pageEl.style.setProperty("--logo-scale",String(logoScale));
   pageEl.style.setProperty("--icon-scale",String(clampNumber(sizes.iconScale,.50,1.80,1)));
-  pageEl.style.setProperty("--header-height",`${61 * layoutScale * logoScale}mm`);
+  const maxHeaderSlotScale=Math.max(...sizes.headerSlotScales,0.5);
+  pageEl.style.setProperty("--header-height",`${61 * layoutScale * maxHeaderSlotScale}mm`); // provisional, corrected below
   pageEl.style.setProperty("--footer-height",`${25 * layoutScale}mm`);
   pageEl.style.setProperty("--watermark-scale",String(clampNumber(sizes.watermarkScale,.50,1.80,1)));
   pageEl.style.setProperty("--watermark-opacity",String(clampNumber(sizes.watermarkOpacity,0,1,.22)));
@@ -44,6 +43,33 @@ function applySettings(){
   document.getElementById("pTaproomHours").textContent=s.taproomHours||"";
   document.getElementById("pPhone").textContent=s.phone||"";
   document.getElementById("pLocation").textContent=s.location||"";
+  renderHeader();
+  fitHeader();
+}
+// The old header-height formula only accounted for scale, not rotation - a rotated slot's
+// visual bounding box can be much taller than its unrotated footprint (e.g. wide text
+// rotated 30-40deg sweeps well above/below its own center), which either got clipped or
+// forced an oversized header that left the unrotated logo floating in empty space. This
+// measures each slot's actual rendered (post-rotation) extent above/below the header's
+// vertical center and sizes the header to match, symmetrically.
+function fitHeader(){
+  const pageEl=document.getElementById("page");
+  const header=document.querySelector(".header");
+  if(!pageEl||!header)return;
+  const slotContents=[...document.querySelectorAll(".header-slot > *")];
+  if(!slotContents.length)return; // every slot empty - keep the provisional height
+  const headerRect=header.getBoundingClientRect();
+  if(headerRect.height<=0)return; // not laid out (e.g. hidden) - skip, keep provisional
+  const centerY=headerRect.top+headerRect.height/2;
+  let maxExtent=0;
+  slotContents.forEach(el=>{
+    const r=el.getBoundingClientRect();
+    maxExtent=Math.max(maxExtent,centerY-r.top,r.bottom-centerY);
+  });
+  if(maxExtent<=0)return;
+  const scale=typeof currentShellScale==="number"&&currentShellScale>0?currentShellScale:1;
+  const neededPx=Math.ceil((maxExtent*2)/scale)+16; // symmetric + a little breathing room
+  pageEl.style.setProperty("--header-height",`${neededPx}px`);
 }
 function fitFooter(){
   const pageEl=document.getElementById("page");

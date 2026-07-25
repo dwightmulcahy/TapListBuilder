@@ -1,6 +1,64 @@
 // DOM rendering: editor cards, tap-list preview, and small formatting helpers.
 function esc(v){return String(v??"").replace(/[&<>"']/g,s=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[s]))}
 
+function headerSlotContent(slot,scale){
+  const transform=`rotate(${slot.rotation}deg) scale(${scale})`;
+  if(slot.type==="text"&&slot.text)return `<span class="header-slot-text" style="transform:${transform}">${esc(slot.text)}</span>`;
+  if(slot.type==="logo"){
+    const src=slot.image||"assets/logo/mhb_logo_transparent.png";
+    return `<img src="${esc(src)}" alt="" style="transform:${transform}">`;
+  }
+  return "";
+}
+function renderHeader(){
+  const s=state.settings;
+  const scales=s.sizesByPageSize[s.pageSize].headerSlotScales;
+  s.headerSlots.forEach((slot,i)=>{
+    const el=document.getElementById(`headerSlot${i}`);
+    if(el)el.innerHTML=headerSlotContent(slot,scales[i]);
+  });
+}
+
+const HEADER_SLOT_LABELS=["Left","Center","Right"];
+function headerSlotEditor(slot,index,scale){
+  return `<fieldset class="header-slot-editor">
+    <legend>${HEADER_SLOT_LABELS[index]}</legend>
+    <label>Content
+      <select onchange="setHeaderSlot(${index},'type',this.value);renderHeaderModalBody()">
+        <option value="none" ${slot.type==="none"?"selected":""}>None (empty)</option>
+        <option value="text" ${slot.type==="text"?"selected":""}>Text</option>
+        <option value="logo" ${slot.type==="logo"?"selected":""}>Logo / image</option>
+      </select>
+    </label>
+    ${slot.type==="text"?`<label>Text<textarea rows="2" oninput="setHeaderSlot(${index},'text',this.value)">${esc(slot.text)}</textarea></label>`:""}
+    ${slot.type==="logo"?`
+      <label class="custom-icon-row">Upload image<input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onchange="uploadHeaderSlotImage(${index},event)"></label>
+      ${slot.image?`<button onclick="setHeaderSlot(${index},'image','');renderHeaderModalBody()">Use default logo instead</button>`:'<p class="help">Using the default Monkey Head logo. Upload an image to replace it.</p>'}
+    `:""}
+    ${slot.type!=="none"?`
+      <label>Size
+        <div class="range-with-value">
+          <input type="range" min="0.30" max="2.50" step="0.01" value="${scale}" oninput="setHeaderSlotScale(${index},Number(this.value));document.getElementById('headerSlotScaleValue${index}').value=Math.round(Number(this.value)*100)+'%'">
+          <output id="headerSlotScaleValue${index}">${Math.round(scale*100)}%</output>
+        </div>
+      </label>
+      <label>Rotation
+        <div class="range-with-value">
+          <input type="range" min="-180" max="180" step="1" value="${slot.rotation}" oninput="setHeaderSlot(${index},'rotation',Number(this.value));document.getElementById('headerSlotRotationValue${index}').value=this.value+'°'">
+          <output id="headerSlotRotationValue${index}">${slot.rotation}°</output>
+        </div>
+      </label>
+    `:""}
+  </fieldset>`;
+}
+function renderHeaderModalBody(){
+  const body=document.getElementById("headerModalBody");
+  if(!body)return;
+  const s=state.settings;
+  const scales=s.sizesByPageSize[s.pageSize].headerSlotScales;
+  body.innerHTML=s.headerSlots.map((slot,i)=>headerSlotEditor(slot,i,scales[i])).join("");
+}
+
 const CURATED_BEER_STYLES=[
   "IPA","Hazy IPA","Session IPA","Double IPA","Pale Ale","Blonde Ale","Amber Ale","Brown Ale","Red Ale",
   "Kölsch","Pilsner","Lager","Helles","Oktoberfest / Märzen",
@@ -138,8 +196,6 @@ function renderEditor(){
   document.getElementById("pageSizeLetterBtn")?.classList.toggle("active",s.pageSize==="letter");
   document.getElementById("pageSizeCardBtn")?.classList.toggle("active",s.pageSize==="4x6");
   document.getElementById("translationContactEmail").value=s.translationContactEmail||"";
-  document.getElementById("logoScale").value=sizes.logoScale;
-  document.getElementById("logoScaleValue").value=`${Math.round(Number(sizes.logoScale)*100)}%`;
   document.getElementById("iconScale").value=sizes.iconScale;
   document.getElementById("iconScaleValue").value=`${Math.round(Number(sizes.iconScale)*100)}%`;
   document.getElementById("watermarkOpacity").value=sizes.watermarkOpacity;
@@ -164,6 +220,7 @@ function renderEditor(){
   if(translateButton)translateButton.textContent=s.language==="es"?"Translate menu to English":"Translate menu to Spanish";
   renderSavedBeverageLibrary();
   renderMenuProfiles();
+  renderHeaderModalBody();
 }
 
 function formatAbv(value){const v=String(value??"").trim();return v?`${esc(v)}%`:"—"}

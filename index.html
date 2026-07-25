@@ -67,6 +67,7 @@
     <button id="pageSizeCardBtn" class="toggle-btn" onclick="setSetting('pageSize','4x6')">4×6 Card</button>
   </div>
   <button onclick="openModal('pageModal')">Page</button>
+  <button onclick="renderHeaderModalBody();openModal('headerModal')">Header</button>
   <button class="undo-button" onclick="undoItems()" disabled title="Undo the last add/remove/duplicate/reorder">Undo</button>
 </div>
 
@@ -74,18 +75,6 @@
 
 <div class="app">
   <aside class="panel">
-    <details class="settings-section">
-      <summary>Header</summary>
-      <div class="section-body">
-        <label>Logo size
-          <div class="range-with-value">
-            <input id="logoScale" type="range" min="0.60" max="1.50" step="0.01" oninput="setSetting('logoScale',Number(this.value));document.getElementById('logoScaleValue').value=Math.round(Number(this.value)*100)+'%'">
-            <output id="logoScaleValue">100%</o>
-          </div>
-        </label>
-      </div>
-    </details>
-
     <h2 class="sidebar-items-heading">Items</h2>
     <div id="editor"></div>
     <datalist id="styleOptions"></datalist>
@@ -144,7 +133,9 @@
           <span class="corner bl"></span>
         </div>
         <header class="header">
-          <img class="logo" id="logo" src="assets/logo/mhb_logo_transparent.png" alt="Monkey Head Brewing Company logo">
+          <div class="header-slot" id="headerSlot0"></div>
+          <div class="header-slot" id="headerSlot1"></div>
+          <div class="header-slot" id="headerSlot2"></div>
         </header>
         <div class="tap-list" id="tapList"></div>
         <footer class="footer">
@@ -243,6 +234,14 @@
       </div>
     </label>
     <p class="help">Moving the font size slider immediately applies the same size to every description; you can still override individual descriptions afterward. The 4×6 PDF option (toolbar) uses a corner-safe mask so text stays out of the holder tabs.</p>
+  </div>
+</dialog>
+
+<dialog class="app-modal" id="headerModal">
+  <div class="app-modal-header"><h2>Header</h2><button class="icon-button" aria-label="Close" onclick="closeModal('headerModal')">×</button></div>
+  <div class="app-modal-body">
+    <p class="help">Sizes are saved separately for each page size — currently editing: <strong class="page-size-context-label">US Letter</strong>.</p>
+    <div id="headerModalBody"></div>
   </div>
 </dialog>
 
