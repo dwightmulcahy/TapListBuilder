@@ -1,10 +1,9 @@
 // Page sizing, live text-fit/shrink logic, and print/preview controls.
 function applySettings(){
   const s=state.settings;
-  let w="210mm",h="297mm",pageCss="A4 portrait",layoutScale=1;
-  if(s.pageSize==="letter"){
-    w="8.5in";h="11in";pageCss="letter portrait";layoutScale=1;
-  }else if(s.pageSize==="4x6"){
+  const sizes=s.sizesByPageSize[s.pageSize];
+  let w="8.5in",h="11in",pageCss="letter portrait",layoutScale=1;
+  if(s.pageSize==="4x6"){
     w="4in";h="6in";pageCss="4in 6in";layoutScale=.5;
   }
   const pageEl=document.getElementById("page");
@@ -27,15 +26,16 @@ function applySettings(){
     pageEl.style.setProperty("--page-pad-left",`calc(10mm * ${layoutScale})`);
     pageEl.style.setProperty("--corner-cut","0px");
   }
-  const logoScale=clampNumber(s.logoScale,.60,1.50,1);
+  const logoScale=clampNumber(sizes.logoScale,.60,1.50,1);
   pageEl.style.setProperty("--logo-scale",String(logoScale));
+  pageEl.style.setProperty("--icon-scale",String(clampNumber(sizes.iconScale,.50,1.80,1)));
   pageEl.style.setProperty("--header-height",`${61 * layoutScale * logoScale}mm`);
   pageEl.style.setProperty("--footer-height",`${25 * layoutScale}mm`);
-  pageEl.style.setProperty("--watermark-scale",String(clampNumber(s.watermarkScale,.50,1.80,1)));
-  pageEl.style.setProperty("--watermark-opacity",String(clampNumber(s.watermarkOpacity,0,1,.22)));
-  pageEl.style.setProperty("--taproom-font-size",`${clampNumber(s.taproomFontSize,10,32,20)}pt`);
-  pageEl.style.setProperty("--phone-font-size",`${clampNumber(s.phoneFontSize,10,32,20)}pt`);
-  pageEl.style.setProperty("--location-font-size",`${clampNumber(s.locationFontSize,10,32,19)}pt`);
+  pageEl.style.setProperty("--watermark-scale",String(clampNumber(sizes.watermarkScale,.50,1.80,1)));
+  pageEl.style.setProperty("--watermark-opacity",String(clampNumber(sizes.watermarkOpacity,0,1,.22)));
+  pageEl.style.setProperty("--taproom-font-size",`${clampNumber(sizes.taproomFontSize,10,32,20)}pt`);
+  pageEl.style.setProperty("--phone-font-size",`${clampNumber(sizes.phoneFontSize,10,32,20)}pt`);
+  pageEl.style.setProperty("--location-font-size",`${clampNumber(sizes.locationFontSize,10,32,19)}pt`);
   pageEl.style.setProperty("--taproom-scale","1");
   pageEl.style.setProperty("--phone-scale","1");
   pageEl.style.setProperty("--footer-bottom-scale","1");

@@ -40,9 +40,10 @@
 }
 .tap-row:last-child{border-bottom:0}
 .icon-wrap{
-  justify-self:center;width:calc(23mm * var(--layout-scale,1));height:calc(23mm * var(--layout-scale,1));border:.65mm solid currentColor;border-radius:50%;
+  justify-self:center;width:calc(23mm * var(--layout-scale,1) * var(--icon-scale,1));height:calc(23mm * var(--layout-scale,1) * var(--icon-scale,1));border:.65mm solid currentColor;border-radius:50%;
   display:grid;place-items:center;background:rgba(255,255,255,.13)
 }
+.icon-wrap-hidden{border-color:transparent;background:transparent}
 .icon-wrap svg{width:72%;height:72%;display:block}
 .icon-wrap img{width:70%;height:70%;object-fit:contain;display:block}
 .tap-divider{width:calc(1.05mm * var(--layout-scale,1));height:76%;min-height:calc(13mm * var(--layout-scale,1));border-radius:9px;background:currentColor}
@@ -102,6 +103,7 @@
 }
 .style-label:empty{display:none;margin:0}
 .stats-row{display:grid;grid-template-columns:1fr 1fr;align-items:center}
+.stats-row-single{grid-template-columns:1fr}
 .stat{min-width:0;padding:0 calc(1mm * var(--layout-scale,1))}
 .stat+.stat{border-left:.62mm dotted #4d4d4d}
 .value{
@@ -132,3 +134,16 @@
 .phone-text{color:#17479d;display:block;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .footer-bottom{height:calc(10.5mm * var(--layout-scale,1));display:flex;justify-content:center;align-items:center;gap:calc(2.5mm * var(--layout-scale,1));white-space:nowrap;overflow:hidden}
 .location-text{font-size:calc(var(--location-font-size,19pt) * var(--footer-bottom-scale,1) * var(--layout-scale,1));line-height:1;letter-spacing:.025em;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+
+.tap-divider-row{
+  display:flex;align-items:center;gap:calc(3mm * var(--layout-scale,1));
+  margin:calc(1.5mm * var(--fit) * var(--layout-scale,1)) 0;color:#333
+}
+.tap-divider-row::before,.tap-divider-row::after{content:"";flex:1;height:.32mm;background:currentColor;opacity:.45}
+.tap-divider-row-plain::before{flex:1}
+.tap-divider-row-plain::after{display:none}
+.tap-divider-row span{
+  font-family:Impact,Haettenschweiler,"Arial Narrow Bold","Arial Narrow",sans-serif;
+  font-weight:900;text-transform:uppercase;letter-spacing:.08em;
+  font-size:calc(4.4mm * var(--fit) * var(--layout-scale,1));white-space:nowrap;color:#222
+}

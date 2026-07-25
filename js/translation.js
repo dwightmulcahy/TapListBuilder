@@ -151,6 +151,7 @@ async function translateDescriptionToEnglish(description=""){
 }
 
 async function setItemLanguage(item,targetLanguage){
+  if(item.type==="divider")return item;
   const normalized=normalizeItem(item,item.language||state.settings.language);
   const current=normalized.language;
   normalized.translations[current]=normalized.translations[current]||{name:"",description:""};

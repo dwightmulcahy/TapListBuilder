@@ -61,11 +61,11 @@
 
 <div class="app-toolbar">
   <button onclick="addItem()">+ Add item</button>
-  <select id="pageSize" onchange="setSetting('pageSize',this.value)" aria-label="PDF output size">
-    <option value="a4">A4 portrait</option>
-    <option value="letter">US Letter portrait</option>
-    <option value="4x6">4×6 card portrait</option>
-  </select>
+  <button onclick="addDivider()">+ Add divider</button>
+  <div class="page-size-toggle" role="group" aria-label="PDF output size">
+    <button id="pageSizeLetterBtn" class="toggle-btn" onclick="setSetting('pageSize','letter')">US Letter</button>
+    <button id="pageSizeCardBtn" class="toggle-btn" onclick="setSetting('pageSize','4x6')">4×6 Card</button>
+  </div>
   <button onclick="openModal('pageModal')">Page</button>
   <button class="undo-button" onclick="undoItems()" disabled title="Undo the last add/remove/duplicate/reorder">Undo</button>
 </div>
@@ -217,6 +217,13 @@
 <dialog class="app-modal" id="pageModal">
   <div class="app-modal-header"><h2>Page</h2><button class="icon-button" aria-label="Close" onclick="closeModal('pageModal')">×</button></div>
   <div class="app-modal-body">
+    <p class="help">Sizes below are saved separately for each page size — currently editing: <strong class="page-size-context-label">US Letter</strong>.</p>
+    <label>Icon size
+      <div class="range-with-value">
+        <input id="iconScale" type="range" min="0.50" max="1.80" step="0.01" oninput="setSetting('iconScale',Number(this.value));document.getElementById('iconScaleValue').value=Math.round(Number(this.value)*100)+'%'">
+        <output id="iconScaleValue">100%</o>
+      </div>
+    </label>
     <label>Watermark strength
       <div class="range-with-value">
         <input id="watermarkOpacity" type="range" min="0" max="1" step="0.01" oninput="setSetting('watermarkOpacity',Number(this.value));document.getElementById('watermarkOpacityValue').value=Math.round(Number(this.value)*100)+'%'">

@@ -18,6 +18,7 @@ function renderStyleOptions(){
 }
 
 function editorCard(item,i){
+  if(item.type==="divider")return dividerEditorCard(item,i);
   const metaParts=[item.isNew?"NEW":"",item.abv?`${esc(item.abv)}%`:"",item.ibu?`${esc(item.ibu)} IBU`:"",item.style?esc(item.style):""].filter(Boolean);
   return `<fieldset class="beer-card" style="--item-color:${esc(item.color)}">
     <div class="card-header">
@@ -49,6 +50,11 @@ function editorCard(item,i){
             <label>Gluten free<select onchange="setItem(${i},'glutenFree',this.value==='true')"><option value="false" ${!item.glutenFree?'selected':''}>No</option><option value="true" ${item.glutenFree?'selected':''}>Yes</option></select></label>
             <label>Icon<select onchange="setItem(${i},'icon',this.value,true)">${iconOptions(item.icon)}</select></label>
           </div>
+          <div class="visibility-toggles">
+            <label class="checkbox-row"><input type="checkbox" ${item.hideIcon?"checked":""} onchange="setItem(${i},'hideIcon',this.checked)"> Hide icon</label>
+            <label class="checkbox-row"><input type="checkbox" ${item.hideAbv?"checked":""} onchange="setItem(${i},'hideAbv',this.checked)"> Hide ABV</label>
+            <label class="checkbox-row"><input type="checkbox" ${item.hideIbu?"checked":""} onchange="setItem(${i},'hideIbu',this.checked)"> Hide IBU</label>
+          </div>
           <details class="advanced-abv" id="advancedAbv-${i}" ${isAbvCalculated(item)?"open":""}>
             <summary>Advanced: calculate ABV from gravity (SG/FG)</summary>
             <div class="section-body">
@@ -68,6 +74,31 @@ function editorCard(item,i){
               <output id="descFontSizeValue-${i}">${esc(formatDescriptionFontSize(item.descriptionFontSize))}</o>
             </div>
           </label>
+        </div>
+      </details>
+      <div class="card-actions">
+        <button class="icon-button" title="Move up" aria-label="Move item up" ${i===0?'disabled':''} onclick="moveItem(${i},-1)">↑</button>
+        <button class="icon-button" title="Move down" aria-label="Move item down" ${i===state.items.length-1?'disabled':''} onclick="moveItem(${i},1)">↓</button>
+        <button class="icon-button" title="Duplicate" aria-label="Duplicate item" onclick="duplicateItem(${i})">⧉</button>
+        <button class="icon-button danger" title="Remove" aria-label="Remove item" onclick="removeItem(${i})">×</button>
+      </div>
+    </div>
+  </fieldset>`;
+}
+
+function dividerEditorCard(item,i){
+  return `<fieldset class="beer-card divider-card" style="--item-color:#888">
+    <div class="card-header">
+      <details class="beer-card-details" ${expandedItemIndices.has(i)?"open":""} ontoggle="onItemDetailsToggle(${i},this.open)">
+        <summary>
+          <span class="summary-text">
+            <span class="summary-name">Divider</span>
+            <span class="summary-meta">${item.text?esc(item.text):"(no text)"}</span>
+          </span>
+        </summary>
+        <div class="beer-card-body">
+          <label>Divider text (optional)<input value="${esc(item.text)}" placeholder="e.g. CIDERS" oninput="setItem(${i},'text',this.value)"></label>
+          <p class="help">A divider prints as a horizontal rule across the menu, with this text centered on it if provided. Leave blank for a plain line.</p>
         </div>
       </details>
       <div class="card-actions">
@@ -103,27 +134,32 @@ function renderEditor(){
   renderStyleOptions();
   updateUndoButton();
   const s=state.settings;
-  document.getElementById("pageSize").value=s.pageSize;
+  const sizes=s.sizesByPageSize[s.pageSize];
+  document.getElementById("pageSizeLetterBtn")?.classList.toggle("active",s.pageSize==="letter");
+  document.getElementById("pageSizeCardBtn")?.classList.toggle("active",s.pageSize==="4x6");
   document.getElementById("translationContactEmail").value=s.translationContactEmail||"";
-  document.getElementById("logoScale").value=s.logoScale;
-  document.getElementById("logoScaleValue").value=`${Math.round(Number(s.logoScale)*100)}%`;
-  document.getElementById("watermarkOpacity").value=s.watermarkOpacity;
-  document.getElementById("watermarkOpacityValue").value=`${Math.round(Number(s.watermarkOpacity)*100)}%`;
-  document.getElementById("watermarkScale").value=s.watermarkScale;
-  document.getElementById("watermarkScaleValue").value=`${Math.round(Number(s.watermarkScale)*100)}%`;
-  document.getElementById("globalDescriptionFontSize").value=clampDescriptionFontSize(s.globalDescriptionFontSize);
+  document.getElementById("logoScale").value=sizes.logoScale;
+  document.getElementById("logoScaleValue").value=`${Math.round(Number(sizes.logoScale)*100)}%`;
+  document.getElementById("iconScale").value=sizes.iconScale;
+  document.getElementById("iconScaleValue").value=`${Math.round(Number(sizes.iconScale)*100)}%`;
+  document.getElementById("watermarkOpacity").value=sizes.watermarkOpacity;
+  document.getElementById("watermarkOpacityValue").value=`${Math.round(Number(sizes.watermarkOpacity)*100)}%`;
+  document.getElementById("watermarkScale").value=sizes.watermarkScale;
+  document.getElementById("watermarkScaleValue").value=`${Math.round(Number(sizes.watermarkScale)*100)}%`;
+  document.getElementById("globalDescriptionFontSize").value=clampDescriptionFontSize(sizes.globalDescriptionFontSize);
   updateGlobalDescriptionControl();
   document.getElementById("taproomLabel").value=s.taproomLabel;
   document.getElementById("taproomHours").value=s.taproomHours;
   document.getElementById("phone").value=s.phone;
   document.getElementById("location").value=s.location;
   document.getElementById("footerAutoFit").value=String(Boolean(s.footerAutoFit));
-  document.getElementById("taproomFontSize").value=s.taproomFontSize;
-  document.getElementById("taproomFontSizeValue").value=`${String(Number(s.taproomFontSize).toFixed(1)).replace(/\.0$/,"")} pt`;
-  document.getElementById("phoneFontSize").value=s.phoneFontSize;
-  document.getElementById("phoneFontSizeValue").value=`${String(Number(s.phoneFontSize).toFixed(1)).replace(/\.0$/,"")} pt`;
-  document.getElementById("locationFontSize").value=s.locationFontSize;
-  document.getElementById("locationFontSizeValue").value=`${String(Number(s.locationFontSize).toFixed(1)).replace(/\.0$/,"")} pt`;
+  document.getElementById("taproomFontSize").value=sizes.taproomFontSize;
+  document.getElementById("taproomFontSizeValue").value=`${String(Number(sizes.taproomFontSize).toFixed(1)).replace(/\.0$/,"")} pt`;
+  document.getElementById("phoneFontSize").value=sizes.phoneFontSize;
+  document.getElementById("phoneFontSizeValue").value=`${String(Number(sizes.phoneFontSize).toFixed(1)).replace(/\.0$/,"")} pt`;
+  document.getElementById("locationFontSize").value=sizes.locationFontSize;
+  document.getElementById("locationFontSizeValue").value=`${String(Number(sizes.locationFontSize).toFixed(1)).replace(/\.0$/,"")} pt`;
+  document.querySelectorAll(".page-size-context-label").forEach(el=>{el.textContent=s.pageSize==="4x6"?"4×6 Card":"US Letter"});
   const translateButton=document.getElementById("translateMenuButton");
   if(translateButton)translateButton.textContent=s.language==="es"?"Translate menu to English":"Translate menu to Spanish";
   renderSavedBeverageLibrary();
@@ -141,10 +177,18 @@ function newBadgeMarkup(item){
   const styleClass=style==="outline"?"badge-new-outline":style==="text"?"badge-new-text":"badge-new-pill";
   return `<span class="badge ${styleClass}">${text}</span>`;
 }
-function renderPreview(){
-  const list=document.getElementById("tapList");
-  list.innerHTML=state.items.map(item=>`<article class="tap-row" style="color:${esc(item.color)}">
-    <div class="icon-wrap">${renderedIcon(item)}</div>
+function renderTapRow(item){
+  if(item.type==="divider"){
+    return item.text
+      ? `<div class="tap-divider-row"><span>${esc(item.text)}</span></div>`
+      : `<div class="tap-divider-row tap-divider-row-plain"></div>`;
+  }
+  const statCells=[];
+  if(!item.hideAbv)statCells.push(`<div class="stat"><div class="value">${formatAbv(item.abv)}</div><div class="stat-label">ABV</div></div>`);
+  if(!item.hideIbu)statCells.push(`<div class="stat"><div class="value">${formatIbu(item.ibu)}</div><div class="stat-label">IBU</div></div>`);
+  const statsRowHtml=statCells.length?`<div class="stats-row${statCells.length===1?" stats-row-single":""}">${statCells.join("")}</div>`:"";
+  return `<article class="tap-row" style="color:${esc(item.color)}">
+    <div class="icon-wrap${item.hideIcon?" icon-wrap-hidden":""}">${item.hideIcon?"":renderedIcon(item)}</div>
     <div class="tap-divider"></div>
     <div class="item-copy">
       <h2 class="item-name">${esc(item.name)}${item.isNew?newBadgeMarkup(item):''}${item.glutenFree?`<span class="badge">${glutenFreeBadge()}</span>`:''}</h2>
@@ -152,13 +196,14 @@ function renderPreview(){
     </div>
     <div class="stats">
       <div class="style-label">${esc(item.style||"")}</div>
-      <div class="stats-row">
-        <div class="stat"><div class="value">${formatAbv(item.abv)}</div><div class="stat-label">ABV</div></div>
-        <div class="stat"><div class="value">${formatIbu(item.ibu)}</div><div class="stat-label">IBU</div></div>
-      </div>
-      ${bitternessMeter(item.ibu,item.sg,item.fg)}
+      ${statsRowHtml}
+      ${item.hideIbu?"":bitternessMeter(item.ibu,item.sg,item.fg)}
     </div>
-  </article>`).join("");
+  </article>`;
+}
+function renderPreview(){
+  const list=document.getElementById("tapList");
+  list.innerHTML=state.items.map(renderTapRow).join("");
   applySettings();
   requestAnimationFrame(fitMenu);
 }

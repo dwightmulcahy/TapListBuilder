@@ -63,6 +63,10 @@ button:disabled{opacity:.35;cursor:not-allowed}
 .app-menu-dropdown hr{width:100%;border:0;border-top:1px solid #e2e2e2;margin:2px 0}
 
 .app-toolbar{flex:0 0 auto;display:flex;flex-wrap:wrap;gap:7px;background:#fafafa;border-bottom:1px solid #b8b8b8;padding:8px 14px;align-items:center}
+.page-size-toggle{display:flex;border:1px solid #a3a3a3;border-radius:7px;overflow:hidden}
+.page-size-toggle .toggle-btn{border:0;border-radius:0;background:#f8f8f8;padding:8px 12px}
+.page-size-toggle .toggle-btn+.toggle-btn{border-left:1px solid #a3a3a3}
+.page-size-toggle .toggle-btn.active{background:#111;color:#fff}
 .app-toolbar select{width:auto;margin-top:0;padding:8px 10px;font-size:13px;font-weight:800;border-radius:7px}
 
 .app{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(320px,400px) 1fr}
@@ -124,6 +128,8 @@ input[readonly]{background:#f0f0f0;color:#666;cursor:not-allowed}
 .calc-tag{font-weight:600;color:#666;text-transform:none;letter-spacing:normal}
 .checkbox-row{display:flex!important;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#383838;margin:8px 0 0}
 .checkbox-row input[type="checkbox"]{width:auto;margin:0}
+.visibility-toggles{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px}
+.visibility-toggles .checkbox-row{margin-top:0}
 .range-with-value{display:grid;grid-template-columns:minmax(0,1fr) 58px;gap:8px;align-items:center;margin-top:4px}
 .range-with-value input{margin-top:0}
 .range-with-value output{display:block;text-align:center;border:1px solid #aaa;border-radius:5px;background:#f5f5f5;padding:6px 4px;font-size:12px;font-weight:900;color:#333}

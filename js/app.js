@@ -1,14 +1,19 @@
 // Core app state: item/state normalization, item CRUD, settings, custom icon upload,
 // and the boot sequence that loads JSON data then does the first render.
 
+const SIZE_KEYS=["logoScale","iconScale","watermarkScale","watermarkOpacity","taproomFontSize","phoneFontSize","locationFontSize","globalDescriptionFontSize"];
 const defaultState={
   version:2.45,
   settings:{
-    pageSize:"letter",logoScale:0.67,watermarkScale:1.33,watermarkOpacity:0.83,
+    pageSize:"letter",
     taproomLabel:"TAPROOM:",taproomHours:"NOON–5PM DAILY",
     phone:"+506 8733 7046",location:"3KM W OF DANIEL ODUBER AIRPORT",
-    footerAutoFit:true,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,language:"en",
-    translationContactEmail:""
+    footerAutoFit:true,language:"en",
+    translationContactEmail:"",
+    sizesByPageSize:{
+      letter:{logoScale:0.67,iconScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75},
+      "4x6":{logoScale:0.67,iconScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75}
+    }
   },
   items:[] // populated from data/beer-styles.json during boot()
 };
@@ -57,6 +62,9 @@ function isAbvCalculated(item){
   return calculateAbv(item.sg,item.fg)!==null;
 }
 function normalizeItem(item={},defaultLanguage="en"){
+  if(item.type==="divider"){
+    return {type:"divider",text:String(item.text??"")};
+  }
   const language=item.language==="es"?"es":item.language==="en"?"en":defaultLanguage==="es"?"es":"en";
   const name=String(item.name??"New item");
   const description=String(item.description??"");
@@ -72,6 +80,7 @@ function normalizeItem(item={},defaultLanguage="en"){
     }
   };
   return {
+    type:"beer",
     name,
     style:typeof item.style==="string"?item.style:inferStyle(name),
     sg:String(item.sg??""),
@@ -84,25 +93,43 @@ function normalizeItem(item={},defaultLanguage="en"){
     color:/^#[0-9a-f]{6}$/i.test(item.color||"")?item.color:"#444444",
     icon:ICONS[item.icon]?item.icon:inferIcon(item.name),
     customIcon:item.customIcon||"",
+    hideIcon:Boolean(item.hideIcon),
+    hideAbv:Boolean(item.hideAbv),
+    hideIbu:Boolean(item.hideIbu),
     descriptionFontSize:clampDescriptionFontSize(item.descriptionFontSize),
     description,
     language,
     translations
   };
 }
+function clampSizeBucket(src){
+  src=src&&typeof src==="object"?src:{};
+  return {
+    logoScale:clampNumber(src.logoScale,.60,1.50,1),
+    iconScale:clampNumber(src.iconScale,.50,1.80,1),
+    watermarkScale:clampNumber(src.watermarkScale,.50,1.80,1),
+    watermarkOpacity:clampNumber(src.watermarkOpacity,0,1,.22),
+    taproomFontSize:clampNumber(src.taproomFontSize,10,32,20),
+    phoneFontSize:clampNumber(src.phoneFontSize,10,32,20),
+    locationFontSize:clampNumber(src.locationFontSize,10,32,19),
+    globalDescriptionFontSize:clampDescriptionFontSize(src.globalDescriptionFontSize)
+  };
+}
 function normalizeState(raw){
   const base=deepCopy(defaultState);
   if(!raw||typeof raw!=="object")return base;
   let settings={...base.settings,...(raw.settings||{})};
-  settings.pageSize=["a4","letter","4x6"].includes(settings.pageSize)?settings.pageSize:"a4";
-  settings.logoScale=clampNumber(settings.logoScale,.60,1.50,1);
-  settings.watermarkScale=clampNumber(settings.watermarkScale,.50,1.80,1);
-  settings.watermarkOpacity=clampNumber(settings.watermarkOpacity,0,1,.22);
+  settings.pageSize=settings.pageSize==="4x6"?"4x6":"letter"; // "a4" and anything else collapse to letter
+  // Sizes (logo/icon/watermark/fonts) are saved per page size. Old saved files had these as
+  // flat settings; use those as the migration fallback for both buckets if present.
+  const rawBuckets=raw.settings?.sizesByPageSize||{};
+  const legacyFlat=raw.settings||{};
+  settings.sizesByPageSize={
+    letter:clampSizeBucket(rawBuckets.letter||legacyFlat),
+    "4x6":clampSizeBucket(rawBuckets["4x6"]||legacyFlat)
+  };
+  SIZE_KEYS.forEach(key=>{delete settings[key]});
   settings.footerAutoFit = typeof settings.footerAutoFit === "boolean" ? settings.footerAutoFit : true;
-  settings.taproomFontSize=clampNumber(settings.taproomFontSize,10,32,20);
-  settings.phoneFontSize=clampNumber(settings.phoneFontSize,10,32,20);
-  settings.locationFontSize=clampNumber(settings.locationFontSize,10,32,19);
-  settings.globalDescriptionFontSize=clampDescriptionFontSize(settings.globalDescriptionFontSize);
   settings.language=settings.language==="es"?"es":"en";
   settings.translationContactEmail=String(settings.translationContactEmail??"").trim();
   settings.locationTranslations={en:String(settings.locationTranslations?.en??""),es:String(settings.locationTranslations?.es??"")};
@@ -117,9 +144,12 @@ function normalizeState(raw){
     }
   }
   const items=Array.isArray(raw.items)?raw.items.map(item=>normalizeItem(item,settings.language)):base.items.map(item=>normalizeItem(item,settings.language));
-  if(raw.settings?.globalDescriptionFontSize==null && items.length){
-    const first=clampDescriptionFontSize(items[0].descriptionFontSize);
-    if(items.every(item=>clampDescriptionFontSize(item.descriptionFontSize)===first))settings.globalDescriptionFontSize=first;
+  const sizes=settings.sizesByPageSize[settings.pageSize];
+  const hadExplicitGlobalFontSize=rawBuckets[settings.pageSize]?.globalDescriptionFontSize!=null||legacyFlat.globalDescriptionFontSize!=null;
+  const beerItems=items.filter(item=>item.type==="beer");
+  if(!hadExplicitGlobalFontSize&&beerItems.length){
+    const first=clampDescriptionFontSize(beerItems[0].descriptionFontSize);
+    if(beerItems.every(item=>clampDescriptionFontSize(item.descriptionFontSize)===first))sizes.globalDescriptionFontSize=first;
   }
   return {version:2.45,settings,items};
 }
@@ -128,27 +158,29 @@ function updateGlobalDescriptionControl(){
   const input=document.getElementById("globalDescriptionFontSize");
   const output=document.getElementById("globalDescriptionFontSizeValue");
   if(!input||!output)return;
-  if(!state.items.length){
-    const size=clampDescriptionFontSize(state.settings.globalDescriptionFontSize);
+  const sizes=state.settings.sizesByPageSize[state.settings.pageSize];
+  const beerItems=state.items.filter(item=>item.type==="beer");
+  if(!beerItems.length){
+    const size=clampDescriptionFontSize(sizes.globalDescriptionFontSize);
     input.value=size;
     output.value=formatDescriptionFontSize(size);
     return;
   }
-  const first=clampDescriptionFontSize(state.items[0].descriptionFontSize);
-  const allSame=state.items.every(item=>clampDescriptionFontSize(item.descriptionFontSize)===first);
+  const first=clampDescriptionFontSize(beerItems[0].descriptionFontSize);
+  const allSame=beerItems.every(item=>clampDescriptionFontSize(item.descriptionFontSize)===first);
   if(allSame){
-    state.settings.globalDescriptionFontSize=first;
+    sizes.globalDescriptionFontSize=first;
     input.value=first;
     output.value=formatDescriptionFontSize(first);
   }else{
-    input.value=clampDescriptionFontSize(state.settings.globalDescriptionFontSize);
+    input.value=clampDescriptionFontSize(sizes.globalDescriptionFontSize);
     output.value="Mixed";
   }
 }
 function setAllDescriptionFontSizes(value){
   const size=clampDescriptionFontSize(value);
-  state.settings.globalDescriptionFontSize=size;
-  state.items.forEach(item=>{item.descriptionFontSize=size});
+  state.settings.sizesByPageSize[state.settings.pageSize].globalDescriptionFontSize=size;
+  state.items.forEach(item=>{if(item.type==="beer")item.descriptionFontSize=size});
   document.querySelectorAll(".description-font-slider").forEach(slider=>{
     slider.value=size;
     const index=Number(slider.dataset.itemIndex);
@@ -161,13 +193,19 @@ function setAllDescriptionFontSizes(value){
   renderPreview();
 }
 function setSetting(key,value){
-  if(key==="logoScale"||key==="watermarkOpacity"||key==="watermarkScale")value=Number(value);
+  if(SIZE_KEYS.includes(key)){
+    value=key==="taproomFontSize"||key==="phoneFontSize"||key==="locationFontSize"?clampNumber(value,10,32,20):Number(value);
+    state.settings.sizesByPageSize[state.settings.pageSize][key]=value;
+    autosave();renderPreview();
+    return;
+  }
   state.settings[key]=value;
   if(key==="location"){
     state.settings.locationTranslations=state.settings.locationTranslations||{en:"",es:""};
     state.settings.locationTranslations[state.settings.language]=String(value);
   }
   autosave();renderPreview();
+  if(key==="pageSize")renderEditor();
 }
 function setItem(i,key,value,rerenderEditor=false){
   if(key==="descriptionFontSize")value=clampDescriptionFontSize(value);
@@ -238,15 +276,23 @@ function swapExpandedIndices(i,j){
 
 function addItem(){
   pushItemsUndoSnapshot();
-  state.items.push(normalizeItem({name:"New Beer",abv:"5.0",ibu:"",glutenFree:false,color:"#444444",icon:"beer",customIcon:"",descriptionFontSize:clampDescriptionFontSize(state.settings.globalDescriptionFontSize),description:"Enter the beverage description here."}));
+  state.items.push(normalizeItem({name:"New Beer",abv:"5.0",ibu:"",glutenFree:false,color:"#444444",icon:"beer",customIcon:"",descriptionFontSize:clampDescriptionFontSize(state.settings.sizesByPageSize[state.settings.pageSize].globalDescriptionFontSize),description:"Enter the beverage description here."}));
   expandedItemIndices.add(state.items.length-1); // open the new item so it's ready to edit
+  autosave();renderEditor();renderPreview();
+  document.querySelector("#editor fieldset:last-child")?.scrollIntoView({behavior:"smooth",block:"center"});
+}
+function addDivider(){
+  pushItemsUndoSnapshot();
+  state.items.push(normalizeItem({type:"divider",text:""}));
+  expandedItemIndices.add(state.items.length-1);
   autosave();renderEditor();renderPreview();
   document.querySelector("#editor fieldset:last-child")?.scrollIntoView({behavior:"smooth",block:"center"});
 }
 function removeItem(i){
   const item=state.items[i];
   if(!item)return;
-  if(!confirm(`Remove "${item.name||"this item"}" from the menu?`))return;
+  const label=item.type==="divider"?(item.text||"this divider"):(item.name||"this item");
+  if(!confirm(`Remove "${label}" from the menu?`))return;
   pushItemsUndoSnapshot();
   state.items.splice(i,1);
   shiftExpandedIndicesForRemove(i);
@@ -254,7 +300,16 @@ function removeItem(i){
 }
 function duplicateItem(i){
   pushItemsUndoSnapshot();
-  const copy=deepCopy(state.items[i]);copy.name=`${copy.name} Copy`;copy.translations=copy.translations||{en:{name:"",description:""},es:{name:"",description:""}};copy.translations[copy.language]=copy.translations[copy.language]||{name:"",description:""};copy.translations[copy.language].name=copy.name;state.items.splice(i+1,0,copy);
+  const copy=deepCopy(state.items[i]);
+  if(copy.type==="divider"){
+    // no name/translations to touch
+  }else{
+    copy.name=`${copy.name} Copy`;
+    copy.translations=copy.translations||{en:{name:"",description:""},es:{name:"",description:""}};
+    copy.translations[copy.language]=copy.translations[copy.language]||{name:"",description:""};
+    copy.translations[copy.language].name=copy.name;
+  }
+  state.items.splice(i+1,0,copy);
   shiftExpandedIndicesForInsert(i+1);
   expandedItemIndices.add(i+1); // open the new copy
   autosave();renderEditor();renderPreview();
