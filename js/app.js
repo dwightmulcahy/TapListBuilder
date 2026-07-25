@@ -70,6 +70,11 @@ function normalizeItem(item={},defaultLanguage="en"){
   if(item.type==="divider"){
     return {type:"divider",text:String(item.text??"")};
   }
+  if(item.type==="text"){
+    const rawColumns=Array.isArray(item.columns)&&item.columns.length?item.columns:[{title:"",body:""}];
+    const columns=rawColumns.slice(0,3).map(c=>({title:String(c?.title??""),body:String(c?.body??"")}));
+    return {type:"text",columns};
+  }
   const language=item.language==="es"?"es":item.language==="en"?"en":defaultLanguage==="es"?"es":"en";
   const name=String(item.name??"New item");
   const description=String(item.description??"");
@@ -307,10 +312,35 @@ function addDivider(){
   autosave();renderEditor();renderPreview();
   document.querySelector("#editor fieldset:last-child")?.scrollIntoView({behavior:"smooth",block:"center"});
 }
+function addTextItem(){
+  pushItemsUndoSnapshot();
+  state.items.push(normalizeItem({type:"text",columns:[{title:"",body:""}]}));
+  expandedItemIndices.add(state.items.length-1);
+  autosave();renderEditor();renderPreview();
+  document.querySelector("#editor fieldset:last-child")?.scrollIntoView({behavior:"smooth",block:"center"});
+}
+function addTextColumn(i){
+  const item=state.items[i];
+  if(!item||item.type!=="text"||item.columns.length>=3)return;
+  item.columns.push({title:"",body:""});
+  autosave();renderEditor();renderPreview();
+}
+function removeTextColumn(i,colIndex){
+  const item=state.items[i];
+  if(!item||item.type!=="text"||item.columns.length<=1)return;
+  item.columns.splice(colIndex,1);
+  autosave();renderEditor();renderPreview();
+}
+function setTextColumn(i,colIndex,key,value){
+  const item=state.items[i];
+  if(!item||item.type!=="text"||!item.columns[colIndex])return;
+  item.columns[colIndex][key]=value;
+  autosave();renderPreview();
+}
 function removeItem(i){
   const item=state.items[i];
   if(!item)return;
-  const label=item.type==="divider"?(item.text||"this divider"):(item.name||"this item");
+  const label=item.type==="divider"?(item.text||"this divider"):item.type==="text"?"this text block":(item.name||"this item");
   if(!confirm(`Remove "${label}" from the menu?`))return;
   pushItemsUndoSnapshot();
   state.items.splice(i,1);
@@ -320,7 +350,7 @@ function removeItem(i){
 function duplicateItem(i){
   pushItemsUndoSnapshot();
   const copy=deepCopy(state.items[i]);
-  if(copy.type==="divider"){
+  if(copy.type==="divider"||copy.type==="text"){
     // no name/translations to touch
   }else{
     copy.name=`${copy.name} Copy`;

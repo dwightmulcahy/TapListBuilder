@@ -158,3 +158,15 @@
   font-weight:900;text-transform:uppercase;letter-spacing:.08em;
   font-size:calc(4.4mm * var(--fit) * var(--layout-scale,1));white-space:nowrap;color:#222
 }
+
+.tap-text-row{display:grid;gap:calc(5mm * var(--layout-scale,1));margin:calc(2mm * var(--fit) * var(--layout-scale,1)) 0;align-items:start;color:#111}
+.tap-text-col{min-width:0}
+.tap-text-col-title{
+  font-family:Impact,Haettenschweiler,"Arial Narrow Bold","Arial Narrow",sans-serif;
+  font-weight:900;text-transform:uppercase;letter-spacing:.01em;
+  font-size:calc(4.6mm * var(--fit) * var(--layout-scale,1));line-height:1.05;margin:0 0 calc(.8mm * var(--layout-scale,1))
+}
+.tap-text-col-body{
+  font-weight:600;
+  font-size:calc(3.4mm * var(--fit) * var(--layout-scale,1));line-height:1.2
+}

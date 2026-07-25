@@ -77,6 +77,7 @@ function renderStyleOptions(){
 
 function editorCard(item,i){
   if(item.type==="divider")return dividerEditorCard(item,i);
+  if(item.type==="text")return textEditorCard(item,i);
   const metaParts=[item.isNew?"NEW":"",item.abv?`${esc(item.abv)}%`:"",item.ibu?`${esc(item.ibu)} IBU`:"",item.style?esc(item.style):""].filter(Boolean);
   return `<fieldset class="beer-card" style="--item-color:${esc(item.color)}">
     <div class="card-header">
@@ -169,6 +170,38 @@ function dividerEditorCard(item,i){
   </fieldset>`;
 }
 
+function textEditorCard(item,i){
+  const preview=item.columns.map(c=>c.title||c.body).filter(Boolean).join(" · ")||"(empty)";
+  const columnsHtml=item.columns.map((col,ci)=>`
+    <fieldset class="header-slot-editor">
+      <legend>Column ${ci+1}${item.columns.length>1?` <button class="icon-button danger" title="Remove column" aria-label="Remove column ${ci+1}" onclick="removeTextColumn(${i},${ci})">×</button>`:""}</legend>
+      <label>Title<input value="${esc(col.title)}" oninput="setTextColumn(${i},${ci},'title',this.value)"></label>
+      <label>Body<textarea rows="2" oninput="setTextColumn(${i},${ci},'body',this.value)">${esc(col.body)}</textarea></label>
+    </fieldset>`).join("");
+  return `<fieldset class="beer-card text-card" style="--item-color:#888">
+    <div class="card-header">
+      <details class="beer-card-details" ${expandedItemIndices.has(i)?"open":""} ontoggle="onItemDetailsToggle(${i},this.open)">
+        <summary>
+          <span class="summary-text">
+            <span class="summary-name">Text block</span>
+            <span class="summary-meta">${esc(preview)}</span>
+          </span>
+        </summary>
+        <div class="beer-card-body">
+          ${columnsHtml}
+          ${item.columns.length<3?`<button onclick="addTextColumn(${i})">+ Add column (up to 3)</button>`:'<p class="help">Maximum of 3 columns.</p>'}
+        </div>
+      </details>
+      <div class="card-actions">
+        <button class="icon-button" title="Move up" aria-label="Move item up" ${i===0?'disabled':''} onclick="moveItem(${i},-1)">↑</button>
+        <button class="icon-button" title="Move down" aria-label="Move item down" ${i===state.items.length-1?'disabled':''} onclick="moveItem(${i},1)">↓</button>
+        <button class="icon-button" title="Duplicate" aria-label="Duplicate item" onclick="duplicateItem(${i})">⧉</button>
+        <button class="icon-button danger" title="Remove" aria-label="Remove item" onclick="removeItem(${i})">×</button>
+      </div>
+    </div>
+  </fieldset>`;
+}
+
 function updateAbvField(i){
   const item=state.items[i];
   if(!item)return;
@@ -239,6 +272,10 @@ function renderTapRow(item){
     return item.text
       ? `<div class="tap-divider-row"><span>${esc(item.text)}</span></div>`
       : `<div class="tap-divider-row tap-divider-row-plain"></div>`;
+  }
+  if(item.type==="text"){
+    const cols=item.columns.map(c=>`<div class="tap-text-col">${c.title?`<div class="tap-text-col-title">${esc(c.title)}</div>`:""}${c.body?`<div class="tap-text-col-body">${esc(c.body)}</div>`:""}</div>`).join("");
+    return `<div class="tap-text-row" style="grid-template-columns:repeat(${item.columns.length},1fr)">${cols}</div>`;
   }
   const statCells=[];
   if(!item.hideAbv)statCells.push(`<div class="stat"><div class="value">${formatAbv(item.abv)}</div><div class="stat-label">ABV</div></div>`);
