@@ -160,7 +160,7 @@
 }
 
 .tap-text-row{display:grid;gap:calc(5mm * var(--layout-scale,1));margin:calc(2mm * var(--fit) * var(--layout-scale,1)) 0;align-items:start;color:#111}
-.tap-text-col{min-width:0}
+.tap-text-col{min-width:0;text-align:center}
 .tap-text-col-title{
   font-family:Impact,Haettenschweiler,"Arial Narrow Bold","Arial Narrow",sans-serif;
   font-weight:900;text-transform:uppercase;letter-spacing:.01em;
