@@ -68,7 +68,7 @@ function isAbvCalculated(item){
 }
 function normalizeItem(item={},defaultLanguage="en"){
   if(item.type==="divider"){
-    return {type:"divider",text:String(item.text??"")};
+    return {type:"divider",text:String(item.text??""),fontSize:clampNumber(item.fontSize,8,24,12)};
   }
   if(item.type==="text"){
     const rawColumns=Array.isArray(item.columns)&&item.columns.length?item.columns:[{title:"",body:""}];

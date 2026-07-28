@@ -157,6 +157,12 @@ function dividerEditorCard(item,i){
         </summary>
         <div class="beer-card-body">
           <label>Divider text (optional)<input value="${esc(item.text)}" placeholder="e.g. CIDERS" oninput="setItem(${i},'text',this.value)"></label>
+          <label>Font size
+            <div class="range-with-value">
+              <input type="range" min="8" max="24" step="0.5" value="${item.fontSize}" oninput="setItem(${i},'fontSize',Number(this.value));document.getElementById('dividerFontSizeValue-${i}').value=this.value+' pt'">
+              <output id="dividerFontSizeValue-${i}">${item.fontSize} pt</output>
+            </div>
+          </label>
           <p class="help">A divider prints as a horizontal rule across the menu, with this text centered on it if provided. Leave blank for a plain line.</p>
         </div>
       </details>
@@ -270,7 +276,7 @@ function newBadgeMarkup(item){
 function renderTapRow(item){
   if(item.type==="divider"){
     return item.text
-      ? `<div class="tap-divider-row"><span>${esc(item.text)}</span></div>`
+      ? `<div class="tap-divider-row"><span style="--divider-font-size:${item.fontSize}pt">${esc(item.text)}</span></div>`
       : `<div class="tap-divider-row tap-divider-row-plain"></div>`;
   }
   if(item.type==="text"){

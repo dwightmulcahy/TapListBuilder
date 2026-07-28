@@ -156,7 +156,7 @@
 .tap-divider-row span{
   font-family:Impact,Haettenschweiler,"Arial Narrow Bold","Arial Narrow",sans-serif;
   font-weight:900;text-transform:uppercase;letter-spacing:.08em;
-  font-size:calc(4.4mm * var(--fit) * var(--layout-scale,1));white-space:nowrap;color:#222
+  font-size:calc(var(--divider-font-size,12pt) * var(--fit) * var(--layout-scale,1));white-space:nowrap;color:#222
 }
 
 .tap-text-row{display:grid;gap:calc(5mm * var(--layout-scale,1));margin:calc(2mm * var(--fit) * var(--layout-scale,1)) 0;align-items:start;color:#111}
