@@ -16,7 +16,7 @@
 <header class="app-menubar">
   <div class="app-brand"><span>Tap List Builder</span></div>
   <nav class="app-menu">
-    <details class="app-menu-item">
+    <details class="app-menu-item" name="app-menu">
       <summary>File</summary>
       <div class="app-menu-dropdown">
         <button onclick="printMenu();closeAppMenus()">Print</button>
@@ -30,27 +30,27 @@
         <button onclick="resetSample();closeAppMenus()">Restore sample</button>
       </div>
     </details>
-    <details class="app-menu-item">
+    <details class="app-menu-item" name="app-menu">
       <summary>Edit</summary>
       <div class="app-menu-dropdown">
         <button onclick="addItem();closeAppMenus()">Add item</button>
         <button class="undo-button" onclick="undoItems();closeAppMenus()" disabled title="Undo the last add/remove/duplicate/reorder">Undo</button>
       </div>
     </details>
-    <details class="app-menu-item">
+    <details class="app-menu-item" name="app-menu">
       <summary>View</summary>
       <div class="app-menu-dropdown">
         <button id="viewToggleMenuItem" onclick="toggleDisplayMode();closeAppMenus()">Preview</button>
       </div>
     </details>
-    <details class="app-menu-item">
+    <details class="app-menu-item" name="app-menu">
       <summary>Tools</summary>
       <div class="app-menu-dropdown">
         <button id="translateMenuButton" onclick="toggleMenuTranslation();closeAppMenus()">Translate menu to Spanish</button>
         <button onclick="openModal('libraryModal');closeAppMenus()">Saved beverage library…</button>
       </div>
     </details>
-    <details class="app-menu-item">
+    <details class="app-menu-item" name="app-menu">
       <summary>Help</summary>
       <div class="app-menu-dropdown">
         <button onclick="showAbout();closeAppMenus()">About</button>
