@@ -1,7 +1,7 @@
 // Core app state: item/state normalization, item CRUD, settings, custom icon upload,
 // and the boot sequence that loads JSON data then does the first render.
 
-const SIZE_KEYS=["iconScale","watermarkScale","watermarkOpacity","taproomFontSize","phoneFontSize","locationFontSize","globalDescriptionFontSize"];
+const SIZE_KEYS=["iconScale","statsScale","watermarkScale","watermarkOpacity","taproomFontSize","phoneFontSize","locationFontSize","globalDescriptionFontSize"];
 const defaultState={
   version:2.45,
   settings:{
@@ -16,8 +16,8 @@ const defaultState={
       {type:"none",text:"",image:"",rotation:0}
     ],
     sizesByPageSize:{
-      letter:{iconScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,headerSlotScales:[1,0.67,1]},
-      "4x6":{iconScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,headerSlotScales:[1,0.67,1]}
+      letter:{iconScale:1,statsScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,headerSlotScales:[1,0.67,1]},
+      "4x6":{iconScale:1,statsScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,headerSlotScales:[1,0.67,1]}
     }
   },
   items:[] // populated from data/beer-styles.json during boot()
@@ -118,6 +118,7 @@ function clampSizeBucket(src){
   const legacyLogoScale=clampNumber(src.logoScale,.30,2.50,.67); // pre-header-slots format
   return {
     iconScale:clampNumber(src.iconScale,.50,1.80,1),
+    statsScale:clampNumber(src.statsScale,.50,2.00,1),
     watermarkScale:clampNumber(src.watermarkScale,.50,1.80,1),
     watermarkOpacity:clampNumber(src.watermarkOpacity,0,1,.22),
     taproomFontSize:clampNumber(src.taproomFontSize,10,32,20),

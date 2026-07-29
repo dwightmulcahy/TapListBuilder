@@ -27,6 +27,7 @@ function applySettings(){
     pageEl.style.setProperty("--corner-cut","0px");
   }
   pageEl.style.setProperty("--icon-scale",String(clampNumber(sizes.iconScale,.50,1.80,1)));
+  pageEl.style.setProperty("--stats-scale",String(clampNumber(sizes.statsScale,.50,2.00,1)));
   const maxHeaderSlotScale=Math.max(...sizes.headerSlotScales,0.5);
   pageEl.style.setProperty("--header-height",`${61 * layoutScale * maxHeaderSlotScale}mm`); // provisional, corrected below
   pageEl.style.setProperty("--footer-height",`${25 * layoutScale}mm`);
@@ -43,8 +44,8 @@ function applySettings(){
   document.getElementById("pTaproomHours").textContent=s.taproomHours||"";
   document.getElementById("pPhone").textContent=s.phone||"";
   document.getElementById("pLocation").textContent=s.location||"";
-  renderHeader();
-  fitHeader();
+  try{renderHeader();}catch(err){console.error("renderHeader failed:",err);}
+  try{fitHeader();}catch(err){console.error("fitHeader failed:",err);}
 }
 // The old header-height formula only accounted for scale, not rotation - a rotated slot's
 // visual bounding box can be much taller than its unrotated footprint (e.g. wide text

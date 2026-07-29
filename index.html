@@ -216,6 +216,12 @@
         <output id="iconScaleValue">100%</o>
       </div>
     </label>
+    <label>Stats size (ABV/IBU/style/bitterness meter)
+      <div class="range-with-value">
+        <input id="statsScale" type="range" min="0.50" max="2.00" step="0.01" oninput="setSetting('statsScale',Number(this.value));document.getElementById('statsScaleValue').value=Math.round(Number(this.value)*100)+'%'">
+        <output id="statsScaleValue">100%</o>
+      </div>
+    </label>
     <label>Watermark strength
       <div class="range-with-value">
         <input id="watermarkOpacity" type="range" min="0" max="1" step="0.01" oninput="setSetting('watermarkOpacity',Number(this.value));document.getElementById('watermarkOpacityValue').value=Math.round(Number(this.value)*100)+'%'">
