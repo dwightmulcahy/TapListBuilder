@@ -241,6 +241,14 @@
       </div>
     </label>
     <p class="help">Moving the font size slider immediately applies the same size to every description; you can still override individual descriptions afterward. The 4×6 PDF option (toolbar) uses a corner-safe mask so text stays out of the holder tabs.</p>
+    <label class="checkbox-row"><input id="globalOutlineEnabled" type="checkbox" checked onchange="setAllOutlineEnabled(this.checked)"> Black outline on beer names</label>
+    <label>Outline thickness
+      <div class="range-with-value">
+        <input id="globalOutlineWidth" type="range" min="0.5" max="3" step="0.1" value="1.5" oninput="setAllOutlineWidth(Number(this.value))">
+        <output id="globalOutlineWidthValue">1.5 px</o>
+      </div>
+    </label>
+    <p class="help">Sets the outline for every beer name at once; you can still turn it off or resize it per item in that item's editor card. The fill stays the item's accent color — only a black outline is added, and it prints/exports with the menu.</p>
   </div>
 </dialog>
 

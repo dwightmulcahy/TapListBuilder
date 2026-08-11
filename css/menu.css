@@ -62,7 +62,10 @@
 .item-name{
   margin:0;color:currentColor;font-family:Impact,Haettenschweiler,"Arial Narrow Bold","Arial Narrow",sans-serif;
   font-size:calc(6.25mm * var(--fit) * var(--layout-scale,1));font-weight:900;line-height:.98;letter-spacing:.01em;
-  text-transform:uppercase;white-space:normal
+  text-transform:uppercase;white-space:normal;
+  -webkit-text-stroke-width:calc(var(--outline-w,0) * var(--fit) * var(--layout-scale,1));
+  -webkit-text-stroke-color:#000;
+  paint-order:stroke fill
 }
 .badge{
   display:inline-block;font-family:Arial,Helvetica,sans-serif;font-size:calc(2.5mm * var(--fit) * max(var(--layout-scale,1),0.75));

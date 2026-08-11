@@ -16,8 +16,8 @@ const defaultState={
       {type:"none",text:"",image:"",rotation:0}
     ],
     sizesByPageSize:{
-      letter:{iconScale:1,statsScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,headerSlotScales:[1,0.67,1]},
-      "4x6":{iconScale:1,statsScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,headerSlotScales:[1,0.67,1]}
+      letter:{iconScale:1,statsScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,outlineEnabled:true,outlineWidth:1.5,headerSlotScales:[1,0.67,1]},
+      "4x6":{iconScale:1,statsScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,outlineEnabled:true,outlineWidth:1.5,headerSlotScales:[1,0.67,1]}
     }
   },
   items:[] // populated from data/beer-styles.json during boot()
@@ -101,6 +101,8 @@ function normalizeItem(item={},defaultLanguage="en"){
     isNew:Boolean(item.isNew),
     newBadgeStyle:["pill","text","outline","starburst"].includes(item.newBadgeStyle)?item.newBadgeStyle:"pill",
     color:/^#[0-9a-f]{6}$/i.test(item.color||"")?item.color:"#444444",
+    outlineEnabled:item.outlineEnabled===undefined?true:Boolean(item.outlineEnabled),
+    outlineWidth:clampNumber(item.outlineWidth,0.5,3,1.5),
     icon:ICONS[item.icon]?item.icon:inferIcon(item.name),
     customIcon:item.customIcon||"",
     hideIcon:Boolean(item.hideIcon),
@@ -125,6 +127,8 @@ function clampSizeBucket(src){
     phoneFontSize:clampNumber(src.phoneFontSize,10,32,20),
     locationFontSize:clampNumber(src.locationFontSize,10,32,19),
     globalDescriptionFontSize:clampDescriptionFontSize(src.globalDescriptionFontSize),
+    outlineEnabled:src.outlineEnabled===undefined?true:Boolean(src.outlineEnabled),
+    outlineWidth:clampNumber(src.outlineWidth,0.5,3,1.5),
     headerSlotScales:rawScales?[0,1,2].map(i=>clampNumber(rawScales[i],.30,2.50,1)):[1,legacyLogoScale,1]
   };
 }
@@ -217,6 +221,59 @@ function setAllDescriptionFontSizes(value){
   autosave();
   renderPreview();
 }
+function updateGlobalOutlineControl(){
+  const checkbox=document.getElementById("globalOutlineEnabled");
+  const input=document.getElementById("globalOutlineWidth");
+  const output=document.getElementById("globalOutlineWidthValue");
+  if(!checkbox||!input||!output)return;
+  const sizes=state.settings.sizesByPageSize[state.settings.pageSize];
+  const beerItems=state.items.filter(item=>item.type==="beer");
+  if(!beerItems.length){
+    checkbox.checked=Boolean(sizes.outlineEnabled);
+    input.value=clampNumber(sizes.outlineWidth,0.5,3,1.5);
+    output.value=`${clampNumber(sizes.outlineWidth,0.5,3,1.5).toFixed(1)} px`;
+    return;
+  }
+  const firstEnabled=Boolean(beerItems[0].outlineEnabled);
+  const firstWidth=clampNumber(beerItems[0].outlineWidth,0.5,3,1.5);
+  const enabledSame=beerItems.every(item=>Boolean(item.outlineEnabled)===firstEnabled);
+  const widthSame=beerItems.every(item=>clampNumber(item.outlineWidth,0.5,3,1.5)===firstWidth);
+  if(enabledSame)sizes.outlineEnabled=firstEnabled;
+  checkbox.checked=enabledSame?firstEnabled:false;
+  checkbox.indeterminate=!enabledSame;
+  if(widthSame){
+    sizes.outlineWidth=firstWidth;
+    input.value=firstWidth;
+    output.value=`${firstWidth.toFixed(1)} px`;
+  }else{
+    input.value=clampNumber(sizes.outlineWidth,0.5,3,1.5);
+    output.value="Mixed";
+  }
+}
+function setAllOutlineEnabled(value){
+  const enabled=Boolean(value);
+  state.settings.sizesByPageSize[state.settings.pageSize].outlineEnabled=enabled;
+  state.items.forEach(item=>{if(item.type==="beer")item.outlineEnabled=enabled});
+  document.querySelectorAll(".item-outline-enabled").forEach(el=>{el.checked=enabled});
+  autosave();
+  renderEditor();
+  renderPreview();
+}
+function setAllOutlineWidth(value){
+  const width=clampNumber(value,0.5,3,1.5);
+  state.settings.sizesByPageSize[state.settings.pageSize].outlineWidth=width;
+  state.items.forEach(item=>{if(item.type==="beer")item.outlineWidth=width});
+  document.querySelectorAll(".item-outline-width-slider").forEach(slider=>{
+    slider.value=width;
+    const index=Number(slider.dataset.itemIndex);
+    const output=document.getElementById(`outlineWidthValue-${index}`);
+    if(output)output.value=`${width.toFixed(1)} px`;
+  });
+  const output=document.getElementById("globalOutlineWidthValue");
+  if(output)output.value=`${width.toFixed(1)} px`;
+  autosave();
+  renderPreview();
+}
 function setSetting(key,value){
   if(SIZE_KEYS.includes(key)){
     value=key==="taproomFontSize"||key==="phoneFontSize"||key==="locationFontSize"?clampNumber(value,10,32,20):Number(value);
@@ -234,6 +291,7 @@ function setSetting(key,value){
 }
 function setItem(i,key,value,rerenderEditor=false){
   if(key==="descriptionFontSize")value=clampDescriptionFontSize(value);
+  if(key==="outlineWidth")value=clampNumber(value,0.5,3,1.5);
   const item=state.items[i];
   item[key]=value;
   if(key==="name"||key==="description"){
@@ -246,6 +304,7 @@ function setItem(i,key,value,rerenderEditor=false){
   }
   if(key==="name"&&(!item.icon||item.icon==="beer"))item.icon=inferIcon(value);
   if(key==="descriptionFontSize")updateGlobalDescriptionControl();
+  if(key==="outlineEnabled"||key==="outlineWidth")updateGlobalOutlineControl();
   if(key==="sg"||key==="fg"){
     const calculated=calculateAbv(item.sg,item.fg);
     if(calculated!==null)item.abv=calculated.toFixed(1);
@@ -301,7 +360,8 @@ function swapExpandedIndices(i,j){
 
 function addItem(){
   pushItemsUndoSnapshot();
-  state.items.push(normalizeItem({name:"New Beer",abv:"5.0",ibu:"",glutenFree:false,color:"#444444",icon:"beer",customIcon:"",descriptionFontSize:clampDescriptionFontSize(state.settings.sizesByPageSize[state.settings.pageSize].globalDescriptionFontSize),description:"Enter the beverage description here."}));
+  const sizes=state.settings.sizesByPageSize[state.settings.pageSize];
+  state.items.push(normalizeItem({name:"New Beer",abv:"5.0",ibu:"",glutenFree:false,color:"#444444",icon:"beer",customIcon:"",descriptionFontSize:clampDescriptionFontSize(sizes.globalDescriptionFontSize),outlineEnabled:sizes.outlineEnabled,outlineWidth:sizes.outlineWidth,description:"Enter the beverage description here."}));
   expandedItemIndices.add(state.items.length-1); // open the new item so it's ready to edit
   autosave();renderEditor();renderPreview();
   document.querySelector("#editor fieldset:last-child")?.scrollIntoView({behavior:"smooth",block:"center"});

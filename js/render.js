@@ -94,6 +94,15 @@ function editorCard(item,i){
             <label>Beer style<input list="styleOptions" value="${esc(item.style)}" oninput="setItem(${i},'style',this.value)"></label>
             <label>Accent color<input type="color" value="${esc(item.color)}" oninput="setItem(${i},'color',this.value);this.closest('fieldset').style.setProperty('--item-color',this.value)"></label>
           </div>
+          <div class="grid2">
+            <label class="checkbox-row"><input class="item-outline-enabled" type="checkbox" ${item.outlineEnabled?"checked":""} onchange="setItem(${i},'outlineEnabled',this.checked)"> Black outline on beer name</label>
+            <label>Outline thickness
+              <div class="range-with-value">
+                <input class="item-outline-width-slider" data-item-index="${i}" type="range" min="0.5" max="3" step="0.1" value="${esc(clampNumber(item.outlineWidth,0.5,3,1.5))}" oninput="setItem(${i},'outlineWidth',Number(this.value));document.getElementById('outlineWidthValue-${i}').value=Number(this.value).toFixed(1)+' px'">
+                <output id="outlineWidthValue-${i}">${clampNumber(item.outlineWidth,0.5,3,1.5).toFixed(1)} px</o>
+              </div>
+            </label>
+          </div>
           <label class="checkbox-row"><input type="checkbox" ${item.isNew?"checked":""} onchange="setItem(${i},'isNew',this.checked)"> Mark as "New"</label>
           <label>"New" badge style
             <select onchange="setItem(${i},'newBadgeStyle',this.value)">
@@ -246,6 +255,7 @@ function renderEditor(){
   set("watermarkScaleValue",`${Math.round(Number(sizes.watermarkScale)*100)}%`);
   set("globalDescriptionFontSize",clampDescriptionFontSize(sizes.globalDescriptionFontSize));
   updateGlobalDescriptionControl();
+  updateGlobalOutlineControl();
   set("taproomLabel",s.taproomLabel);
   set("taproomHours",s.taproomHours);
   set("phone",s.phone);
@@ -294,7 +304,7 @@ function renderTapRow(item){
     <div class="icon-wrap${item.hideIcon?" icon-wrap-hidden":""}">${item.hideIcon?"":renderedIcon(item)}</div>
     <div class="tap-divider"></div>
     <div class="item-copy">
-      <h2 class="item-name">${esc(item.name)}${item.isNew?newBadgeMarkup(item):''}${item.glutenFree?`<span class="badge">${glutenFreeBadge()}</span>`:''}</h2>
+      <h2 class="item-name" style="--outline-w:${item.outlineEnabled?clampNumber(item.outlineWidth,0.5,3,1.5):0}px">${esc(item.name)}${item.isNew?newBadgeMarkup(item):''}${item.glutenFree?`<span class="badge">${glutenFreeBadge()}</span>`:''}</h2>
       <p class="desc" style="--desc-font-size:${clampDescriptionFontSize(item.descriptionFontSize)}pt">${esc(item.description)}</p>
     </div>
     <div class="stats">
