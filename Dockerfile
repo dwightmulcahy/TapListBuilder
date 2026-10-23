@@ -4,7 +4,7 @@
 # index.html/css/js/data/assets live). If your site is instead checked in under a
 # subfolder (e.g. a "TapListBuilder/" folder inside the repo), change the COPY line
 # below to `COPY TapListBuilder/ /usr/share/nginx/html/`.
-FROM nginx:1.27-alpine
+FROM nginx:1.29-alpine
 
 ARG APP_VERSION=dev
 ARG BUILD_DATE
