@@ -1,24 +1,57 @@
 name: CI
 on:
   push:
-    branches: [main, release]
+    branches: ['**']
   pull_request:
+  workflow_call:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '22'
-      - name: Check JavaScript and JSON
+      - name: Validate JavaScript and JSON
         shell: bash
         run: |
           set -euo pipefail
           while IFS= read -r -d '' f; do node --check "$f"; done < <(find js -name '*.js' -print0)
           while IFS= read -r -d '' f; do node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'))" "$f"; done < <(find data -name '*.json' -print0)
-      - name: Build Docker image (without publishing)
+      - name: Validate Compose
+        run: docker compose -f docker-compose.yml config --quiet
+      - name: Build Docker image
         run: docker build -t taplistbuilder:ci .
+      - name: Run container and HTTP smoke test
+        run: |
+          docker run -d --name taplistbuilder-ci -p 18081:8080 --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges:true taplistbuilder:ci
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:18081/health >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://localhost:18081/health
+          curl -fsS http://localhost:18081/ | grep -q 'Tap List Builder'
+          curl -fsS http://localhost:18081/data/beer-styles.json | node -e "let s='';process.stdin.on('data',x=>s+=x);process.stdin.on('end',()=>JSON.parse(s))"
+      - name: Chromium browser smoke
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+          node tests/browser-smoke.mjs
+        env:
+          BASE_URL: http://localhost:18081
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: taplistbuilder:ci
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: '1'
+      - name: Logs on failure
+        if: failure()
+        run: docker logs taplistbuilder-ci || true
