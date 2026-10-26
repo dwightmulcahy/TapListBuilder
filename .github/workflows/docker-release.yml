@@ -68,7 +68,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
   assets:
-    needs: [verify, ci]
+    needs: [verify, ci, publish]
     runs-on: ubuntu-latest
     permissions:
       contents: write
