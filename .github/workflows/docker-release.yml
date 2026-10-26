@@ -1,73 +1,58 @@
-name: Build and Push to Docker Hub
-
+name: Release
 on:
   push:
-    branches: [release]
-    tags: ['v[0-9]*.[0-9]*.[0-9]*']
-  workflow_dispatch:
-
+    tags: ['v*.*.*']
 permissions:
   contents: read
-
 concurrency:
-  group: docker-release-${{ github.ref }}
+  group: taplistbuilder-release
   cancel-in-progress: false
-
 jobs:
-  validate:
+  verify:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      latest: ${{ steps.version.outputs.latest }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          node-version: '22'
-      - name: Check JavaScript and JSON
+          fetch-depth: 0
+      - name: Verify manual stable version tag and main ancestry
+        id: version
         shell: bash
         run: |
           set -euo pipefail
-          while IFS= read -r -d '' f; do node --check "$f"; done < <(find js -name '*.js' -print0)
-          while IFS= read -r -d '' f; do node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'))" "$f"; done < <(find data -name '*.json' -print0)
-      - name: Validate release tag
-        if: startsWith(github.ref, 'refs/tags/')
-        env:
-          REF_NAME: ${{ github.ref_name }}
-        run: |
-          [[ "$REF_NAME" =~ ^v?(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || { echo "Expected vMAJOR.MINOR.PATCH"; exit 1; }
-
-  build-and-push:
-    needs: validate
+          [[ "$GITHUB_REF_NAME" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || exit 1
+          git fetch origin main --tags
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || { echo 'Tag is not on main'; exit 1; }
+          version="${GITHUB_REF_NAME#v}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          newest="$(git tag --list 'v*' | sed -nE 's/^v([0-9]+\.[0-9]+\.[0-9]+)$/\1/p' | sort -V | tail -1)"
+          if [[ "$version" == "$newest" ]]; then echo 'latest=true' >> "$GITHUB_OUTPUT"; else echo 'latest=false' >> "$GITHUB_OUTPUT"; fi
+  ci:
+    needs: verify
+    uses: ./.github/workflows/ci.yml
+  publish:
+    needs: [verify, ci]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+      - uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build metadata
-        id: vars
-        shell: bash
-        run: |
-          echo "date=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
-          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
-            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
-          else
-            echo "version=dev-${GITHUB_SHA:0:7}" >> "$GITHUB_OUTPUT"
-          fi
       - uses: docker/metadata-action@v5
         id: meta
         with:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/taplistbuilder
           flavor: latest=false
           tags: |
-            type=semver,pattern={{major}},enable=${{ startsWith(github.ref, 'refs/tags/') }}
-            type=semver,pattern={{major}}.{{minor}},enable=${{ startsWith(github.ref, 'refs/tags/') }}
-            type=semver,pattern={{version}},enable=${{ startsWith(github.ref, 'refs/tags/') }}
-            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/') }}
-            type=raw,value=release,enable=${{ github.ref == 'refs/heads/release' }}
-            type=sha,prefix=sha-
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ needs.verify.outputs.latest == 'true' }}
+            type=semver,pattern={{major}},enable=${{ needs.verify.outputs.latest == 'true' }}
+            type=raw,value=latest,enable=${{ needs.verify.outputs.latest == 'true' }}
       - uses: docker/build-push-action@v6
         with:
           context: .
@@ -75,9 +60,35 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          provenance: mode=max
+          sbom: true
           build-args: |
-            APP_VERSION=${{ steps.vars.outputs.version }}
-            BUILD_DATE=${{ steps.vars.outputs.date }}
+            APP_VERSION=${{ needs.verify.outputs.version }}
             VCS_REF=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+  assets:
+    needs: [verify, ci]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Create offline package with embedded JSON and checksum
+        env:
+          VERSION: ${{ needs.verify.outputs.version }}
+        run: |
+          python3 scripts/package_offline.py
+          cd dist
+          sha256sum *.zip > SHA256SUMS
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/*.zip dist/SHA256SUMS --clobber
+          else
+            gh release create "$TAG" dist/*.zip dist/SHA256SUMS --verify-tag --generate-notes
+          fi
