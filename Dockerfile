@@ -4,7 +4,7 @@
 # index.html/css/js/data/assets live). If your site is instead checked in under a
 # subfolder (e.g. a "TapListBuilder/" folder inside the repo), change the COPY line
 # below to `COPY TapListBuilder/ /usr/share/nginx/html/`.
-FROM nginx:1.27-alpine
+FROM nginxinc/nginx-unprivileged:1.29-alpine
 
 ARG APP_VERSION=dev
 ARG BUILD_DATE
@@ -28,7 +28,7 @@ RUN printf '{"version":"%s","sha":"%s","buildDate":"%s"}' "${APP_VERSION}" "${VC
 RUN CACHE_BUST="${APP_VERSION}-${VCS_REF}" \
     && sed -i "s#\(href=\"css/[A-Za-z0-9_-]\{1,\}\.css\)\"#\1?v=${CACHE_BUST}\"#g; s#\(src=\"js/[A-Za-z0-9_-]\{1,\}\.js\)\"#\1?v=${CACHE_BUST}\"#g" /usr/share/nginx/html/index.html
 
-EXPOSE 80
+EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget -q --spider http://localhost/ || exit 1
+  CMD wget -q --spider http://localhost:8080/ || exit 1
