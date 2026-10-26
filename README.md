@@ -28,9 +28,7 @@ Then open `http://localhost:8000`.
 Static files only — works as-is on GitHub Pages (Settings → Pages → deploy from branch, root of this folder).
 
 ### Docker
-`Dockerfile`, `.dockerignore`, and `nginx.conf` build a small nginx image serving these static files. `.github/workflows/docker-release.yml` builds a multi-arch (amd64 + arm64) image and pushes it to Docker Hub as `<DOCKERHUB_USERNAME>/taplistbuilder` on:
-- any push to a `release` branch — tagged `release` and `latest`
-- any push of a `v*.*.*` tag — tagged with the semver version(s) and `latest`
+`Dockerfile`, `.dockerignore`, and `nginx.conf` build a small nginx image serving these static files. `.github/workflows/docker-release.yml` builds a multi-arch (amd64 + arm64) image and pushes it to Docker Hub as `<DOCKERHUB_USERNAME>/taplistbuilder` on a manually pushed stable `vMAJOR.MINOR.PATCH` tag after CI passes. The image receives the exact version, and only the newest stable version receives `MAJOR`, `MAJOR.MINOR`, and `latest`. Older tags cannot overwrite rolling tags.
 
 Every build also gets a `sha-<short-sha>` tag, and the image is labeled with the resolved version and build date (from a `v*.*.*` tag if present, otherwise `dev-<short-sha>`).
 
@@ -48,3 +46,10 @@ Required repo secrets (Settings → Secrets and variables → Actions):
 - `data/translations.json` — the exact-match and phrase-level English→Spanish description translation dictionary.
 
 Editing either file changes the sample menu / translation behavior without touching any JS.
+
+
+## Validation and releases
+
+CI checks JavaScript and JSON, validates Compose, builds and starts a read-only non-root Nginx container, runs Chromium smoke checks, and scans the image with Trivy. Releases require a manually pushed `vMAJOR.MINOR.PATCH` tag reachable from `main` and publish multi-platform Docker images plus a file:// compatible offline ZIP and SHA-256 checksums. No tags are created automatically.
+
+The QNAP Compose file serves port 8081 and rotates logs at 10 MB × 3. Docker listens internally on port 8080. To test locally: `docker compose up -d --build` and visit `http://localhost:8081/health`.
