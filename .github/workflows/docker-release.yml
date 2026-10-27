@@ -93,13 +93,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Generate grouped release notes
-        run: |
-          python3 scripts/standard_release_notes.py \
-            --tag "${GITHUB_REF_NAME}" \
-            --project-name "TapListBuilder" \
-            --image "dwightmulcahy/taplistbuilder" \
-            --output release-notes.md
+      - name: Generate conventional release notes
+        uses: dwightmulcahy/repo-template/.github/actions/release-notes@f3dc1af2146156866574485a20ded5ac35d08a88
+        with:
+          tag: "${GITHUB_REF_NAME}"
+          project-name: "TapListBuilder"
+          image: "dwightmulcahy/taplistbuilder"
+          output: "release-notes.md"
       - name: Create or update GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
