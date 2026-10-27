@@ -16,6 +16,8 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    outputs:
+      is_latest: ${{ steps.tag-check.outputs.is_latest }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -27,6 +29,19 @@ jobs:
           set -euo pipefail
           while IFS= read -r -d '' f; do node --check "$f"; done < <(find js -name '*.js' -print0)
           while IFS= read -r -d '' f; do node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'))" "$f"; done < <(find data -name '*.json' -print0)
+      - name: Determine whether stable tag is newest
+        if: startsWith(github.ref, 'refs/tags/')
+        id: tag-check
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+          latest="$(git tag --list | sed -nE 's/^v?([0-9]+\\.[0-9]+\\.[0-9]+)$/\\1/p' | sort -V | tail -1)"
+          if [[ "${GITHUB_REF_NAME#v}" == "$latest" ]]; then
+            echo "is_latest=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_latest=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Validate release tag
         if: startsWith(github.ref, 'refs/tags/')
         env:
@@ -35,6 +50,7 @@ jobs:
           [[ "$REF_NAME" =~ ^v?(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || { echo "Expected vMAJOR.MINOR.PATCH"; exit 1; }
 
   build-and-push:
+    if: github.ref == 'refs/heads/release'
     needs: validate
     runs-on: ubuntu-latest
     steps:
@@ -82,10 +98,23 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  publish-tag:
+    name: Publish tagged Docker image
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: validate
+    uses: dwightmulcahy/repo-template/.github/workflows/reusable-docker-publish.yml@d0ae820ea7f4b55f269fcecb1d546c90eeedcddf
+    with:
+      image: dwightmulcahy/taplistbuilder
+      tag: ${{ github.ref_name }}
+      is_latest: ${{ needs.validate.outputs.is_latest == 'true' }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
   github-release:
     name: Publish GitHub release
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [validate, build-and-push]
+    needs: [validate, publish-tag]
     runs-on: ubuntu-latest
     permissions:
       contents: write
