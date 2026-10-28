@@ -12,7 +12,20 @@ services:
   taplistbuilder:
     image: YOUR_DOCKERHUB_USERNAME/taplistbuilder:latest
     container_name: taplistbuilder
-    restart: unless-stopped\n    read_only: true\n    init: true\n    cap_drop: [ALL]\n    security_opt: [no-new-privileges:true]\n    pids_limit: 200\n    mem_limit: 256m\n    tmpfs:\n      - /tmp:rw,noexec,nosuid,size=32m\n    logging:\n      driver: json-file\n      options:\n        max-size: '10m'\n        max-file: '3'
+    restart: unless-stopped
+    read_only: true
+    init: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 200
+    mem_limit: 256m
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
     ports:
       - "8081:8080"
     # Optional: override the sample data without rebuilding the image, e.g. to swap in
