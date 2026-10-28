@@ -17,6 +17,10 @@ LABEL org.opencontainers.image.title="TapListBuilder" \
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY . /usr/share/nginx/html/
 
+# The unprivileged base image runs as nginx; temporarily elevate only for
+# build-time modifications to the static files.
+USER root
+
 # Overwrite the placeholder version.json with the real values for this build, so the
 # in-app About dialog (Help -> About) can show the actual tag/commit/build date.
 RUN printf '{"version":"%s","sha":"%s","buildDate":"%s"}' "${APP_VERSION}" "${VCS_REF}" "${BUILD_DATE}" > /usr/share/nginx/html/version.json
@@ -27,6 +31,9 @@ RUN printf '{"version":"%s","sha":"%s","buildDate":"%s"}' "${APP_VERSION}" "${VC
 # after a deploy, regardless of what Cache-Control/TTL it thinks applies.
 RUN CACHE_BUST="${APP_VERSION}-${VCS_REF}" \
     && sed -i "s#\(href=\"css/[A-Za-z0-9_-]\{1,\}\.css\)\"#\1?v=${CACHE_BUST}\"#g; s#\(src=\"js/[A-Za-z0-9_-]\{1,\}\.js\)\"#\1?v=${CACHE_BUST}\"#g" /usr/share/nginx/html/index.html
+
+# Return to the unprivileged runtime user.
+USER nginx
 
 EXPOSE 8080
 
