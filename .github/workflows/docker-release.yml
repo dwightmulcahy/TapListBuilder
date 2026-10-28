@@ -20,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       is_latest: ${{ steps.release-check.outputs.is-latest }}
+      publish_major: ${{ steps.aliases.outputs.publish_major }}
+      publish_minor: ${{ steps.aliases.outputs.publish_minor }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,6 +42,23 @@ jobs:
         with:
           tag: ${{ github.ref_name }}
           branch: release
+
+
+      - name: Determine version-line Docker aliases
+        if: startsWith(github.ref, 'refs/tags/')
+        id: aliases
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+          current="${GITHUB_REF_NAME#v}"
+          major="${current%%.*}"
+          minor="${current%.*}"
+          versions="$(git tag --list | sed -nE 's/^v?([0-9]+\.[0-9]+\.[0-9]+)$/\1/p')"
+          highest_major="$(printf '%s\n' "$versions" | awk -F. -v m="$major" '$1==m' | sort -V | tail -n 1)"
+          highest_minor="$(printf '%s\n' "$versions" | awk -F. -v m="$major" -v n="${minor#*.}" '$1==m && $2==n' | sort -V | tail -n 1)"
+          echo "publish_major=$([[ "$current" == "$highest_major" ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "publish_minor=$([[ "$current" == "$highest_minor" ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
   build-and-push:
     if: github.ref == 'refs/heads/release'
@@ -94,11 +113,13 @@ jobs:
     name: Publish tagged Docker image
     if: startsWith(github.ref, 'refs/tags/')
     needs: validate
-    uses: dwightmulcahy/repo-template/.github/workflows/reusable-docker-publish.yml@d0ae820ea7f4b55f269fcecb1d546c90eeedcddf
+    uses: dwightmulcahy/repo-template/.github/workflows/reusable-docker-publish.yml@0ecc636387ef04b46acf232b3a9ef49cc2980eca
     with:
       image: dwightmulcahy/taplistbuilder
       tag: ${{ github.ref_name }}
-      is_latest: ${{ needs.validate.outputs.is_latest == 'true' }}
+      publish_major: ${{ needs.validate.outputs.publish_major == 'true' }}
+      publish_minor: ${{ needs.validate.outputs.publish_minor == 'true' }}
+      publish_latest: ${{ needs.validate.outputs.is_latest == 'true' }}
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
