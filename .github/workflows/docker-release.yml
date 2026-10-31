@@ -19,6 +19,7 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     outputs:
+      version: ${{ steps.release-check.outputs.version }}
       is_latest: ${{ steps.release-check.outputs.is-latest }}
       publish_major: ${{ steps.aliases.outputs.publish_major }}
       publish_minor: ${{ steps.aliases.outputs.publish_minor }}
@@ -120,6 +121,9 @@ jobs:
       publish_major: ${{ needs.validate.outputs.publish_major == 'true' }}
       publish_minor: ${{ needs.validate.outputs.publish_minor == 'true' }}
       publish_latest: ${{ needs.validate.outputs.is_latest == 'true' }}
+      build_args: |
+        APP_VERSION=${{ needs.validate.outputs.version }}
+        VCS_REF=${{ github.sha }}
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
