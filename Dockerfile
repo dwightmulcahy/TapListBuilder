@@ -19,7 +19,8 @@ COPY . /usr/share/nginx/html/
 
 # Overwrite the placeholder version.json with the real values for this build, so the
 # in-app About dialog (Help -> About) can show the actual tag/commit/build date.
-RUN printf '{"version":"%s","sha":"%s","buildDate":"%s"}' "${APP_VERSION}" "${VCS_REF}" "${BUILD_DATE}" > /usr/share/nginx/html/version.json
+RUN BUILD_DATE="${BUILD_DATE:-$(date -u +%Y-%m-%dT%H:%M:%SZ)}" \
+    && printf '{"version":"%s","sha":"%s","buildDate":"%s"}' "${APP_VERSION}" "${VCS_REF}" "${BUILD_DATE}" > /usr/share/nginx/html/version.json
 
 # Cache-bust every local css/js reference in index.html with this build's version+sha.
 # This makes a new image always serve genuinely different URLs for its assets, so no
