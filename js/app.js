@@ -478,21 +478,15 @@ function closeModal(id){
 }
 async function showAbout(){
   const info=document.getElementById("aboutVersionInfo");
-  if(info){
-    info.textContent="Loading version info…";
-    try{
-      const response=await fetch("version.json",{cache:"no-store"});
-      const data=await response.json();
-      const parts=[];
-      if(data.version&&data.version!=="dev")parts.push(`Version ${data.version}`);
-      if(data.sha&&data.sha!=="unknown")parts.push(`commit ${data.sha.slice(0,7)}`);
-      if(data.buildDate&&data.buildDate!=="unknown")parts.push(`built ${data.buildDate}`);
-      info.textContent=parts.length?parts.join(" · "):"Development build (not built via the Docker release workflow).";
-    }catch(err){
-      info.textContent="Version info unavailable.";
-    }
-  }
   openModal("aboutModal");
+  if(!info)return;
+  info.textContent="Loading version info…";
+  try{
+    const build=await window.TapListBuildInfo.load();
+    info.textContent=window.TapListBuildInfo.aboutText(build);
+  }catch(err){
+    info.textContent="Version information unavailable (version.json could not be loaded).";
+  }
 }
 function toggleDisplayMode(){
   setDisplayMode(document.body.classList.contains("preview-only")?"edit":"preview");
@@ -524,6 +518,7 @@ function fitAppShell(){
 }
 
 async function boot(){
+  void window.TapListBuildInfo.updateBadge();
   const [beerStyles,translations]=await Promise.all([
     fetch("data/beer-styles.json").then(r=>r.json()),
     fetch("data/translations.json").then(r=>r.json())
