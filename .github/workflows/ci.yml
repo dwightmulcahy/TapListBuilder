@@ -28,3 +28,6 @@ jobs:
     uses: dwightmulcahy/repo-template/.github/workflows/reusable-docker-smoke.yml@47b1132d8102fe52ee47054ba72b7502fbd934a8
     with:
       image: taplistbuilder:ci
+      smoke-command: |
+        docker build --build-arg APP_VERSION=9.8.7 --build-arg VCS_REF=0123456789abcdef -t taplistbuilder:metadata .
+        docker run --rm taplistbuilder:metadata cat /usr/share/nginx/html/version.json | node -e 'let s="";process.stdin.on("data",c=>s+=c);process.stdin.on("end",()=>{const v=JSON.parse(s);if(v.version!=="9.8.7"||v.sha!=="0123456789abcdef"||!v.buildDate)process.exit(1)})'
