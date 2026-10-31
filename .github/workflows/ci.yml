@@ -20,9 +20,14 @@ jobs:
           set -euo pipefail
           while IFS= read -r -d '' f; do node --check "$f"; done < <(find js -name '*.js' -print0)
           while IFS= read -r -d '' f; do node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'))" "$f"; done < <(find data -name '*.json' -print0)
+      - name: Test version metadata display
+        run: node --test tests/version.test.cjs
 
   docker-smoke:
     name: Shared Docker build verification
     uses: dwightmulcahy/repo-template/.github/workflows/reusable-docker-smoke.yml@47b1132d8102fe52ee47054ba72b7502fbd934a8
     with:
       image: taplistbuilder:ci
+      smoke-command: |
+        docker build --build-arg APP_VERSION=9.8.7 --build-arg VCS_REF=0123456789abcdef -t taplistbuilder:metadata .
+        docker run --rm --entrypoint cat taplistbuilder:metadata /usr/share/nginx/html/version.json | node -e 'let s="";process.stdin.on("data",c=>s+=c);process.stdin.on("end",()=>{const v=JSON.parse(s);if(v.version!=="9.8.7"||v.sha!=="0123456789abcdef"||!v.buildDate)process.exit(1)})'

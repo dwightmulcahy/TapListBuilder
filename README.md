@@ -29,14 +29,16 @@ Static files only — works as-is on GitHub Pages (Settings → Pages → deploy
 
 ### Docker
 `Dockerfile`, `.dockerignore`, and `nginx.conf` build a small nginx image serving these static files. `.github/workflows/docker-release.yml` builds a multi-arch (amd64 + arm64) image and pushes it to Docker Hub as `<DOCKERHUB_USERNAME>/taplistbuilder` on:
-- any push to a `release` branch — tagged `release` and `latest`
-- any push of a `v*.*.*` tag — tagged with the semver version(s) and `latest`
+- pushes to the `release` branch — tagged `release` and `sha-<short-sha>` (development builds)
+- a stable `vMAJOR.MINOR.PATCH` tag reachable from `release` — tagged with its exact version; the newest release in each line also updates the appropriate `MAJOR` and `MAJOR.MINOR` aliases, and the newest overall updates `latest`
 
 Every build also gets a `sha-<short-sha>` tag, and the image is labeled with the resolved version and build date (from a `v*.*.*` tag if present, otherwise `dev-<short-sha>`).
 
 Required repo secrets (Settings → Secrets and variables → Actions):
 - `DOCKERHUB_USERNAME` — your Docker Hub username
 - `DOCKERHUB_TOKEN` — a Docker Hub access token (hub.docker.com → Account Settings → Security → New Access Token)
+
+**Version display:** The version beside **Tap List Builder** and in **Help → About** comes from `version.json` baked into the Docker image. Tagged builds pass the validated SemVer and commit SHA into the shared Docker publisher; the Dockerfile records the build timestamp. If an existing `:latest` image still shows `dev`, it was built before this fix and must be replaced by a new, manually tagged release containing the changes. Simply pulling the same unchanged image will not correct its embedded metadata.
 
 **Cache-busting**: the Dockerfile appends `?v=<version>-<sha>` to every local CSS/JS reference in `index.html` at build time, and `nginx.conf` long-caches those versioned URLs while explicitly no-caching `index.html` itself. This means a new deploy is immune to stale-asset problems from *any* caching layer (browser, an intermediate CDN like Cloudflare, a proxy) — the URLs genuinely change on every build, rather than relying on a TTL that a cache in front of the origin might not honor.
 
