@@ -34,6 +34,16 @@
     return parts.join(" · ");
   }
 
+  function versionUrl(raw) {
+    const info = normalize(raw);
+    const base = "https://github.com/dwightmulcahy/TapListBuilder";
+    if (releaseVersionPattern.test(info.version)) {
+      return base + "/releases/tag/v" + info.version.replace(/^v/, "").split("+")[0];
+    }
+    if (/^[0-9a-f]{7,40}$/i.test(info.sha)) return base + "/commit/" + info.sha;
+    return base + "/releases";
+  }
+
   function load() {
     if (!pendingBuildInfo) {
       pendingBuildInfo = global.fetch("version.json", {cache: "no-store"})
@@ -57,11 +67,12 @@
       const info = await load();
       badge.textContent = badgeText(info);
       badge.title = aboutText(info);
+      badge.href = versionUrl(info);
       badge.hidden = false;
     } catch (error) {
       badge.hidden = true;
     }
   }
 
-  global.TapListBuildInfo = {normalize, badgeText, aboutText, load, updateBadge};
+  global.TapListBuildInfo = {normalize, badgeText, aboutText, versionUrl, load, updateBadge};
 })(window);
