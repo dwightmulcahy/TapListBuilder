@@ -7,7 +7,7 @@ const vm = require("node:vm");
 const source = fs.readFileSync(path.join(__dirname, "../js/version.js"), "utf8");
 
 function createVersionClient(fetchImpl) {
-  const badge = {textContent: "", title: "", hidden: true};
+  const badge = {textContent: "", title: "", href: "", hidden: true};
   const window = {
     fetch: fetchImpl || (async () => ({
       ok: true,
@@ -60,4 +60,23 @@ test("a failed metadata request can be retried", async () => {
   await assert.rejects(client.load(), /network/);
   assert.equal((await client.load()).version, "4.0.0");
   assert.equal(attempts, 2);
+});
+
+test("clickable version links to its exact release tag", async () => {
+  const {client, badge} = createVersionClient();
+  await client.updateBadge();
+  assert.equal(badge.href, "https://github.com/dwightmulcahy/TapListBuilder/releases/tag/v1.2.3");
+  assert.equal(client.versionUrl({version: "v2.0.1"}), "https://github.com/dwightmulcahy/TapListBuilder/releases/tag/v2.0.1");
+  assert.equal(client.versionUrl({version: "1.2.3+build.4"}), "https://github.com/dwightmulcahy/TapListBuilder/releases/tag/v1.2.3");
+});
+
+test("development builds link to their commit, with a safe fallback", async () => {
+  const {client, badge} = createVersionClient(async () => ({
+    ok: true,
+    json: async () => ({version: "dev", sha: "abcdef0123456789"})
+  }));
+  await client.updateBadge();
+  assert.equal(badge.href, "https://github.com/dwightmulcahy/TapListBuilder/commit/abcdef0123456789");
+  assert.equal(badge.textContent, "dev-abcdef0");
+  assert.equal(client.versionUrl({version: "dev", sha: "unknown"}), "https://github.com/dwightmulcahy/TapListBuilder/releases");
 });
