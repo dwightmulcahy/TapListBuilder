@@ -58,6 +58,17 @@
 .tap-row-no-icon.tap-row-has-new{--icon-column:calc(19mm * var(--layout-scale,1) * var(--density-icon,1))}
 .tap-row-no-stats{--stats-column:0px}
 .tap-row-no-stats .stats{display:none}
+/* Remove phantom grid gaps left by zero-width icon/stats columns. Keep the NEW badge slot. */
+.tap-row-no-icon:not(.tap-row-has-new) .icon-wrap-hidden{display:none}
+.tap-row-no-icon:not(.tap-row-has-new){
+  grid-template-columns:calc(.9mm * var(--layout-scale,1)) minmax(0,1fr) var(--stats-column,calc(var(--stats-width,41mm) * var(--layout-scale,1) * var(--stats-scale,1)))
+}
+.tap-row-no-stats{
+  grid-template-columns:var(--icon-column,calc(22mm * var(--layout-scale,1) * var(--icon-scale,1))) calc(.9mm * var(--layout-scale,1)) minmax(0,1fr)
+}
+.tap-row-no-icon.tap-row-no-stats:not(.tap-row-has-new){
+  grid-template-columns:calc(.9mm * var(--layout-scale,1)) minmax(0,1fr)
+}
 .icon-wrap{
   justify-self:center;width:calc(19mm * var(--layout-scale,1) * var(--icon-scale,1));height:calc(19mm * var(--layout-scale,1) * var(--icon-scale,1));border:.65mm solid currentColor;border-radius:50%;
   display:grid;place-items:center;background:rgba(255,255,255,.13);position:relative
