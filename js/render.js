@@ -305,6 +305,8 @@ function renderEditor(){
   document.getElementById("pageSizeCardBtn")?.classList.toggle("active",s.pageSize==="4x6");
   const set=(id,value)=>{const el=document.getElementById(id);if(el)el.value=value};
   set("translationContactEmail",s.translationContactEmail||"");
+  set("pageDensity",clampNumber(sizes.pageDensity,0,100,0));
+  set("pageDensityValue",`${Math.round(clampNumber(sizes.pageDensity,0,100,0))}%`);
   set("iconScale",sizes.iconScale);
   set("iconScaleValue",`${Math.round(Number(sizes.iconScale)*100)}%`);
   set("statsScale",sizes.statsScale);
