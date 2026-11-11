@@ -152,8 +152,10 @@
 .location-text{font-size:calc(var(--location-font-size,19pt) * var(--footer-bottom-scale,1) * var(--layout-scale,1));line-height:1;letter-spacing:.025em;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 
 .tap-divider-row{
-  display:flex;align-items:center;gap:calc(3mm * var(--layout-scale,1));
-  margin:calc(1.5mm * var(--fit) * var(--layout-scale,1)) 0;color:#333
+  /* Decorative separator at the row boundary: do not steal height from beers. */
+  flex:0 0 0;height:0;min-height:0;margin:0;padding:0;
+  position:relative;z-index:2;overflow:visible;
+  display:flex;align-items:center;gap:calc(3mm * var(--layout-scale,1));color:#333
 }
 .tap-divider-row::before,.tap-divider-row::after{content:"";flex:1;height:.32mm;background:currentColor;opacity:.45}
 .tap-divider-row-plain::before{flex:1}
@@ -161,7 +163,8 @@
 .tap-divider-row span{
   font-family:Impact,Haettenschweiler,"Arial Narrow Bold","Arial Narrow",sans-serif;
   font-weight:900;text-transform:uppercase;letter-spacing:.08em;
-  font-size:calc(var(--divider-font-size,12pt) * var(--fit) * var(--layout-scale,1));white-space:nowrap;color:#222
+  font-size:calc(var(--divider-font-size,12pt) * var(--fit) * var(--layout-scale,1));white-space:nowrap;color:#222;
+  background:var(--paper);padding:0 calc(1mm * var(--layout-scale,1));line-height:1
 }
 
 .tap-text-row{display:grid;gap:calc(5mm * var(--layout-scale,1));margin:calc(2mm * var(--fit) * var(--layout-scale,1)) 0;align-items:start;color:#111}
