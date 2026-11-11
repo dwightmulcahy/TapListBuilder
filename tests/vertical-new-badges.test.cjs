@@ -44,5 +44,7 @@ test("vertical badge occupies the existing page margin, not a grid track", () =>
   assert.match(css,/\.new-badge-rail\{[\s\S]*?position:absolute;left:calc\(-5mm \* var\(--layout-scale,1\)\)/);
   assert.match(css,/\.new-badge-rail \.badge\{margin-left:0;flex:0 0 auto;transform:rotate\(-90deg\)\}/);
   assert.match(css,/\.tap-row\{[\s\S]*?position:relative;overflow:visible/);
-  assert.doesNotMatch(css,/\.tap-row\{[\s\S]*?padding-left:/);
+  const rowBlock = css.match(/\.tap-row\{([^}]*)\}/)?.[1];
+  assert.ok(rowBlock);
+  assert.doesNotMatch(rowBlock,/padding-left:/);
 });
