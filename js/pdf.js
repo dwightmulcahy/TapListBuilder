@@ -35,7 +35,7 @@ function applySettings(){
     pageEl.style.setProperty("--page-pad-left",`calc(10mm * ${layoutScale} * ${marginScale})`);
     pageEl.style.setProperty("--corner-cut","0px");
   }
-  pageEl.style.setProperty("--icon-scale",String(clampNumber(sizes.iconScale,.50,1.80,1)));
+  pageEl.style.setProperty("--icon-scale",String(clampNumber(sizes.iconScale,.50,1.80,1)*iconSpaceScale));
   pageEl.style.setProperty("--stats-scale",String(clampNumber(sizes.statsScale,.50,2.00,1)));
   const maxHeaderSlotScale=Math.max(...sizes.headerSlotScales,0.5);
   pageEl.style.setProperty("--header-height",hasVisibleHeader?`${61 * layoutScale * maxHeaderSlotScale}mm`:"0px"); // provisional, corrected below
