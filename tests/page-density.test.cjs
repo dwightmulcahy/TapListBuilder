@@ -121,5 +121,5 @@ test("hidden icons and stats remove phantom grid columns, but NEW badge slot sta
   assert.match(css,/\.tap-row-no-icon:not\(\.tap-row-has-new\)\{[\s\S]*?grid-template-columns:calc\(\.9mm/);
   assert.match(css,/\.tap-row-no-stats\{[\s\S]*?grid-template-columns:var\(--icon-column/);
   assert.match(css,/\.tap-row-no-icon\.tap-row-no-stats:not\(\.tap-row-has-new\)\{[\s\S]*?grid-template-columns:calc\(\.9mm \* var\(--layout-scale,1\)\) minmax\(0,1fr\)/);
-  assert.match(css,/\.tap-row-no-icon\.tap-row-has-new\{--icon-column:calc\(19mm/);
+  assert.match(css,/\.tap-row-no-icon\.tap-row-has-new\{--icon-column:calc\(8\.5mm/);
 });
