@@ -27,15 +27,15 @@ test("explicit hop bar setting is independent of IBU visibility", () => {
 
 test("hop bar may be hidden while ABV and IBU remain visible", () => {
   const markup = row(normalize({name:"IPA",icon:"beer",hideIcon:true,abv:"6.4",ibu:"60",sg:"1.060",hideHopBar:true}));
-  assert.match(markup,/class="stat-label">ABV/);
-  assert.match(markup,/class="stat-label">IBU/);
+  assert.match(markup,/class="stat-label stat-label-abv">ABV/);
+  assert.match(markup,/class="stat-label stat-label-ibu">IBU/);
   assert.doesNotMatch(markup,/class="bitterness-meter"/);
 });
 
 test("hop bar can display even when the IBU number is hidden", () => {
   const markup = row(normalize({name:"IPA",icon:"beer",hideIcon:true,abv:"6.4",ibu:"60",sg:"1.060",hideIbu:true,hideHopBar:false}));
-  assert.match(markup,/class="stat-label">ABV/);
-  assert.doesNotMatch(markup,/class="stat-label">IBU/);
+  assert.match(markup,/class="stat-label stat-label-abv">ABV/);
+  assert.doesNotMatch(markup,/class="stat-label stat-label-ibu">IBU/);
   assert.match(markup,/class="bitterness-meter"/);
 });
 
