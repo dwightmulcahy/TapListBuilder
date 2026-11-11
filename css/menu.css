@@ -28,12 +28,21 @@
 .corner-overlay .br{right:0;bottom:0;background:linear-gradient(315deg, transparent 46%, rgba(55,55,55,.55) 47%, rgba(55,55,55,.55) 49%, rgba(55,55,55,.16) 50%)}
 .corner-overlay .bl{left:0;bottom:0;background:linear-gradient(45deg, transparent 46%, rgba(55,55,55,.55) 47%, rgba(55,55,55,.55) 49%, rgba(55,55,55,.16) 50%)}
 .header{
-  display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;border-bottom:.32mm solid var(--rule);
+  /* The side images each own half the width. The center floats above both columns
+     instead of taking a third column away from them. */
+  position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-rows:minmax(0,1fr);align-items:center;border-bottom:.32mm solid var(--rule);
   overflow:hidden;padding:0 calc(4mm * var(--layout-scale,1) * var(--density-space,1))
 }
 .header-slot{display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;overflow:visible}
-.header-slot:first-child{justify-content:flex-start}
-.header-slot:last-child{justify-content:flex-end}
+.header-slot:first-child{grid-column:1;justify-content:flex-start;position:relative;z-index:1}
+.header-slot:last-child{grid-column:2;justify-content:flex-end;position:relative;z-index:1}
+.header-slot:nth-child(2){
+  /* Top-align the center logo near the printable margin; it may overlap both
+     side columns. fitHeader() adjusts --header-center-shift for rotated images. */
+  position:absolute;left:50%;top:calc(1.5mm * var(--layout-scale,1) + var(--header-center-shift,0px));
+  transform:translateX(-50%);width:max-content;max-width:100%;z-index:2
+}
 .header-slot img{
   display:block;width:calc(58mm * var(--layout-scale,1));max-width:none;
   max-height:calc(50mm * var(--layout-scale,1));object-fit:contain;transform-origin:center
