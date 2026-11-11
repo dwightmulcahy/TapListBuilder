@@ -156,6 +156,9 @@ textarea{min-height:72px;resize:vertical;line-height:1.3}
 .summary-name{font-weight:900;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .summary-meta{font-size:12px;font-weight:700;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .beer-card-body{padding:2px 12px 12px}
+.style-appearance-controls{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin:8px 0}
+.style-appearance-controls .checkbox-row{margin:0}
+.style-appearance-controls button{flex:0 1 auto}
 .advanced-abv,.advanced-stats{border:1px solid #ddd;border-radius:7px;margin:8px 0 0;background:#fafafa}
 .header-slot-editor{border:0;border-top:1px solid #e2e2e2;border-radius:0;margin:0;padding:12px 0}
 .header-slot-editor:first-child{border-top:0;padding-top:0}
