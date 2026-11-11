@@ -63,7 +63,9 @@ function bitternessMeter(ibu,sg,fg,options={}){
   const classification=classifyBV(value);
   const usedFg=parseGravityNumber(fg)!==null&&calculateBV(ibu,sg,fg)!==null;
   const label=usedFg?`BV ${value.toFixed(2)}`:`BU:GU ${value.toFixed(2)}`;
+  if(options.showTrack===false&&options.showLabel===false)return "";
   const marker=options.showMarker===false?"":`<span class="bitterness-marker" style="--bitterness-position:${position.toFixed(1)}%"></span>`;
+  const track=options.showTrack===false?"":`<div class="bitterness-track">${marker}</div>`;
   const description=options.showLabel===false?"":`<div class="bitterness-labels"><span>${classification}</span></div>`;
-  return `<div class="bitterness-meter" title="${label} — ${classification}"><div class="bitterness-track">${marker}</div>${description}</div>`;
+  return `<div class="bitterness-meter" title="${label} — ${classification}">${track}${description}</div>`;
 }
