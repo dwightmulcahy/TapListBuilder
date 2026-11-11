@@ -8,9 +8,9 @@ const STATS_SIZE_LIMITS={
   hopBarHeight:[1,8,3.2],hopMarkerSize:[2,10,4.2]
 };
 const STATS_DISPLAY_KEYS=[
-  "hideStats","hideStyle","hideAbv","hideAbvLabel","hideIbu","hideIbuLabel",
+  "hideStats","hideAbv","hideAbvLabel","hideIbu","hideIbuLabel",
   "hideStatsDivider","hideHopBar","hideHopMarker","hideBitternessLabel",
-  ...Object.keys(STATS_SIZE_LIMITS)
+  ...Object.keys(STATS_SIZE_LIMITS).filter(key=>key!=="styleFontSize")
 ];
 function clampStatsSize(key,value){
   const [min,max,fallback]=STATS_SIZE_LIMITS[key];
@@ -378,6 +378,17 @@ function applyStatsToAllBeers(index){
   state.items.forEach((item,i)=>{
     if(item.type!=="beer"||i===index)return;
     STATS_DISPLAY_KEYS.forEach(key=>{item[key]=source[key]});
+  });
+  autosave();renderEditor();renderPreview();
+}
+function applyStyleAppearanceToAllBeers(index){
+  const source=state.items[index];
+  if(!source||source.type!=="beer")return;
+  pushItemsUndoSnapshot();
+  state.items.forEach((item,i)=>{
+    if(item.type!=="beer"||i===index)return;
+    item.hideStyle=source.hideStyle;
+    item.styleFontSize=clampStatsSize("styleFontSize",source.styleFontSize);
   });
   autosave();renderEditor();renderPreview();
 }
