@@ -56,7 +56,7 @@
   justify-self:center;width:calc(19mm * var(--layout-scale,1) * var(--icon-scale,1));height:calc(19mm * var(--layout-scale,1) * var(--icon-scale,1));border:.65mm solid currentColor;border-radius:50%;
   display:grid;place-items:center;background:rgba(255,255,255,.13)
 }
-.icon-wrap-hidden{display:none}
+.icon-wrap-hidden{width:0;height:0;border:0;background:transparent}
 .icon-wrap svg{width:72%;height:72%;display:block}
 .icon-wrap img{width:70%;height:70%;object-fit:contain;display:block}
 .tap-divider{width:calc(1.05mm * var(--layout-scale,1));height:76%;min-height:calc(13mm * var(--layout-scale,1));border-radius:9px;background:currentColor}
