@@ -56,31 +56,42 @@ function applySettings(){
   try{renderHeader();}catch(err){console.error("renderHeader failed:",err);}
   try{fitHeader();}catch(err){console.error("fitHeader failed:",err);}
 }
-// The old header-height formula only accounted for scale, not rotation - a rotated slot's
-// visual bounding box can be much taller than its unrotated footprint (e.g. wide text
-// rotated 30-40deg sweeps well above/below its own center), which either got clipped or
-// forced an oversized header that left the unrotated logo floating in empty space. This
-// measures each slot's actual rendered (post-rotation) extent above/below the header's
-// vertical center and sizes the header to match, symmetrically.
+// The side slots occupy two half-width columns and remain vertically centered.
+// The center slot is absolutely positioned near the top, above both columns.
+// Measure the rotated/scaled content rather than the untransformed image boxes:
+// this keeps the center near the printable margin without clipping it and gives
+// the side images enough height, even at high scale/rotation settings.
 function fitHeader(){
   const pageEl=document.getElementById("page");
   const header=document.querySelector(".header");
   if(!pageEl||!header||!state.settings.showHeader||!headerHasContent(state.settings.headerSlots))return;
-  const slotContents=[...document.querySelectorAll(".header-slot > *")];
-  if(!slotContents.length)return; // empty slots already collapsed by applySettings()
+  const contents=[0,1,2].map(i=>document.getElementById(`headerSlot${i}`)?.firstElementChild);
+  if(!contents.some(Boolean))return; // empty slots already collapsed by applySettings()
   const headerRect=header.getBoundingClientRect();
-  if(headerRect.height<=0)return; // not laid out (e.g. hidden) - skip, keep provisional
-  const centerY=headerRect.top+headerRect.height/2;
-  let maxExtent=0;
-  slotContents.forEach(el=>{
-    const r=el.getBoundingClientRect();
-    maxExtent=Math.max(maxExtent,centerY-r.top,r.bottom-centerY);
-  });
-  if(maxExtent<=0)return;
+  if(headerRect.height<=0)return; // not laid out (e.g. hidden)
   const scale=typeof currentShellScale==="number"&&currentShellScale>0?currentShellScale:1;
+  const layoutScale=state.settings.pageSize==="4x6"?.5:1;
   const density=clampNumber(state.settings.sizesByPageSize?.[state.settings.pageSize]?.pageDensity,0,100,0)/100;
-  const neededPx=Math.ceil((maxExtent*2)/scale)+Math.max(4,Math.round(16*(1-.75*density))); // symmetric + density-aware breathing room
-  pageEl.style.setProperty("--header-height",`${neededPx}px`);
+  const sideClearance=Math.max(4,Math.round(8*(1-.75*density)));
+  const bottomClearance=Math.max(4,Math.round(12*(1-.75*density)));
+
+  // A centered transform can extend above a top-anchored slot, particularly
+  // with large/rotated images. Shift only as far down as needed to protect the
+  // top edge, rather than vertically centering the logo in a tall header.
+  header.style.setProperty("--header-center-shift","0px");
+  const center=contents[1];
+  if(center){
+    const topClearance=Math.max(2,Math.round(5*layoutScale));
+    const visualTop=(center.getBoundingClientRect().top-headerRect.top)/scale;
+    const shift=Math.max(0,Math.ceil(topClearance-visualTop));
+    header.style.setProperty("--header-center-shift",`${shift}px`);
+  }
+
+  const sideHeight=Math.max(0,...[contents[0],contents[2]]
+    .filter(Boolean).map(el=>el.getBoundingClientRect().height/scale));
+  const centerBottom=center?(center.getBoundingClientRect().bottom-headerRect.top)/scale:0;
+  const neededPx=Math.ceil(Math.max(sideHeight+2*sideClearance,centerBottom+bottomClearance));
+  if(Number.isFinite(neededPx)&&neededPx>0)pageEl.style.setProperty("--header-height",`${neededPx}px`);
 }
 function fitFooter(){
   const pageEl=document.getElementById("page");
