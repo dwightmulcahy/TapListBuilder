@@ -137,6 +137,26 @@ test("JSON file import does not replace the menu or library until confirmed",asy
   assert.equal(JSON.parse(h.saved.get("mhbTapListBuilderV2")).appVersion,"v1.10.0");
 });
 
+test("file import merges beverage library only after confirmation and retains source version",async()=>{
+  const h=harness();
+  const raw=JSON.stringify({
+    version:2.45,appVersion:"v1.9.0",items:[{name:"Imported"}],
+    savedBeverages:[{id:"from-file",item:{name:"Imported Beer",icon:"beer"}}]
+  });
+  const start=()=>h.eval("loadJSON({target:{files:[{name:'older.json',text:"+JSON.stringify(raw)+"}],value:'selected'}})");
+  start();
+  h.dialog.close("cancel");
+  await h.reader().finished;
+  assert.equal(h.eval("savedBeverages.length"),0);
+  start();
+  h.dialog.close("load");
+  await h.reader().finished;
+  assert.equal(h.eval("savedBeverages.length"),1);
+  const entries=JSON.parse(h.saved.get("mhbSavedBeveragesV1"));
+  assert.equal(entries[0].item.name,"Imported Beer");
+  assert.equal(entries[0].appVersion,"v1.9.0");
+});
+
 test("library JSON keeps legacy array shape, stamps new entries, and checks version before adding",async()=>{
   const h=harness();
   const old=[{id:"old-beer",savedAt:"2026-01-01",item:{name:"Old Beer",icon:"beer"}}];
