@@ -37,7 +37,7 @@ test("all four NEW badge styles appear once inside the icon slot, not the beer n
   }
 });
 
-test("visible icon has a badge over it, hidden icon has badge beside divider", () => {
+test("visible icon keeps a horizontal overlay; hidden icon uses a slim vertical badge beside divider", () => {
   const withIcon=makeItem("pill");
   withIcon.hideIcon=false;
   context.renderedIcon=()=>'<svg class="test-icon"></svg>';
@@ -46,20 +46,26 @@ test("visible icon has a badge over it, hidden icon has badge beside divider", (
   assert.match(visible, /class="icon-wrap"><svg class="test-icon"><\/svg><div class="new-badge-overlay"/);
   const hidden=tapRow(makeItem("pill"));
   assert.match(hidden, /class="icon-wrap icon-wrap-hidden"><div class="new-badge-overlay"/);
-  assert.match(css, /\.tap-row-no-icon\.tap-row-has-new\{--icon-column:calc\(19mm \* var\(--layout-scale,1\) \* var\(--density-icon,1\)\)\}/);
-  assert.match(css, /\.tap-row-no-icon \.new-badge-overlay\{top:50%\}/);
+  assert.match(css, /\.tap-row-no-icon\.tap-row-has-new\{--icon-column:calc\(8\.5mm \* var\(--layout-scale,1\) \* var\(--density-icon,1\)\)\}/);
+  assert.match(css, /\.tap-row-no-icon\.tap-row-has-new \.icon-wrap-hidden\{width:calc\(7mm[^}]*height:calc\(19mm/);
+  assert.match(css, /\.tap-row-no-icon \.new-badge-overlay\{top:50%;transform:translate\(-50%,-50%\) rotate\(-90deg\)\}/);
+  assert.match(css, /left:50%;top:calc\(3mm[^}]*transform:translate\(-50%,-50%\);/);
   assert.match(css, /\.new-badge-overlay\{[\s\S]*?position:absolute;z-index:3/);
   assert.match(css, /\.icon-wrap\{[\s\S]*?position:relative/);
 });
 
-test("badges are larger and unrotated in both icon placements", () => {
+test("badges retain full size over icons but fit in narrow vertical slot without icons", () => {
   assert.match(css,/font-size:calc\(4\.2mm \* var\(--fit\)/);
   assert.match(css,/font-size:calc\(4\.5mm \* var\(--fit\)/);
   assert.match(css,/font-size:calc\(4mm \* var\(--fit\)/);
   assert.match(css,/width:calc\(12mm \* var\(--fit\)/);
   assert.match(css,/font-size:calc\(2\.4mm \* var\(--fit\)/);
   assert.doesNotMatch(css,/\.new-badge-rail/);
-  assert.doesNotMatch(css,/transform:rotate\(-90deg\)/);
+  assert.match(css,/\.tap-row-no-icon \.badge-new-pill\{font-size:calc\(3\.2mm/);
+  assert.match(css,/\.tap-row-no-icon \.badge-new-text\{font-size:calc\(3\.5mm/);
+  assert.match(css,/\.tap-row-no-icon \.badge-new-outline\{font-size:calc\(3\.1mm/);
+  assert.match(css,/\.tap-row-no-icon \.badge-new-starburst\{width:calc\(16mm[^}]*height:calc\(7mm/);
+  assert.doesNotMatch(css,/\.new-badge-overlay\{[^}]*rotate\(-90deg\)/);
 });
 
 test("ordinary beers do not reserve badge space and Spanish NEW text remains translated", () => {
