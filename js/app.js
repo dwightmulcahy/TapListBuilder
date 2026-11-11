@@ -115,6 +115,8 @@ function normalizeItem(item={},defaultLanguage="en"){
     hideIcon:Boolean(item.hideIcon),
     hideAbv:Boolean(item.hideAbv),
     hideIbu:Boolean(item.hideIbu),
+    // Preserve older saved menus where hiding IBU also hid the bitterness meter.
+    hideHopBar:item.hideHopBar===undefined?Boolean(item.hideIbu):Boolean(item.hideHopBar),
     descriptionFontSize:clampDescriptionFontSize(item.descriptionFontSize),
     nameFontSize:clampBeerNameFontSize(item.nameFontSize),
     description,
@@ -416,7 +418,7 @@ function swapExpandedIndices(i,j){
 function addItem(){
   pushItemsUndoSnapshot();
   const sizes=state.settings.sizesByPageSize[state.settings.pageSize];
-  state.items.push(normalizeItem({name:"New Beer",abv:"5.0",ibu:"",glutenFree:false,color:"#444444",icon:"beer",customIcon:"",descriptionFontSize:clampDescriptionFontSize(sizes.globalDescriptionFontSize),nameFontSize:clampBeerNameFontSize(sizes.globalBeerNameFontSize),outlineEnabled:sizes.outlineEnabled,outlineWidth:sizes.outlineWidth,description:"Enter the beverage description here."}));
+  state.items.push(normalizeItem({name:"New Beer",abv:"5.0",ibu:"",glutenFree:false,color:"#444444",icon:"beer",customIcon:"",hideHopBar:false,descriptionFontSize:clampDescriptionFontSize(sizes.globalDescriptionFontSize),nameFontSize:clampBeerNameFontSize(sizes.globalBeerNameFontSize),outlineEnabled:sizes.outlineEnabled,outlineWidth:sizes.outlineWidth,description:"Enter the beverage description here."}));
   expandedItemIndices.add(state.items.length-1); // open the new item so it's ready to edit
   autosave();renderEditor();renderPreview();
   document.querySelector("#editor fieldset:last-child")?.scrollIntoView({behavior:"smooth",block:"center"});
