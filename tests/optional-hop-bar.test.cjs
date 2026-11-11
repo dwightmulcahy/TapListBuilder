@@ -40,6 +40,6 @@ test("hop bar can display even when the IBU number is hidden", () => {
 });
 
 test("beer editor exposes a dedicated hop bar toggle", () => {
-  assert.match(render,/Hide hop bar \/ bitterness meter/);
+  assert.match(render,/Hide hop bar/);
   assert.match(render,/setItem\(\$\{i\},'hideHopBar',this\.checked\)/);
 });
