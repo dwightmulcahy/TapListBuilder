@@ -176,6 +176,13 @@ function editorCard(item,i){
             <label>Gluten free<select onchange="setItem(${i},'glutenFree',this.value==='true')"><option value="false" ${!item.glutenFree?'selected':''}>No</option><option value="true" ${item.glutenFree?'selected':''}>Yes</option></select></label>
             <label>Icon<select onchange="setItem(${i},'icon',this.value,true)">${iconOptions(item.icon)}</select></label>
           </div>
+          <label>Gluten-free label placement
+            <select class="gluten-free-placement" onchange="setItem(${i},'glutenFreePlacement',this.value)">
+              <option value="inline" ${item.glutenFreePlacement!=="vertical"?"selected":""}>Beside beer name (default)</option>
+              <option value="vertical" ${item.glutenFreePlacement==="vertical"?"selected":""}>Vertical, left of icon</option>
+            </select>
+          </label>
+          <p class="help">When the icon is hidden, the gluten-free label stays beside the beer name so it doesn't compete with the vertical NEW badge.</p>
           <div class="visibility-toggles">
             <label class="checkbox-row"><input type="checkbox" ${item.hideIcon?"checked":""} onchange="setItem(${i},'hideIcon',this.checked)"> Hide icon</label>
             <label class="checkbox-row"><input type="checkbox" ${item.hideAbv?"checked":""} onchange="setItem(${i},'hideAbv',this.checked)"> Hide ABV</label>
@@ -368,17 +375,19 @@ function renderTapRow(item){
   const styleHtml=item.hideStyle||!item.style?"":'<span class="item-style">'+esc(item.style)+'</span>';
   const meterHtml=bitternessMeter(item.ibu,item.sg,item.fg,{showTrack:!item.hideHopBar,showLabel:!item.hideBitternessLabel,showMarker:!item.hideHopMarker});
   const hasStats=!item.hideStats&&Boolean(statsRowHtml||meterHtml);
-  const rowClass="tap-row"+(item.hideIcon?" tap-row-no-icon":"")+(item.isNew?" tap-row-has-new":"")+(hasStats?"":" tap-row-no-stats");
+  const sideGluten=item.glutenFree&&item.glutenFreePlacement==="vertical"&&!item.hideIcon;
+  const rowClass="tap-row"+(item.hideIcon?" tap-row-no-icon":"")+(sideGluten?" tap-row-gluten-side":"")+(item.isNew?" tap-row-has-new":"")+(hasStats?"":" tap-row-no-stats");
   const statsStyle=Object.keys(STATS_SIZE_LIMITS).map(key=>{
     const cssKey="--"+key.replace(/[A-Z]/g,letter=>"-"+letter.toLowerCase());
     const unit=["statsWidth","statsGap","hopBarHeight","hopMarkerSize"].includes(key)?"mm":"pt";
     return cssKey+":"+clampStatsSize(key,item[key])+unit;
   }).join(";");
   return `<article class="${rowClass}" style="color:${esc(item.color)};${statsStyle}">
+    ${sideGluten?`<span class="gluten-side-label">${glutenFreeBadge()}</span>`:""}
     <div class="icon-wrap${item.hideIcon?" icon-wrap-hidden":""}">${item.hideIcon?"":renderedIcon(item)}${item.isNew?`<div class="new-badge-overlay" aria-label="${esc(newBadge())}">${newBadgeMarkup(item)}</div>`:""}</div>
     <div class="tap-divider"></div>
     <div class="item-copy">
-      <div class="item-title-line"><h2 class="item-name" style="--outline-w:${item.outlineEnabled?clampNumber(item.outlineWidth,0.5,3,1.5):0}px;--name-font-size:${clampBeerNameFontSize(item.nameFontSize)}pt">${esc(item.name)}${item.glutenFree?`<span class="badge">${glutenFreeBadge()}</span>`:''}</h2>${styleHtml}</div>
+      <div class="item-title-line"><h2 class="item-name" style="--outline-w:${item.outlineEnabled?clampNumber(item.outlineWidth,0.5,3,1.5):0}px;--name-font-size:${clampBeerNameFontSize(item.nameFontSize)}pt">${esc(item.name)}${item.glutenFree&&!sideGluten?`<span class="badge">${glutenFreeBadge()}</span>`:''}</h2>${styleHtml}</div>
       <p class="desc" style="--desc-font-size:${clampDescriptionFontSize(item.descriptionFontSize)}pt">${esc(item.description)}</p>
     </div>
     <div class="stats">${hasStats?statsRowHtml+meterHtml:""}</div>
