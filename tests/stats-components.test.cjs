@@ -131,3 +131,59 @@ test("apply-to-all copies only stats display settings, preserving beer values", 
   assert.equal(other.hideStyle,false);
   assert.equal(divider.type,"divider");
 });
+
+
+test("beer style stays next to the name even when the stats column is hidden", () => {
+  const html=row(normalize({...base,hideStats:true,styleFontSize:17.5}));
+  assert.match(html,/class="tap-row tap-row-no-icon tap-row-no-stats"/);
+  assert.match(html,/class="item-title-line"><h2[^>]*>IPA<\/h2><span class="item-style">Hazy IPA<\/span>/);
+  assert.match(html,/--style-font-size:17.5pt/);
+  assert.match(html,/<div class="stats"><\/div>/);
+  assert.match(css,/\.item-title-line\{display:flex;flex-wrap:wrap;align-items:baseline/);
+  assert.match(css,/\.item-style\{[^}]*var\(--style-font-size,11\.5pt\)/);
+  assert.doesNotMatch(css,/\.style-label\{/);
+});
+
+test("style visibility and font size remain independent of ABV and IBU", () => {
+  const hidden=row(normalize({...base,hideStyle:true}));
+  assert.doesNotMatch(hidden,/class="item-style"/);
+  assert.match(hidden,/class="stat-label stat-label-abv">ABV/);
+  assert.match(hidden,/class="stat-label stat-label-ibu">IBU/);
+  const blank=row(normalize({...base,style:""}));
+  assert.doesNotMatch(blank,/class="item-style"/);
+  const oversized=normalize({...base,styleFontSize:100});
+  assert.equal(oversized.styleFontSize,24);
+  assert.match(row(oversized),/--style-font-size:24pt/);
+});
+
+test("beer style controls are next to the beer name settings, not inside ABV/IBU", () => {
+  assert.match(render,/class="beer-style-font-slider"[^>]*min="6" max="24" step="0\.5"/);
+  assert.match(render,/id="styleFontSizeValue-\$\{i\}"/);
+  assert.match(render,/Show beer style next to name/);
+  assert.match(render,/applyStyleAppearanceToAllBeers\(\$\{i\}\)/);
+  const statsHtml=vm.runInContext("statsDisplayEditor(" + JSON.stringify(normalize(base)) + ",0)",ctx);
+  assert.doesNotMatch(statsHtml,/statsSize-0-styleFontSize/);
+  assert.doesNotMatch(statsHtml,/hideStyle/);
+});
+
+test("apply style appearance to all beers does not change names, style text or stats", () => {
+  const fn=app.match(/function applyStyleAppearanceToAllBeers\(index\)\{[\s\S]*?\n\}/)?.[0];
+  assert.ok(fn);
+  ctx.pushItemsUndoSnapshot=()=>{};
+  ctx.autosave=()=>{};
+  ctx.renderEditor=()=>{};
+  ctx.renderPreview=()=>{};
+  vm.runInContext(fn,ctx);
+  const source=normalize({...base,hideStyle:true,styleFontSize:17.5});
+  const other=normalize({...base,name:"Stout",style:"Imperial Stout",abv:"9.2",ibu:"80",hideStyle:false,styleFontSize:10});
+  const divider=normalize({type:"divider",text:"Seasonals"});
+  ctx.styleTestItems={items:[source,divider,other]};
+  vm.runInContext("state=styleTestItems;applyStyleAppearanceToAllBeers(0)",ctx);
+  assert.equal(other.hideStyle,true);
+  assert.equal(other.styleFontSize,17.5);
+  assert.equal(other.style,"Imperial Stout");
+  assert.equal(other.name,"Stout");
+  assert.equal(other.abv,"9.2");
+  assert.equal(other.ibu,"80");
+  assert.equal(divider.type,"divider");
+});
