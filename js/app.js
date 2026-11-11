@@ -20,7 +20,7 @@ function formatStatsSize(key,value){
   const unit=["statsWidth","statsGap","hopBarHeight","hopMarkerSize"].includes(key)?"mm":"pt";
   return `${Number(clampStatsSize(key,value).toFixed(1)).toString()} ${unit}`;
 }
-const SIZE_KEYS=["iconScale","statsScale","watermarkScale","watermarkOpacity","taproomFontSize","phoneFontSize","locationFontSize","globalDescriptionFontSize","globalBeerNameFontSize"];
+const SIZE_KEYS=["pageDensity","iconScale","statsScale","watermarkScale","watermarkOpacity","taproomFontSize","phoneFontSize","locationFontSize","globalDescriptionFontSize","globalBeerNameFontSize"];
 const defaultState={
   version:2.45,
   settings:{
@@ -35,8 +35,8 @@ const defaultState={
       {type:"none",text:"",image:"",rotation:0}
     ],
     sizesByPageSize:{
-      letter:{iconScale:1,statsScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,globalBeerNameFontSize:18,outlineEnabled:true,outlineWidth:1.5,headerSlotScales:[1,0.67,1]},
-      "4x6":{iconScale:1,statsScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,globalBeerNameFontSize:18,outlineEnabled:true,outlineWidth:1.5,headerSlotScales:[1,0.67,1]}
+      letter:{pageDensity:0,iconScale:1,statsScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,globalBeerNameFontSize:18,outlineEnabled:true,outlineWidth:1.5,headerSlotScales:[1,0.67,1]},
+      "4x6":{pageDensity:0,iconScale:1,statsScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,globalBeerNameFontSize:18,outlineEnabled:true,outlineWidth:1.5,headerSlotScales:[1,0.67,1]}
     }
   },
   items:[] // populated from data/beer-styles.json during boot()
@@ -156,6 +156,7 @@ function clampSizeBucket(src){
   const rawScales=Array.isArray(src.headerSlotScales)?src.headerSlotScales:null;
   const legacyLogoScale=clampNumber(src.logoScale,.30,2.50,.67); // pre-header-slots format
   return {
+    pageDensity:clampNumber(src.pageDensity,0,100,0),
     iconScale:clampNumber(src.iconScale,.50,1.80,1),
     statsScale:clampNumber(src.statsScale,.50,2.00,1),
     watermarkScale:clampNumber(src.watermarkScale,.50,1.80,1),
@@ -358,7 +359,7 @@ function setAllOutlineWidth(value){
 }
 function setSetting(key,value){
   if(SIZE_KEYS.includes(key)){
-    value=key==="taproomFontSize"||key==="phoneFontSize"||key==="locationFontSize"?clampNumber(value,10,32,20):Number(value);
+    value=key==="pageDensity"?clampNumber(value,0,100,0):key==="taproomFontSize"||key==="phoneFontSize"||key==="locationFontSize"?clampNumber(value,10,32,20):Number(value);
     state.settings.sizesByPageSize[state.settings.pageSize][key]=value;
     autosave();renderPreview();
     return;
