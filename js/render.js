@@ -75,6 +75,45 @@ function renderStyleOptions(){
   el.innerHTML=all.map(style=>`<option value="${esc(style)}">`).join("");
 }
 
+function statsDisplayEditor(item,i){
+  const toggles=[
+    ["hideStats","Hide entire stats section (reclaim space)"],
+    ["hideStyle","Hide beer style"],
+    ["hideAbvLabel","Hide ABV label"],
+    ["hideIbuLabel","Hide IBU label"],
+    ["hideStatsDivider","Hide dotted ABV / IBU separator"],
+    ["hideHopMarker","Hide hop bar marker"],
+    ["hideBitternessLabel","Hide bitterness description"]
+  ].map(([key,label])=>`<label class="checkbox-row"><input type="checkbox" ${item[key]?"checked":""} onchange="setItem(${i},'${key}',this.checked)"> ${label}</label>`).join("");
+  const sliders=[
+    ["statsWidth","Stats column width",24,65,1],
+    ["statsGap","Vertical spacing",0,4,.2],
+    ["styleFontSize","Beer style font size",6,24,.5],
+    ["abvValueFontSize","ABV value font size",8,36,.5],
+    ["ibuValueFontSize","IBU value font size",8,36,.5],
+    ["abvLabelFontSize","ABV label font size",6,20,.5],
+    ["ibuLabelFontSize","IBU label font size",6,20,.5],
+    ["hopBarHeight","Hop bar thickness",1,8,.2],
+    ["hopMarkerSize","Hop marker size",2,10,.2],
+    ["bitternessLabelFontSize","Bitterness description font size",6,24,.5]
+  ].map(([key,label,min,max,step])=>`<label>${label}
+    <div class="range-with-value">
+      <input class="stats-size-slider" type="range" min="${min}" max="${max}" step="${step}" value="${clampStatsSize(key,item[key])}"
+        oninput="setItem(${i},'${key}',Number(this.value));document.getElementById('statsSize-${i}-${key}').value=formatStatsSize('${key}',Number(this.value))">
+      <output id="statsSize-${i}-${key}">${formatStatsSize(key,item[key])}</output>
+    </div>
+  </label>`).join("");
+  return `<details class="advanced-stats">
+    <summary>ABV / IBU section: visibility and sizing</summary>
+    <div class="section-body">
+      <p class="help">ABV, IBU and the hop bar have separate quick visibility controls above. All sizes below apply to this beer; the Page stats-size control scales the entire section.</p>
+      <div class="visibility-toggles">${toggles}</div>
+      <div class="grid2">${sliders}</div>
+      <button type="button" onclick="applyStatsToAllBeers(${i})">Apply this stats layout to all beers</button>
+    </div>
+  </details>`;
+}
+
 function editorCard(item,i){
   if(item.type==="divider")return dividerEditorCard(item,i);
   if(item.type==="text")return textEditorCard(item,i);
@@ -130,6 +169,7 @@ function editorCard(item,i){
             <label class="checkbox-row"><input type="checkbox" ${item.hideIbu?"checked":""} onchange="setItem(${i},'hideIbu',this.checked)"> Hide IBU</label>
             <label class="checkbox-row"><input type="checkbox" ${item.hideHopBar?"checked":""} onchange="setItem(${i},'hideHopBar',this.checked)"> Hide hop bar / bitterness meter</label>
           </div>
+          ${statsDisplayEditor(item,i)}
           <details class="advanced-abv" id="advancedAbv-${i}" ${isAbvCalculated(item)?"open":""}>
             <summary>Advanced: calculate ABV from gravity (SG/FG)</summary>
             <div class="section-body">
