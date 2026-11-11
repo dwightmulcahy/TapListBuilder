@@ -17,7 +17,7 @@ function loadSavedBeverages(){
   }catch(e){return []}
 }
 function persistSavedBeverages(){
-  try{localStorage.setItem(SAVED_BEVERAGES_KEY,JSON.stringify(stampJson({entries:savedBeverages})))}catch(e){
+  try{localStorage.setItem(SAVED_BEVERAGES_KEY,JSON.stringify(stampJson({version:defaultState.version,entries:savedBeverages})))}catch(e){
     alert("The saved beverage library could not be stored. A custom icon may be too large for browser storage.");
   }
 }
