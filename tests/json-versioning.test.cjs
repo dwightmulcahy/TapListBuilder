@@ -42,7 +42,7 @@ function harness(){
   }
   const writes=[];
   const ctx=vm.createContext({
-    ICONS:{beer:"icon"},inferIcon:()=>"beer",
+    ICONS:{beer:"icon"},inferIcon:()=>"beer",esc:value=>String(value),
     localStorage:{setItem:(k,v)=>saved.set(k,v),getItem:k=>saved.get(k)??null},
     document,FileReader,
     window:{
