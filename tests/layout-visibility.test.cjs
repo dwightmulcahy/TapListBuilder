@@ -40,11 +40,12 @@ test("editor controls expose both independent visibility settings", () => {
 });
 
 test("hidden header and footer release their grid tracks and avoid fitting", () => {
-  assert.match(pdf, /classList\.toggle\("hide-header",!s\.showHeader\)/);
+  assert.match(pdf, /classList\.toggle\("hide-header",!hasVisibleHeader\)/);
   assert.match(pdf, /classList\.toggle\("hide-footer",!s\.showFooter\)/);
-  assert.match(pdf, /--header-height",s\.showHeader\?[^\n]*:"0px"/);
+  assert.match(pdf, /--header-height",hasVisibleHeader\?[^\n]*:"0px"/);
   assert.match(pdf, /--footer-height",s\.showFooter\?[^\n]*:"0px"/);
   assert.match(pdf, /!state\.settings\.showHeader/);
+  assert.match(pdf, /s\.showHeader&&headerHasContent\(s\.headerSlots\)/);
   assert.match(pdf, /if\(!state\.settings\.showFooter\)return/);
   assert.match(css, /\.page\.hide-header \.header,\.page\.hide-footer \.footer\{display:none\}/);
 });
