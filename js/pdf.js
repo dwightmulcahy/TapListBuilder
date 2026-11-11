@@ -110,13 +110,42 @@ function fitFooter(){
     pageEl.style.setProperty("--footer-bottom-scale",bottomScale);
   }
 }
+// Density reduces the vertical space assigned to each beer row, rather than merely
+// changing padding inside rows that would otherwise stretch to fill the entire page.
+function applyDensityRowSpacing(){
+  const list=document.getElementById("tapList");
+  if(!list)return;
+  const settings=state.settings;
+  const density=clampNumber(settings.sizesByPageSize[settings.pageSize].pageDensity,0,100,0)/100;
+  const children=[...list.children];
+  const beerRows=children.filter(row=>row.classList.contains("tap-row"));
+  beerRows.forEach(row=>row.style.removeProperty("--row-target-height"));
+  list.classList.toggle("density-layout",density>0);
+  if(density<=0||!beerRows.length)return;
+
+  // Measure the un-stretched rows, including margins on optional text rows.
+  const occupied=children.reduce((sum,row)=>{
+    const style=getComputedStyle(row);
+    return sum+row.offsetHeight+(parseFloat(style.marginTop)||0)+(parseFloat(style.marginBottom)||0);
+  },0);
+  const spare=Math.max(0,list.clientHeight-occupied-2);
+  const extraPerRow=spare*(1-density)/beerRows.length;
+  if(extraPerRow>0)beerRows.forEach(row=>{
+    row.style.setProperty("--row-target-height",`${row.offsetHeight+extraPerRow}px`);
+  });
+}
 function fitMenu(){
   const pageEl=document.getElementById("page");
   const list=document.getElementById("tapList");
   let fit=1;
   pageEl.style.setProperty("--fit",fit);
+  applyDensityRowSpacing();
   const overflows=()=>list.scrollHeight>list.clientHeight+1||[...list.children].some(row=>row.scrollHeight>row.clientHeight+1);
-  while(overflows()&&fit>.76){fit=Math.round((fit-.02)*100)/100;pageEl.style.setProperty("--fit",fit)}
+  while(overflows()&&fit>.76){
+    fit=Math.round((fit-.02)*100)/100;
+    pageEl.style.setProperty("--fit",fit);
+    applyDensityRowSpacing();
+  }
   fitFooter();
   const status=document.getElementById("fitStatus");
   if(overflows()){
