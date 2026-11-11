@@ -46,16 +46,17 @@
 .tap-list{display:flex;flex-direction:column;min-height:0}
 .tap-row{
   flex:1 1 0;min-height:0;display:grid;
-  grid-template-columns:calc(28mm * var(--layout-scale,1)) calc(1.1mm * var(--layout-scale,1)) minmax(0,1fr) calc(41mm * var(--layout-scale,1) * var(--stats-scale,1));
-  gap:calc(3mm * var(--layout-scale,1));align-items:center;border-bottom:.28mm solid var(--rule);
-  padding:calc(1.25mm * var(--fit) * var(--layout-scale,1)) 0;overflow:hidden
+  grid-template-columns:calc(22mm * var(--layout-scale,1) * var(--icon-scale,1)) calc(.9mm * var(--layout-scale,1)) minmax(0,1fr) calc(41mm * var(--layout-scale,1) * var(--stats-scale,1));
+  gap:calc(1.8mm * var(--layout-scale,1));align-items:center;border-bottom:.28mm solid var(--rule);
+  padding:calc(.8mm * var(--fit) * var(--layout-scale,1)) 0;overflow:hidden
 }
 .tap-row:last-child{border-bottom:0}
+.tap-row-no-icon{grid-template-columns:0px calc(.9mm * var(--layout-scale,1)) minmax(0,1fr) calc(41mm * var(--layout-scale,1) * var(--stats-scale,1))}
 .icon-wrap{
-  justify-self:center;width:calc(23mm * var(--layout-scale,1) * var(--icon-scale,1));height:calc(23mm * var(--layout-scale,1) * var(--icon-scale,1));border:.65mm solid currentColor;border-radius:50%;
+  justify-self:center;width:calc(19mm * var(--layout-scale,1) * var(--icon-scale,1));height:calc(19mm * var(--layout-scale,1) * var(--icon-scale,1));border:.65mm solid currentColor;border-radius:50%;
   display:grid;place-items:center;background:rgba(255,255,255,.13)
 }
-.icon-wrap-hidden{border-color:transparent;background:transparent}
+.icon-wrap-hidden{display:none}
 .icon-wrap svg{width:72%;height:72%;display:block}
 .icon-wrap img{width:70%;height:70%;object-fit:contain;display:block}
 .tap-divider{width:calc(1.05mm * var(--layout-scale,1));height:76%;min-height:calc(13mm * var(--layout-scale,1));border-radius:9px;background:currentColor}
