@@ -72,10 +72,10 @@ function confirmJsonLoad(raw,source="JSON file",impact="Loading replaces the cur
 function autosave(){try{localStorage.setItem("mhbTapListBuilderV2",JSON.stringify(stampJson(state)))}catch(e){}}
 function loadAutosave(){try{const raw=localStorage.getItem("mhbTapListBuilderV2");return raw?JSON.parse(raw):null}catch(e){return null}}
 
-function mergeSavedBeverages(entries,sourceAppVersion=null){
+function mergeSavedBeverages(entries,sourceAppVersion=null,sourceSchemaVersion=null){
   if(!Array.isArray(entries))return 0;
   let count=0;
-  entries.map(entry=>normalizeSavedBeverage({...entry,appVersion:savedJsonAppVersion(entry)||sourceAppVersion})).forEach(incoming=>{
+  entries.map(entry=>normalizeSavedBeverage({...entry,appVersion:savedJsonAppVersion(entry)||sourceAppVersion,version:entry?.version??sourceSchemaVersion})).forEach(incoming=>{
     const key=incoming.item.name.trim().toLowerCase();
     if(!key)return;
     const existingIndex=savedBeverages.findIndex(saved=>saved.item.name.trim().toLowerCase()===key);
@@ -133,7 +133,7 @@ function loadJSON(event){
       expandedItemIndices=new Set();
       itemsUndoStack=[];
       updateUndoButton();
-      const imported=mergeSavedBeverages(raw.savedBeverages,savedJsonAppVersion(raw));
+      const imported=mergeSavedBeverages(raw.savedBeverages,savedJsonAppVersion(raw),raw.version??null);
       autosave();renderEditor();renderPreview();
       if(imported)renderSavedBeverageLibrary(`Loaded the menu and imported ${imported} saved library item${imported===1?"":"s"}.`);
     }catch(err){console.error("JSON import failed:",err);alert("Could not load the selected tap-list JSON.")}
