@@ -73,6 +73,10 @@
 .icon-wrap img{width:70%;height:70%;object-fit:contain;display:block}
 .tap-divider{width:calc(1.05mm * var(--layout-scale,1));height:76%;min-height:calc(13mm * var(--layout-scale,1));border-radius:9px;background:currentColor}
 .item-copy{min-width:0;align-self:center}
+/* Keep style beside the beer name; wrap it below when a narrow menu runs out of room. */
+.item-title-line{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:calc(2.2mm * var(--layout-scale,1));row-gap:calc(.6mm * var(--layout-scale,1));min-width:0}
+.item-title-line .item-name{min-width:0;overflow-wrap:anywhere}
+.item-style{font-family:Arial,Helvetica,sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:.04em;font-size:calc(var(--style-font-size,11.5pt) * var(--fit) * var(--layout-scale,1));line-height:1.1;color:currentColor;opacity:.9;overflow-wrap:anywhere;min-width:0}
 .item-name{
   margin:0;color:currentColor;font-family:Impact,Haettenschweiler,"Arial Narrow Bold","Arial Narrow",sans-serif;
   font-size:calc(var(--name-font-size,18pt) * var(--fit) * var(--layout-scale,1));font-weight:900;line-height:.98;letter-spacing:.01em;
@@ -124,12 +128,6 @@
   align-self:center;display:flex;flex-direction:column;justify-content:center;min-height:0;
   text-align:center;color:currentColor
 }
-.style-label{
-  font-family:Arial,Helvetica,sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:.04em;
-  font-size:calc(var(--style-font-size,11.5pt) * var(--fit) * var(--layout-scale,1) * var(--stats-scale,1));line-height:1;color:currentColor;opacity:.9;
-  margin-bottom:calc(var(--stats-gap,1.2mm) * var(--layout-scale,1) * var(--stats-scale,1));white-space:nowrap;overflow:hidden;text-overflow:ellipsis
-}
-.style-label:empty{display:none;margin:0}
 .stats-row{display:grid;grid-template-columns:1fr 1fr;align-items:center}
 .stats-row-single{grid-template-columns:1fr}
 .stat{min-width:0;padding:0 calc(1mm * var(--layout-scale,1) * var(--stats-scale,1))}
