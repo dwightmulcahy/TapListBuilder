@@ -235,6 +235,13 @@
         <output id="watermarkScaleValue">100%</o>
       </div>
     </label>
+    <label>Set all beer name font sizes
+      <div class="range-with-value">
+        <input id="globalBeerNameFontSize" type="range" min="12" max="36" step="0.5" oninput="setAllBeerNameFontSizes(Number(this.value))">
+        <output id="globalBeerNameFontSizeValue">18 pt</output>
+      </div>
+    </label>
+    <p class="help">Sets every beer name to the selected size. Individual beer names can be adjusted in their item settings.</p>
     <label>Set all description font sizes
       <div class="range-with-value">
         <input id="globalDescriptionFontSize" type="range" min="8" max="24" step="0.25" oninput="setAllDescriptionFontSizes(Number(this.value))">
