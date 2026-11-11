@@ -630,13 +630,23 @@ async function boot(){
   void window.TapListBuildInfo.updateBadge();
   const [beerStyles,translations]=await Promise.all([
     fetch("data/beer-styles.json").then(r=>r.json()),
-    fetch("data/translations.json").then(r=>r.json())
+    fetch("data/translations.json").then(r=>r.json()),
+    // Resolve release metadata before restoring JSON, so version comparisons
+    // use the same label displayed beside the application title.
+    window.TapListBuildInfo.load().then(setCurrentJsonAppVersion).catch(()=>{})
   ]);
   defaultState.items=beerStyles.defaultItems;
   initTranslationData(beerStyles.styleNameTranslations,translations);
 
-  state=loadAutosave()||deepCopy(defaultState);
-  state=normalizeState(state);
+  const browserSave=loadAutosave();
+  let restore=Boolean(browserSave);
+  if(browserSave&&compareJsonAppVersions(savedJsonAppVersion(browserSave))!=="match"){
+    restore=await confirmJsonLoad(browserSave,"Browser autosave","Continue restoring the saved menu? Cancel starts with the sample menu without immediately overwriting your browser save.");
+  }
+  state=normalizeState(restore?browserSave:deepCopy(defaultState));
+  // Stamp accepted legacy autosaves once so refreshing the page does not
+  // repeatedly ask about a version that the old format could not record.
+  if(restore&&!savedJsonAppVersion(browserSave))autosave();
   savedBeverages=loadSavedBeverages();
   menuProfiles=loadMenuProfiles();
 
