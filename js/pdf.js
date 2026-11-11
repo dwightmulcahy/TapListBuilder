@@ -7,6 +7,8 @@ function applySettings(){
     w="4in";h="6in";pageCss="4in 6in";layoutScale=.5;
   }
   const pageEl=document.getElementById("page");
+  pageEl.classList.toggle("hide-header",!s.showHeader);
+  pageEl.classList.toggle("hide-footer",!s.showFooter);
   pageEl.classList.toggle("show-corner-overlay",s.pageSize==="4x6");
   document.documentElement.style.setProperty("--page-w",w);
   document.documentElement.style.setProperty("--page-h",h);
@@ -29,8 +31,8 @@ function applySettings(){
   pageEl.style.setProperty("--icon-scale",String(clampNumber(sizes.iconScale,.50,1.80,1)));
   pageEl.style.setProperty("--stats-scale",String(clampNumber(sizes.statsScale,.50,2.00,1)));
   const maxHeaderSlotScale=Math.max(...sizes.headerSlotScales,0.5);
-  pageEl.style.setProperty("--header-height",`${61 * layoutScale * maxHeaderSlotScale}mm`); // provisional, corrected below
-  pageEl.style.setProperty("--footer-height",`${25 * layoutScale}mm`);
+  pageEl.style.setProperty("--header-height",s.showHeader?`${61 * layoutScale * maxHeaderSlotScale}mm`:"0px"); // provisional, corrected below
+  pageEl.style.setProperty("--footer-height",s.showFooter?`${25 * layoutScale}mm`:"0px");
   pageEl.style.setProperty("--watermark-scale",String(clampNumber(sizes.watermarkScale,.50,1.80,1)));
   pageEl.style.setProperty("--watermark-opacity",String(clampNumber(sizes.watermarkOpacity,0,1,.22)));
   pageEl.style.setProperty("--taproom-font-size",`${clampNumber(sizes.taproomFontSize,10,32,20)}pt`);
@@ -56,7 +58,7 @@ function applySettings(){
 function fitHeader(){
   const pageEl=document.getElementById("page");
   const header=document.querySelector(".header");
-  if(!pageEl||!header)return;
+  if(!pageEl||!header||!state.settings.showHeader)return;
   const slotContents=[...document.querySelectorAll(".header-slot > *")];
   if(!slotContents.length)return; // every slot empty - keep the provisional height
   const headerRect=header.getBoundingClientRect();
@@ -78,6 +80,7 @@ function fitFooter(){
   const bottom=document.querySelector(".footer-bottom");
   const taproomBlock=top?.children[0];
   const phoneBlock=top?.children[1];
+  if(!state.settings.showFooter)return;
   const autoFit=Boolean(state.settings.footerAutoFit);
   let taproomScale=1;
   let phoneScale=1;
