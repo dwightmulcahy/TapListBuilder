@@ -395,6 +395,7 @@ function applyStyleAppearanceToAllBeers(index){
   autosave();renderEditor();renderPreview();
 }
 function setItem(i,key,value,rerenderEditor=false){
+  if(key==="glutenFreePlacement")value=value==="vertical"?"vertical":"inline";
   if(key==="descriptionFontSize")value=clampDescriptionFontSize(value);
   if(key==="nameFontSize")value=clampBeerNameFontSize(value);
   if(key==="outlineWidth")value=clampNumber(value,0.5,3,1.5);
