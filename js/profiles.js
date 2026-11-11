@@ -26,7 +26,7 @@ function loadMenuProfiles(){
   }catch(e){return []}
 }
 function persistMenuProfiles(){
-  try{localStorage.setItem(MENU_PROFILES_KEY,JSON.stringify(stampJson({version:defaultState.version,profiles:menuProfiles})))}catch(e){
+  try{localStorage.setItem(MENU_PROFILES_KEY,JSON.stringify(menuProfiles))}catch(e){
     alert("Menu profiles could not be stored. A custom icon may be too large for browser storage.");
   }
 }
