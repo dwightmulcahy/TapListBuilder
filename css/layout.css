@@ -156,19 +156,21 @@ textarea{min-height:72px;resize:vertical;line-height:1.3}
 .summary-name{font-weight:900;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .summary-meta{font-size:12px;font-weight:700;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .beer-card-body{padding:2px 12px 12px}
-.advanced-abv{border:1px solid #ddd;border-radius:7px;margin:8px 0 0;background:#fafafa}
+.advanced-abv,.advanced-stats{border:1px solid #ddd;border-radius:7px;margin:8px 0 0;background:#fafafa}
 .header-slot-editor{border:0;border-top:1px solid #e2e2e2;border-radius:0;margin:0;padding:12px 0}
 .header-slot-editor:first-child{border-top:0;padding-top:0}
 .header-slot-editor legend{font-weight:900;font-size:13px;padding:0;margin:0 0 6px;color:#333}
-.advanced-abv>summary{
+.advanced-abv>summary,.advanced-stats>summary{
   padding:7px 9px;font-size:11px;font-weight:800;color:#555;cursor:pointer;list-style:none;
   display:flex;align-items:center;gap:6px;user-select:none
 }
-.advanced-abv>summary::-webkit-details-marker{display:none}
-.advanced-abv>summary::before{content:"▸";font-size:10px;color:#888;transition:transform .15s ease}
-.advanced-abv[open]>summary::before{transform:rotate(90deg)}
-.advanced-abv>summary:hover{background:#f0f0f0}
-.advanced-abv>.section-body{padding:0 9px 9px}
+.advanced-abv>summary::-webkit-details-marker,.advanced-stats>summary::-webkit-details-marker{display:none}
+.advanced-abv>summary::before,.advanced-stats>summary::before{content:"▸";font-size:10px;color:#888;transition:transform .15s ease}
+.advanced-abv[open]>summary::before,.advanced-stats[open]>summary::before{transform:rotate(90deg)}
+.advanced-abv>summary:hover,.advanced-stats>summary:hover{background:#f0f0f0}
+.advanced-abv>.section-body,.advanced-stats>.section-body{padding:0 9px 9px}
+.advanced-stats .grid2{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-top:12px}
+.advanced-stats .section-body>button{margin-top:12px}
 .custom-icon-row{margin-top:8px}
 .item-library-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .item-library-actions button{flex:1 1 180px}
