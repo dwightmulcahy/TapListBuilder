@@ -302,7 +302,7 @@ function renderTapRow(item){
   if(!item.hideAbv)statCells.push(`<div class="stat"><div class="value">${formatAbv(item.abv)}</div><div class="stat-label">ABV</div></div>`);
   if(!item.hideIbu)statCells.push(`<div class="stat"><div class="value">${formatIbu(item.ibu)}</div><div class="stat-label">IBU</div></div>`);
   const statsRowHtml=statCells.length?`<div class="stats-row${statCells.length===1?" stats-row-single":""}">${statCells.join("")}</div>`:"";
-  return `<article class="tap-row" style="color:${esc(item.color)}">
+  return `<article class="tap-row${item.hideIcon?" tap-row-no-icon":""}" style="color:${esc(item.color)}">
     <div class="icon-wrap${item.hideIcon?" icon-wrap-hidden":""}">${item.hideIcon?"":renderedIcon(item)}</div>
     <div class="tap-divider"></div>
     <div class="item-copy">
