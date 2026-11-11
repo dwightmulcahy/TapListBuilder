@@ -124,6 +124,7 @@ function normalizeItem(item={},defaultLanguage="en"){
     abv:(()=>{const calculated=calculateAbv(item.sg,item.fg);return calculated!==null?calculated.toFixed(1):String(item.abv??"");})(),
     ibu:String(item.ibu??""),
     glutenFree:Boolean(item.glutenFree),
+    glutenFreePlacement:item.glutenFreePlacement==="vertical"?"vertical":"inline",
     isNew:Boolean(item.isNew),
     newBadgeStyle:["pill","text","outline","starburst"].includes(item.newBadgeStyle)?item.newBadgeStyle:"pill",
     color:/^#[0-9a-f]{6}$/i.test(item.color||"")?item.color:"#444444",
