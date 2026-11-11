@@ -7,16 +7,17 @@ function makeSavedBeverageId(){
 }
 function normalizeSavedBeverage(entry){
   const item=normalizeItem(entry?.item||entry||{});
-  return {id:String(entry?.id||makeSavedBeverageId()),savedAt:String(entry?.savedAt||new Date().toISOString()),item};
+  return {id:String(entry?.id||makeSavedBeverageId()),savedAt:String(entry?.savedAt||new Date().toISOString()),appVersion:savedJsonAppVersion(entry),version:entry?.version??null,item};
 }
 function loadSavedBeverages(){
   try{
     const raw=JSON.parse(localStorage.getItem(SAVED_BEVERAGES_KEY)||"[]");
-    return Array.isArray(raw)?raw.map(normalizeSavedBeverage).sort((a,b)=>a.item.name.localeCompare(b.item.name)):[];
+    const entries=Array.isArray(raw)?raw:raw?.entries; // legacy array or stamped wrapper
+    return Array.isArray(entries)?entries.map(normalizeSavedBeverage).sort((a,b)=>a.item.name.localeCompare(b.item.name)):[];
   }catch(e){return []}
 }
 function persistSavedBeverages(){
-  try{localStorage.setItem(SAVED_BEVERAGES_KEY,JSON.stringify(savedBeverages))}catch(e){
+  try{localStorage.setItem(SAVED_BEVERAGES_KEY,JSON.stringify(stampJson({entries:savedBeverages})))}catch(e){
     alert("The saved beverage library could not be stored. A custom icon may be too large for browser storage.");
   }
 }
@@ -48,9 +49,9 @@ function storeItemInLibrary(item,{confirmOverwrite=true}={}){
   if(existingIndex>=0){
     if(confirmOverwrite&&!confirm(`Replace the saved settings for “${name}”?`))return false;
     const existing=savedBeverages[existingIndex];
-    savedBeverages[existingIndex]={id:existing.id,savedAt:new Date().toISOString(),item:deepCopy(normalized)};
+    savedBeverages[existingIndex]={id:existing.id,savedAt:new Date().toISOString(),appVersion:currentJsonAppVersion,version:defaultState.version,item:deepCopy(normalized)};
   }else{
-    savedBeverages.push({id:makeSavedBeverageId(),savedAt:new Date().toISOString(),item:deepCopy(normalized)});
+    savedBeverages.push({id:makeSavedBeverageId(),savedAt:new Date().toISOString(),appVersion:currentJsonAppVersion,version:defaultState.version,item:deepCopy(normalized)});
   }
   savedBeverages.sort((a,b)=>a.item.name.localeCompare(b.item.name));
   persistSavedBeverages();
@@ -72,10 +73,11 @@ function saveAllItemsToLibrary(){
   });
   renderSavedBeverageLibrary(`Saved ${added} new and updated ${updated} existing item${updated===1?"":"s"}.`);
 }
-function addSavedBeverage(){
+async function addSavedBeverage(){
   const id=document.getElementById("savedBeverageSelect")?.value;
   const entry=savedBeverages.find(saved=>saved.id===id);
   if(!entry)return;
+  if(!await confirmJsonLoad(entry,`Saved beverage: ${entry.item.name}`,"This adds the selected beverage to the current menu."))return;
   state.items.push(deepCopy(entry.item));
   autosave();renderEditor();renderPreview();
   renderSavedBeverageLibrary(`Added “${entry.item.name}” to the current menu.`);
