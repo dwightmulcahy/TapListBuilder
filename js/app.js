@@ -1,7 +1,7 @@
 // Core app state: item/state normalization, item CRUD, settings, custom icon upload,
 // and the boot sequence that loads JSON data then does the first render.
 
-const SIZE_KEYS=["iconScale","statsScale","watermarkScale","watermarkOpacity","taproomFontSize","phoneFontSize","locationFontSize","globalDescriptionFontSize"];
+const SIZE_KEYS=["iconScale","statsScale","watermarkScale","watermarkOpacity","taproomFontSize","phoneFontSize","locationFontSize","globalDescriptionFontSize","globalBeerNameFontSize"];
 const defaultState={
   version:2.45,
   settings:{
@@ -16,8 +16,8 @@ const defaultState={
       {type:"none",text:"",image:"",rotation:0}
     ],
     sizesByPageSize:{
-      letter:{iconScale:1,statsScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,outlineEnabled:true,outlineWidth:1.5,headerSlotScales:[1,0.67,1]},
-      "4x6":{iconScale:1,statsScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,outlineEnabled:true,outlineWidth:1.5,headerSlotScales:[1,0.67,1]}
+      letter:{iconScale:1,statsScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,globalBeerNameFontSize:18,outlineEnabled:true,outlineWidth:1.5,headerSlotScales:[1,0.67,1]},
+      "4x6":{iconScale:1,statsScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,globalBeerNameFontSize:18,outlineEnabled:true,outlineWidth:1.5,headerSlotScales:[1,0.67,1]}
     }
   },
   items:[] // populated from data/beer-styles.json during boot()
@@ -34,6 +34,13 @@ function clampNumber(value,min,max,fallback){
 function clampDescriptionFontSize(value){
   const n=Number(value);
   return Number.isFinite(n)?Math.min(24,Math.max(8,Math.round(n*4)/4)):11.75;
+}
+function clampBeerNameFontSize(value){
+  const n=Number(value);
+  return Number.isFinite(n)?Math.min(36,Math.max(12,Math.round(n*2)/2)):18;
+}
+function formatBeerNameFontSize(value){
+  return `${clampBeerNameFontSize(value).toFixed(1).replace(/\.0$/,"")} pt`;
 }
 function formatDescriptionFontSize(value){
   return `${clampDescriptionFontSize(value).toFixed(2).replace(/\.00$/,"").replace(/0$/,"")} pt`;
@@ -109,6 +116,7 @@ function normalizeItem(item={},defaultLanguage="en"){
     hideAbv:Boolean(item.hideAbv),
     hideIbu:Boolean(item.hideIbu),
     descriptionFontSize:clampDescriptionFontSize(item.descriptionFontSize),
+    nameFontSize:clampBeerNameFontSize(item.nameFontSize),
     description,
     language,
     translations
@@ -127,6 +135,7 @@ function clampSizeBucket(src){
     phoneFontSize:clampNumber(src.phoneFontSize,10,32,20),
     locationFontSize:clampNumber(src.locationFontSize,10,32,19),
     globalDescriptionFontSize:clampDescriptionFontSize(src.globalDescriptionFontSize),
+    globalBeerNameFontSize:clampBeerNameFontSize(src.globalBeerNameFontSize),
     outlineEnabled:src.outlineEnabled===undefined?true:Boolean(src.outlineEnabled),
     outlineWidth:clampNumber(src.outlineWidth,0.5,3,1.5),
     headerSlotScales:rawScales?[0,1,2].map(i=>clampNumber(rawScales[i],.30,2.50,1)):[1,legacyLogoScale,1]
@@ -182,6 +191,11 @@ function normalizeState(raw){
     const first=clampDescriptionFontSize(beerItems[0].descriptionFontSize);
     if(beerItems.every(item=>clampDescriptionFontSize(item.descriptionFontSize)===first))sizes.globalDescriptionFontSize=first;
   }
+  const hadExplicitNameFontSize=rawBuckets[settings.pageSize]?.globalBeerNameFontSize!=null||legacyFlat.globalBeerNameFontSize!=null;
+  if(!hadExplicitNameFontSize&&beerItems.length){
+    const first=clampBeerNameFontSize(beerItems[0].nameFontSize);
+    if(beerItems.every(item=>clampBeerNameFontSize(item.nameFontSize)===first))sizes.globalBeerNameFontSize=first;
+  }
   return {version:2.45,settings,items};
 }
 
@@ -222,6 +236,43 @@ function setAllDescriptionFontSizes(value){
   if(output)output.value=formatDescriptionFontSize(size);
   autosave();
   renderPreview();
+}
+function updateGlobalBeerNameControl(){
+  const input=document.getElementById("globalBeerNameFontSize");
+  const output=document.getElementById("globalBeerNameFontSizeValue");
+  if(!input||!output)return;
+  const sizes=state.settings.sizesByPageSize[state.settings.pageSize];
+  const beerItems=state.items.filter(item=>item.type==="beer");
+  if(!beerItems.length){
+    const size=clampBeerNameFontSize(sizes.globalBeerNameFontSize);
+    input.value=size;
+    output.value=formatBeerNameFontSize(size);
+    return;
+  }
+  const first=clampBeerNameFontSize(beerItems[0].nameFontSize);
+  const allSame=beerItems.every(item=>clampBeerNameFontSize(item.nameFontSize)===first);
+  if(allSame){
+    sizes.globalBeerNameFontSize=first;
+    input.value=first;
+    output.value=formatBeerNameFontSize(first);
+  }else{
+    input.value=clampBeerNameFontSize(sizes.globalBeerNameFontSize);
+    output.value="Mixed";
+  }
+}
+function setAllBeerNameFontSizes(value){
+  const size=clampBeerNameFontSize(value);
+  state.settings.sizesByPageSize[state.settings.pageSize].globalBeerNameFontSize=size;
+  state.items.forEach(item=>{if(item.type==="beer")item.nameFontSize=size});
+  document.querySelectorAll(".beer-name-font-slider").forEach(slider=>{
+    slider.value=size;
+    const index=Number(slider.dataset.itemIndex);
+    const output=document.getElementById(`nameFontSizeValue-${index}`);
+    if(output)output.value=formatBeerNameFontSize(size);
+  });
+  const output=document.getElementById("globalBeerNameFontSizeValue");
+  if(output)output.value=formatBeerNameFontSize(size);
+  autosave();renderPreview();
 }
 function updateGlobalOutlineControl(){
   const checkbox=document.getElementById("globalOutlineEnabled");
@@ -293,6 +344,7 @@ function setSetting(key,value){
 }
 function setItem(i,key,value,rerenderEditor=false){
   if(key==="descriptionFontSize")value=clampDescriptionFontSize(value);
+  if(key==="nameFontSize")value=clampBeerNameFontSize(value);
   if(key==="outlineWidth")value=clampNumber(value,0.5,3,1.5);
   const item=state.items[i];
   item[key]=value;
@@ -306,6 +358,7 @@ function setItem(i,key,value,rerenderEditor=false){
   }
   if(key==="name"&&(!item.icon||item.icon==="beer"))item.icon=inferIcon(value);
   if(key==="descriptionFontSize")updateGlobalDescriptionControl();
+  if(key==="nameFontSize")updateGlobalBeerNameControl();
   if(key==="outlineEnabled"||key==="outlineWidth")updateGlobalOutlineControl();
   if(key==="sg"||key==="fg"){
     const calculated=calculateAbv(item.sg,item.fg);
@@ -363,7 +416,7 @@ function swapExpandedIndices(i,j){
 function addItem(){
   pushItemsUndoSnapshot();
   const sizes=state.settings.sizesByPageSize[state.settings.pageSize];
-  state.items.push(normalizeItem({name:"New Beer",abv:"5.0",ibu:"",glutenFree:false,color:"#444444",icon:"beer",customIcon:"",descriptionFontSize:clampDescriptionFontSize(sizes.globalDescriptionFontSize),outlineEnabled:sizes.outlineEnabled,outlineWidth:sizes.outlineWidth,description:"Enter the beverage description here."}));
+  state.items.push(normalizeItem({name:"New Beer",abv:"5.0",ibu:"",glutenFree:false,color:"#444444",icon:"beer",customIcon:"",descriptionFontSize:clampDescriptionFontSize(sizes.globalDescriptionFontSize),nameFontSize:clampBeerNameFontSize(sizes.globalBeerNameFontSize),outlineEnabled:sizes.outlineEnabled,outlineWidth:sizes.outlineWidth,description:"Enter the beverage description here."}));
   expandedItemIndices.add(state.items.length-1); // open the new item so it's ready to edit
   autosave();renderEditor();renderPreview();
   document.querySelector("#editor fieldset:last-child")?.scrollIntoView({behavior:"smooth",block:"center"});
