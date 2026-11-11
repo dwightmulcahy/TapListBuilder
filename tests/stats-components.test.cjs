@@ -119,7 +119,7 @@ test("apply-to-all copies only stats display settings, preserving beer values", 
   const source=normalize({...base,statsWidth:52,hideAbv:true,hideBitternessLabel:true,styleFontSize:19,hideStyle:true});
   const other=normalize({...base,name:"Stout",abv:"9.2",ibu:"20",statsWidth:41,styleFontSize:12,hideStyle:false});
   const divider=normalize({type:"divider",text:"Seasonals"});
-  ctx.stateForTest={items:[source,divider,other]};
+  ctx.stateForTest={settings:{language:"en"},items:[source,divider,other]};
   vm.runInContext("state=stateForTest",ctx);
   vm.runInContext("applyStatsToAllBeers(0)",ctx);
   assert.equal(other.statsWidth,52);
