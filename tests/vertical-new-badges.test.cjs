@@ -12,7 +12,9 @@ const context = vm.createContext({
   clampBeerNameFontSize: value => value || 18,
   clampDescriptionFontSize: value => value || 12,
   // Badge tests do not exercise the separate bitterness meter module.
-  bitternessMeter: () => ""
+  bitternessMeter: () => "",
+  STATS_SIZE_LIMITS: {statsWidth:[24,65,41]},
+  clampStatsSize: (_,value) => value ?? 41
 });
 vm.runInContext(render, context);
 const makeItem = style => ({
