@@ -151,7 +151,7 @@ test("library JSON uses stamped wrapper, reads legacy arrays, and checks version
   h.eval('storeItemInLibrary({name:"New Beer",icon:"beer"},{confirmOverwrite:false})');
   const next=JSON.parse(h.saved.get("mhbSavedBeveragesV1"));
   assert.equal(next.entries.find(e=>e.item.name==="New Beer").appVersion,"v1.10.0");
-  h.elements.get("savedBeverageSelect").value="old-beer";
+  h.ctx.document.getElementById("savedBeverageSelect").value="old-beer";
   const pending=h.eval("addSavedBeverage()");
   assert.equal(h.dialog.open,true);
   assert.equal(h.elements.get("jsonSavedAppVersion").textContent,"Unversioned (legacy)");
@@ -174,7 +174,7 @@ test("menu profile JSON uses stamped wrapper, reads legacy arrays, and checks ve
   assert.equal(wrapper.appVersion,"v1.10.0");
   assert.equal(wrapper.version,2.45);
   assert.equal(wrapper.profiles[0].appVersion,null);
-  h.elements.get("menuProfileSelect").value="old-profile";
+  h.ctx.document.getElementById("menuProfileSelect").value="old-profile";
   const pending=h.eval("loadSelectedProfile()");
   assert.equal(h.dialog.open,true);
   assert.equal(h.elements.get("jsonSavedSchema").textContent,"2.3");
