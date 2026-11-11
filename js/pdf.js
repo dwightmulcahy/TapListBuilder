@@ -7,7 +7,8 @@ function applySettings(){
     w="4in";h="6in";pageCss="4in 6in";layoutScale=.5;
   }
   const pageEl=document.getElementById("page");
-  pageEl.classList.toggle("hide-header",!s.showHeader);
+  const hasVisibleHeader=s.showHeader&&headerHasContent(s.headerSlots);
+  pageEl.classList.toggle("hide-header",!hasVisibleHeader);
   pageEl.classList.toggle("hide-footer",!s.showFooter);
   pageEl.classList.toggle("show-corner-overlay",s.pageSize==="4x6");
   document.documentElement.style.setProperty("--page-w",w);
@@ -31,7 +32,7 @@ function applySettings(){
   pageEl.style.setProperty("--icon-scale",String(clampNumber(sizes.iconScale,.50,1.80,1)));
   pageEl.style.setProperty("--stats-scale",String(clampNumber(sizes.statsScale,.50,2.00,1)));
   const maxHeaderSlotScale=Math.max(...sizes.headerSlotScales,0.5);
-  pageEl.style.setProperty("--header-height",s.showHeader?`${61 * layoutScale * maxHeaderSlotScale}mm`:"0px"); // provisional, corrected below
+  pageEl.style.setProperty("--header-height",hasVisibleHeader?`${61 * layoutScale * maxHeaderSlotScale}mm`:"0px"); // provisional, corrected below
   pageEl.style.setProperty("--footer-height",s.showFooter?`${25 * layoutScale}mm`:"0px");
   pageEl.style.setProperty("--watermark-scale",String(clampNumber(sizes.watermarkScale,.50,1.80,1)));
   pageEl.style.setProperty("--watermark-opacity",String(clampNumber(sizes.watermarkOpacity,0,1,.22)));
@@ -58,9 +59,9 @@ function applySettings(){
 function fitHeader(){
   const pageEl=document.getElementById("page");
   const header=document.querySelector(".header");
-  if(!pageEl||!header||!state.settings.showHeader)return;
+  if(!pageEl||!header||!state.settings.showHeader||!headerHasContent(state.settings.headerSlots))return;
   const slotContents=[...document.querySelectorAll(".header-slot > *")];
-  if(!slotContents.length)return; // every slot empty - keep the provisional height
+  if(!slotContents.length)return; // empty slots already collapsed by applySettings()
   const headerRect=header.getBoundingClientRect();
   if(headerRect.height<=0)return; // not laid out (e.g. hidden) - skip, keep provisional
   const centerY=headerRect.top+headerRect.height/2;
