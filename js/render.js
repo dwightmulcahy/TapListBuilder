@@ -310,10 +310,11 @@ function renderTapRow(item){
   if(!item.hideIbu)statCells.push(`<div class="stat"><div class="value">${formatIbu(item.ibu)}</div><div class="stat-label">IBU</div></div>`);
   const statsRowHtml=statCells.length?`<div class="stats-row${statCells.length===1?" stats-row-single":""}">${statCells.join("")}</div>`:"";
   return `<article class="tap-row${item.hideIcon?" tap-row-no-icon":""}" style="color:${esc(item.color)}">
+    ${item.isNew?`<div class="new-badge-rail" aria-label="${esc(newBadge())}">${newBadgeMarkup(item)}</div>`:""}
     <div class="icon-wrap${item.hideIcon?" icon-wrap-hidden":""}">${item.hideIcon?"":renderedIcon(item)}</div>
     <div class="tap-divider"></div>
     <div class="item-copy">
-      <h2 class="item-name" style="--outline-w:${item.outlineEnabled?clampNumber(item.outlineWidth,0.5,3,1.5):0}px;--name-font-size:${clampBeerNameFontSize(item.nameFontSize)}pt">${esc(item.name)}${item.isNew?newBadgeMarkup(item):''}${item.glutenFree?`<span class="badge">${glutenFreeBadge()}</span>`:''}</h2>
+      <h2 class="item-name" style="--outline-w:${item.outlineEnabled?clampNumber(item.outlineWidth,0.5,3,1.5):0}px;--name-font-size:${clampBeerNameFontSize(item.nameFontSize)}pt">${esc(item.name)}${item.glutenFree?`<span class="badge">${glutenFreeBadge()}</span>`:''}</h2>
       <p class="desc" style="--desc-font-size:${clampDescriptionFontSize(item.descriptionFontSize)}pt">${esc(item.description)}</p>
     </div>
     <div class="stats">
