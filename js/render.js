@@ -56,7 +56,7 @@ function renderHeaderModalBody(){
   if(!body)return;
   const s=state.settings;
   const scales=s.sizesByPageSize[s.pageSize].headerSlotScales;
-  body.innerHTML=s.headerSlots.map((slot,i)=>headerSlotEditor(slot,i,scales[i])).join("");
+  body.innerHTML=`<label class="checkbox-row"><input type="checkbox" ${s.showHeader?"checked":""} onchange="setSetting(\'showHeader\',this.checked)"> Show header on menu</label>`+s.headerSlots.map((slot,i)=>headerSlotEditor(slot,i,scales[i])).join("");
 }
 
 const CURATED_BEER_STYLES=[
