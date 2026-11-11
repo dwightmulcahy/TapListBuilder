@@ -140,7 +140,7 @@ function fitMenu(){
   let fit=1;
   pageEl.style.setProperty("--fit",fit);
   applyDensityRowSpacing();
-  const overflows=()=>list.scrollHeight>list.clientHeight+1||[...list.children].some(row=>row.scrollHeight>row.clientHeight+1);
+  const overflows=()=>list.scrollHeight>list.clientHeight+1||[...list.children].some(row=>!row.classList.contains("tap-divider-row")&&row.scrollHeight>row.clientHeight+1);
   while(overflows()&&fit>.76){
     fit=Math.round((fit-.02)*100)/100;
     pageEl.style.setProperty("--fit",fit);
