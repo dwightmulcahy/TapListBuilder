@@ -47,6 +47,9 @@ Required repo secrets (Settings → Secrets and variables → Actions):
 ### Running on a QNAP (Container Station)
 `docker-compose.yml` is a ready-to-import example — set your Docker Hub username in it, then in Container Station: Create → Create Application → paste or upload the file. Defaults to `http://<nas-ip>:8081`; see comments in the file for adjusting the port or mounting your own `data/` folder to override the sample menu without rebuilding.
 
+## Header layout
+The header uses **two side columns**: left and right images/text each occupy half the printable width. The center logo/image is a separate top-aligned overlay that may overlap both side columns and renders above them. The header automatically adjusts its height to fit the visible, rotated/scaled content, including on 4×6 cards. Each slot retains its independent size and rotation settings. Images loaded asynchronously trigger a fresh layout fit.
+
 ## Data files
 - `data/beer-styles.json` — the 8 sample menu items and the English⇄Spanish beer-style-name lookup, loaded once at boot and used to seed `defaultState`.
 - `data/translations.json` — the exact-match and phrase-level English→Spanish description translation dictionary.
