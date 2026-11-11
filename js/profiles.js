@@ -13,17 +13,20 @@ function normalizeProfile(entry){
     id:String(entry?.id||makeProfileId()),
     name:String(entry?.name||"Untitled menu"),
     savedAt:String(entry?.savedAt||new Date().toISOString()),
+    appVersion:savedJsonAppVersion(entry)||savedJsonAppVersion(entry?.state),
+    version:entry?.version??entry?.state?.version??null,
     state:normalizeState(entry?.state||{})
   };
 }
 function loadMenuProfiles(){
   try{
     const raw=JSON.parse(localStorage.getItem(MENU_PROFILES_KEY)||"[]");
-    return Array.isArray(raw)?raw.map(normalizeProfile).sort((a,b)=>a.name.localeCompare(b.name)):[];
+    const profiles=Array.isArray(raw)?raw:raw?.profiles; // legacy array or stamped wrapper
+    return Array.isArray(profiles)?profiles.map(normalizeProfile).sort((a,b)=>a.name.localeCompare(b.name)):[];
   }catch(e){return []}
 }
 function persistMenuProfiles(){
-  try{localStorage.setItem(MENU_PROFILES_KEY,JSON.stringify(menuProfiles))}catch(e){
+  try{localStorage.setItem(MENU_PROFILES_KEY,JSON.stringify(stampJson({profiles:menuProfiles})))}catch(e){
     alert("Menu profiles could not be stored. A custom icon may be too large for browser storage.");
   }
 }
@@ -58,10 +61,12 @@ function saveCurrentAsNewProfile(){
   const existing=menuProfiles.find(profile=>profile.name.trim().toLowerCase()===trimmed.toLowerCase());
   if(existing){
     if(!confirm(`A profile named "${trimmed}" already exists. Overwrite it?`))return;
-    existing.state=deepCopy(state);
+    existing.state=stampJson(deepCopy(state));
+    existing.appVersion=currentJsonAppVersion;
+    existing.version=defaultState.version;
     existing.savedAt=new Date().toISOString();
   }else{
-    menuProfiles.push({id:makeProfileId(),name:trimmed,savedAt:new Date().toISOString(),state:deepCopy(state)});
+    menuProfiles.push({id:makeProfileId(),name:trimmed,savedAt:new Date().toISOString(),appVersion:currentJsonAppVersion,version:defaultState.version,state:stampJson(deepCopy(state))});
   }
   menuProfiles.sort((a,b)=>a.name.localeCompare(b.name));
   persistMenuProfiles();
@@ -77,7 +82,9 @@ function overwriteSelectedProfile(){
   const profile=getSelectedProfile();
   if(!profile)return;
   if(!confirm(`Replace the saved menu "${profile.name}" with the current menu?`))return;
-  profile.state=deepCopy(state);
+  profile.state=stampJson(deepCopy(state));
+  profile.appVersion=currentJsonAppVersion;
+  profile.version=defaultState.version;
   profile.savedAt=new Date().toISOString();
   persistMenuProfiles();
   renderMenuProfiles(`Updated "${profile.name}" with the current menu.`);
@@ -96,10 +103,10 @@ function renameSelectedProfile(){
   renderMenuProfiles(`Renamed profile to "${trimmed}".`);
   if(select)select.value=profile.id;
 }
-function loadSelectedProfile(){
+async function loadSelectedProfile(){
   const profile=getSelectedProfile();
   if(!profile)return;
-  if(!confirm(`Load "${profile.name}"? This replaces the current menu (unsaved changes will be lost unless you've saved them as a profile).`))return;
+  if(!await confirmJsonLoad(profile,`Menu profile: ${profile.name}`,"Loading replaces the current menu. Unsaved changes will be lost."))return;
   state=normalizeState(deepCopy(profile.state));
   itemsUndoStack=[]; // undo history from the previous menu doesn't apply to the newly loaded one
   expandedItemIndices=new Set();
