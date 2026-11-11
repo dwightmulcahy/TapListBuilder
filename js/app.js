@@ -8,7 +8,7 @@ const defaultState={
     pageSize:"letter",
     taproomLabel:"TAPROOM:",taproomHours:"NOON–5PM DAILY",
     phone:"+506 8733 7046",location:"3KM W OF DANIEL ODUBER AIRPORT",
-    footerAutoFit:true,language:"en",
+    footerAutoFit:true,showHeader:true,showFooter:true,language:"en",
     translationContactEmail:"",
     headerSlots:[
       {type:"none",text:"",image:"",rotation:0},
@@ -159,6 +159,8 @@ function normalizeState(raw){
   const defaultSlotTypes=["none","logo","none"]; // matches the old single-centered-logo look
   settings.headerSlots=[0,1,2].map(i=>clampHeaderSlot(rawSlots?.[i],defaultSlotTypes[i]));
   settings.footerAutoFit = typeof settings.footerAutoFit === "boolean" ? settings.footerAutoFit : true;
+  settings.showHeader=settings.showHeader!==false;
+  settings.showFooter=settings.showFooter!==false;
   settings.language=settings.language==="es"?"es":"en";
   settings.translationContactEmail=String(settings.translationContactEmail??"").trim();
   settings.locationTranslations={en:String(settings.locationTranslations?.en??""),es:String(settings.locationTranslations?.es??"")};
