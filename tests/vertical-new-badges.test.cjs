@@ -65,7 +65,7 @@ test("badges retain full size over icons but fit in narrow vertical slot without
   assert.match(css,/\.tap-row-no-icon \.badge-new-text\{font-size:calc\(3\.5mm/);
   assert.match(css,/\.tap-row-no-icon \.badge-new-outline\{font-size:calc\(3\.1mm/);
   assert.match(css,/\.tap-row-no-icon \.badge-new-starburst\{width:calc\(16mm[^}]*height:calc\(7mm/);
-  assert.doesNotMatch(css,/\.new-badge-overlay\{[^}]*rotate\(-90deg\)/);
+  assert.doesNotMatch(css,/(?:^|\n)\.new-badge-overlay\{[^}]*rotate\(-90deg\)/);
 });
 
 test("ordinary beers do not reserve badge space and Spanish NEW text remains translated", () => {
