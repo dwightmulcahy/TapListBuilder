@@ -11,7 +11,6 @@ const context = vm.createContext({
   state: {settings: {language: "en"}},
   clampBeerNameFontSize: value => value || 18,
   clampDescriptionFontSize: value => value || 12,
-  // Badge tests do not exercise the separate bitterness meter module.
   bitternessMeter: () => "",
   STATS_SIZE_LIMITS: {statsWidth:[24,65,41]},
   clampStatsSize: (_,value) => value ?? 41
@@ -25,30 +24,52 @@ const makeItem = style => ({
 });
 const tapRow = item => vm.runInContext("renderTapRow(" + JSON.stringify(item) + ")",context);
 
-test("all four NEW badge styles render in the left rail, not the beer name", () => {
+test("all four NEW badge styles appear once inside the icon slot, not the beer name", () => {
   for (const style of ["pill","text","outline","starburst"]) {
     const markup = tapRow(makeItem(style));
-    assert.match(markup, /class="new-badge-rail" aria-label="NEW"/);
+    assert.match(markup, /class="tap-row tap-row-no-icon tap-row-has-new tap-row-no-stats"/);
+    assert.match(markup, /class="icon-wrap icon-wrap-hidden"><div class="new-badge-overlay" aria-label="NEW">/);
+    assert.equal((markup.match(/new-badge-overlay/g)||[]).length,1);
+    assert.match(markup, new RegExp("badge-new-" + style));
     const name = markup.match(/<h2 class="item-name"[^>]*>(.*?)<\/h2>/)?.[1];
     assert.equal(name,"Test IPA");
-    assert.equal((markup.match(/new-badge-rail/g)||[]).length,1);
-    assert.match(markup, new RegExp("badge-new-" + style));
+    assert.doesNotMatch(markup,/new-badge-rail/);
   }
 });
 
-test("only new beers have a badge and Spanish translation is retained", () => {
-  const ordinary = makeItem("pill");
-  ordinary.isNew = false;
-  assert.doesNotMatch(tapRow(ordinary),/new-badge-rail/);
-  context.state.settings.language = "es";
-  assert.match(tapRow(makeItem("outline")),/aria-label="NUEVO"/);
+test("visible icon has a badge over it, hidden icon has badge beside divider", () => {
+  const withIcon=makeItem("pill");
+  withIcon.hideIcon=false;
+  context.renderedIcon=()=>'<svg class="test-icon"></svg>';
+  const visible=tapRow(withIcon);
+  assert.match(visible, /class="tap-row tap-row-has-new tap-row-no-stats"/);
+  assert.match(visible, /class="icon-wrap"><svg class="test-icon"><\/svg><div class="new-badge-overlay"/);
+  const hidden=tapRow(makeItem("pill"));
+  assert.match(hidden, /class="icon-wrap icon-wrap-hidden"><div class="new-badge-overlay"/);
+  assert.match(css, /\.tap-row-no-icon\.tap-row-has-new\{--icon-column:calc\(19mm \* var\(--layout-scale,1\)\)\}/);
+  assert.match(css, /\.tap-row-no-icon \.new-badge-overlay\{top:50%\}/);
+  assert.match(css, /\.new-badge-overlay\{[\s\S]*?position:absolute;z-index:3/);
+  assert.match(css, /\.icon-wrap\{[\s\S]*?position:relative/);
 });
 
-test("vertical badge occupies the existing page margin, not a grid track", () => {
-  assert.match(css,/\.new-badge-rail\{[\s\S]*?position:absolute;left:calc\(-5mm \* var\(--layout-scale,1\)\)/);
-  assert.match(css,/\.new-badge-rail \.badge\{margin-left:0;flex:0 0 auto;transform:rotate\(-90deg\)\}/);
-  assert.match(css,/\.tap-row\{[\s\S]*?position:relative;overflow:visible/);
-  const rowBlock = css.match(/\.tap-row\{([^}]*)\}/)?.[1];
-  assert.ok(rowBlock);
-  assert.doesNotMatch(rowBlock,/padding-left:/);
+test("badges are larger and unrotated in both icon placements", () => {
+  assert.match(css,/font-size:calc\(4\.2mm \* var\(--fit\)/);
+  assert.match(css,/font-size:calc\(4\.5mm \* var\(--fit\)/);
+  assert.match(css,/font-size:calc\(4mm \* var\(--fit\)/);
+  assert.match(css,/width:calc\(12mm \* var\(--fit\)/);
+  assert.match(css,/font-size:calc\(2\.4mm \* var\(--fit\)/);
+  assert.doesNotMatch(css,/\.new-badge-rail/);
+  assert.doesNotMatch(css,/transform:rotate\(-90deg\)/);
+});
+
+test("ordinary beers do not reserve badge space and Spanish NEW text remains translated", () => {
+  const ordinary=makeItem("pill");
+  ordinary.isNew=false;
+  const markup=tapRow(ordinary);
+  assert.doesNotMatch(markup,/tap-row-has-new/);
+  assert.doesNotMatch(markup,/new-badge-overlay/);
+  assert.match(css,/\.tap-row-no-icon\{--icon-column:0px\}/);
+  context.state.settings.language="es";
+  assert.match(tapRow(makeItem("outline")) ,/aria-label="NUEVO"/);
+  assert.match(tapRow(makeItem("starburst")) ,/badge-new-starburst-text">NUEVO/);
 });
