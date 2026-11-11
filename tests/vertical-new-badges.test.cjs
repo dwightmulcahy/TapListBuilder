@@ -47,7 +47,7 @@ test("visible icon keeps a horizontal overlay; hidden icon uses a slim vertical 
   const hidden=tapRow(makeItem("pill"));
   assert.match(hidden, /class="icon-wrap icon-wrap-hidden"><div class="new-badge-overlay"/);
   assert.match(css, /\.tap-row-no-icon\.tap-row-has-new\{--icon-column:calc\(8\.5mm \* var\(--layout-scale,1\) \* var\(--density-icon,1\)\)\}/);
-  assert.match(css, /\.tap-row-no-icon\.tap-row-has-new \.icon-wrap-hidden\{width:calc\(7mm[^}]*height:calc\(19mm/);
+  assert.match(css, /\.tap-row-no-icon\.tap-row-has-new \.icon-wrap-hidden\{width:calc\(7mm[^}]*height:calc\(13mm/);
   assert.match(css, /\.tap-row-no-icon \.new-badge-overlay\{top:50%;transform:translate\(-50%,-50%\) rotate\(-90deg\)\}/);
   assert.match(css, /left:50%;top:calc\(3mm[^}]*transform:translate\(-50%,-50%\);/);
   assert.match(css, /\.new-badge-overlay\{[\s\S]*?position:absolute;z-index:3/);
