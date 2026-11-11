@@ -12,7 +12,7 @@ function savedJsonAppVersion(raw){
 function compareJsonAppVersions(saved,current=currentJsonAppVersion){
   if(!saved)return "legacy";
   if(saved===current)return "match";
-  const semver=value=>/^v?(\\d+)\\.(\\d+)\\.(\\d+)(?:-([0-9A-Za-z.-]+))?(?:\\+[0-9A-Za-z.-]+)?$/.exec(value);
+  const semver=value=>/^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?(?:\+[0-9A-Za-z.-]+)?$/.exec(value);
   const a=semver(saved),b=semver(current);
   if(!a||!b)return "different";
   for(let i=1;i<=3;i++){
