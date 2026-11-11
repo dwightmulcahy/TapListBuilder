@@ -128,6 +128,7 @@ function editorCard(item,i){
             <label class="checkbox-row"><input type="checkbox" ${item.hideIcon?"checked":""} onchange="setItem(${i},'hideIcon',this.checked)"> Hide icon</label>
             <label class="checkbox-row"><input type="checkbox" ${item.hideAbv?"checked":""} onchange="setItem(${i},'hideAbv',this.checked)"> Hide ABV</label>
             <label class="checkbox-row"><input type="checkbox" ${item.hideIbu?"checked":""} onchange="setItem(${i},'hideIbu',this.checked)"> Hide IBU</label>
+            <label class="checkbox-row"><input type="checkbox" ${item.hideHopBar?"checked":""} onchange="setItem(${i},'hideHopBar',this.checked)"> Hide hop bar / bitterness meter</label>
           </div>
           <details class="advanced-abv" id="advancedAbv-${i}" ${isAbvCalculated(item)?"open":""}>
             <summary>Advanced: calculate ABV from gravity (SG/FG)</summary>
@@ -320,7 +321,7 @@ function renderTapRow(item){
     <div class="stats">
       <div class="style-label">${esc(item.style||"")}</div>
       ${statsRowHtml}
-      ${item.hideIbu?"":bitternessMeter(item.ibu,item.sg,item.fg)}
+      ${item.hideHopBar?"":bitternessMeter(item.ibu,item.sg,item.fg)}
     </div>
   </article>`;
 }
