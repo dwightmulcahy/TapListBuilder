@@ -75,15 +75,15 @@ function fitHeader(){
   const sideClearance=Math.max(4,Math.round(8*(1-.75*density)));
   const bottomClearance=Math.max(4,Math.round(12*(1-.75*density)));
 
-  // A centered transform can extend above a top-anchored slot, particularly
-  // with large/rotated images. Shift only as far down as needed to protect the
-  // top edge, rather than vertically centering the logo in a tall header.
+  // A centered transform changes the visual top even when the slot itself is
+  // top-anchored. Align the actual visible edge to the margin: shift smaller
+  // logos upward and large/rotated logos downward as needed.
   header.style.setProperty("--header-center-shift","0px");
   const center=contents[1];
   if(center){
     const topClearance=Math.max(2,Math.round(5*layoutScale));
     const visualTop=(center.getBoundingClientRect().top-headerRect.top)/scale;
-    const shift=Math.max(0,Math.ceil(topClearance-visualTop));
+    const shift=Math.round(topClearance-visualTop);
     header.style.setProperty("--header-center-shift",`${shift}px`);
   }
 
