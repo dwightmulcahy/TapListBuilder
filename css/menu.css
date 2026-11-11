@@ -48,9 +48,19 @@
   flex:1 1 0;min-height:0;display:grid;
   grid-template-columns:calc(22mm * var(--layout-scale,1) * var(--icon-scale,1)) calc(.9mm * var(--layout-scale,1)) minmax(0,1fr) calc(41mm * var(--layout-scale,1) * var(--stats-scale,1));
   gap:calc(1.8mm * var(--layout-scale,1));align-items:center;border-bottom:.28mm solid var(--rule);
-  padding:calc(.8mm * var(--fit) * var(--layout-scale,1)) 0;overflow:hidden
+  padding:calc(.8mm * var(--fit) * var(--layout-scale,1)) 0;position:relative;overflow:visible
 }
 .tap-row:last-child{border-bottom:0}
+/* Badges sit in the page's existing left margin, not inside the beer name. */
+.new-badge-rail{
+  position:absolute;left:calc(-5mm * var(--layout-scale,1));top:50%;
+  width:calc(9mm * max(var(--layout-scale,1),0.75));
+  height:calc(9mm * max(var(--layout-scale,1),0.75));
+  transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;
+  z-index:3;pointer-events:none
+}
+.new-badge-rail .badge{margin-left:0;flex:0 0 auto;transform:rotate(-90deg)}
+
 .tap-row-no-icon{grid-template-columns:0px calc(.9mm * var(--layout-scale,1)) minmax(0,1fr) calc(41mm * var(--layout-scale,1) * var(--stats-scale,1))}
 .icon-wrap{
   justify-self:center;width:calc(19mm * var(--layout-scale,1) * var(--icon-scale,1));height:calc(19mm * var(--layout-scale,1) * var(--icon-scale,1));border:.65mm solid currentColor;border-radius:50%;
