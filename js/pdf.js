@@ -2,6 +2,10 @@
 function applySettings(){
   const s=state.settings;
   const sizes=s.sizesByPageSize[s.pageSize];
+  const density=clampNumber(sizes.pageDensity,0,100,0)/100;
+  const spacingScale=1-.7*density;
+  const iconSpaceScale=1-.18*density;
+  const marginScale=1-.55*density;
   let w="8.5in",h="11in",pageCss="letter portrait",layoutScale=1;
   if(s.pageSize==="4x6"){
     w="4in";h="6in";pageCss="4in 6in";layoutScale=.5;
@@ -16,6 +20,8 @@ function applySettings(){
   pageEl.style.setProperty("--page-w",w);
   pageEl.style.setProperty("--page-h",h);
   pageEl.style.setProperty("--layout-scale",String(layoutScale));
+  pageEl.style.setProperty("--density-space",String(spacingScale));
+  pageEl.style.setProperty("--density-icon",String(iconSpaceScale));
   if(s.pageSize==="4x6"){
     pageEl.style.setProperty("--page-pad-top","0.22in");
     pageEl.style.setProperty("--page-pad-right","0.24in");
@@ -23,10 +29,10 @@ function applySettings(){
     pageEl.style.setProperty("--page-pad-left","0.24in");
     pageEl.style.setProperty("--corner-cut","0.42in");
   }else{
-    pageEl.style.setProperty("--page-pad-top",`calc(6mm * ${layoutScale})`);
-    pageEl.style.setProperty("--page-pad-right",`calc(10mm * ${layoutScale})`);
-    pageEl.style.setProperty("--page-pad-bottom",`calc(4.5mm * ${layoutScale})`);
-    pageEl.style.setProperty("--page-pad-left",`calc(10mm * ${layoutScale})`);
+    pageEl.style.setProperty("--page-pad-top",`calc(6mm * ${layoutScale} * ${marginScale})`);
+    pageEl.style.setProperty("--page-pad-right",`calc(10mm * ${layoutScale} * ${marginScale})`);
+    pageEl.style.setProperty("--page-pad-bottom",`calc(4.5mm * ${layoutScale} * ${marginScale})`);
+    pageEl.style.setProperty("--page-pad-left",`calc(10mm * ${layoutScale} * ${marginScale})`);
     pageEl.style.setProperty("--corner-cut","0px");
   }
   pageEl.style.setProperty("--icon-scale",String(clampNumber(sizes.iconScale,.50,1.80,1)));
@@ -72,7 +78,8 @@ function fitHeader(){
   });
   if(maxExtent<=0)return;
   const scale=typeof currentShellScale==="number"&&currentShellScale>0?currentShellScale:1;
-  const neededPx=Math.ceil((maxExtent*2)/scale)+16; // symmetric + a little breathing room
+  const density=clampNumber(state.settings.sizesByPageSize?.[state.settings.pageSize]?.pageDensity,0,100,0)/100;
+  const neededPx=Math.ceil((maxExtent*2)/scale)+Math.max(4,Math.round(16*(1-.75*density))); // symmetric + density-aware breathing room
   pageEl.style.setProperty("--header-height",`${neededPx}px`);
 }
 function fitFooter(){
