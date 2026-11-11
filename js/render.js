@@ -18,7 +18,16 @@ function renderHeader(){
   const scales=s.sizesByPageSize[s.pageSize].headerSlotScales;
   s.headerSlots.forEach((slot,i)=>{
     const el=document.getElementById(`headerSlot${i}`);
-    if(el)el.innerHTML=headerSlotContent(slot,scales[i]);
+    if(!el) return;
+    el.innerHTML=headerSlotContent(slot,scales[i]);
+    // Uploaded images may not have dimensions when applySettings() first fits
+    // the header. Refit after loading so the print/preview bounds stay correct.
+    const img=el.querySelector?.("img");
+    if(img&&!img.complete)img.addEventListener("load",()=>{
+      if(!img.isConnected)return;
+      fitHeader();
+      requestAnimationFrame(fitMenu);
+    },{once:true});
   });
 }
 
@@ -59,7 +68,7 @@ function renderHeaderModalBody(){
   if(!body)return;
   const s=state.settings;
   const scales=s.sizesByPageSize[s.pageSize].headerSlotScales;
-  body.innerHTML=`<label class="checkbox-row"><input type="checkbox" ${s.showHeader?"checked":""} onchange="setSetting(\'showHeader\',this.checked)"> Show header on menu</label><p class="help">When all three header slots are empty, the header automatically collapses to give the beer list more room.</p>`+s.headerSlots.map((slot,i)=>headerSlotEditor(slot,i,scales[i])).join("");
+  body.innerHTML=`<label class="checkbox-row"><input type="checkbox" ${s.showHeader?"checked":""} onchange="setSetting(\'showHeader\',this.checked)"> Show header on menu</label><p class="help">Left and right share two half-width columns. The center image sits near the top margin and can overlap both side images. Size and rotation remain independent.</p><p class="help">When all three header slots are empty, the header automatically collapses to give the beer list more room.</p>`+s.headerSlots.map((slot,i)=>headerSlotEditor(slot,i,scales[i])).join("");
 }
 
 const CURATED_BEER_STYLES=[
