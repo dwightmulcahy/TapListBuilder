@@ -275,6 +275,25 @@
   </div>
 </dialog>
 
+<dialog class="app-modal" id="jsonVersionModal" aria-labelledby="jsonVersionTitle">
+  <div class="app-modal-header"><h2 id="jsonVersionTitle">JSON version check</h2><button class="icon-button" aria-label="Cancel loading" onclick="closeModal('jsonVersionModal')">×</button></div>
+  <form method="dialog" class="app-modal-body">
+    <p id="jsonVersionSource" class="json-version-source"></p>
+    <dl class="json-version-grid">
+      <dt>Saved JSON application version</dt><dd id="jsonSavedAppVersion"></dd>
+      <dt>Current application version</dt><dd id="jsonCurrentAppVersion"></dd>
+      <dt>Saved data format</dt><dd id="jsonSavedSchema"></dd>
+      <dt>Current data format</dt><dd id="jsonCurrentSchema"></dd>
+    </dl>
+    <p id="jsonVersionStatus" class="json-version-status" role="status"></p>
+    <p id="jsonVersionImpact" class="help"></p>
+    <div class="saved-library-actions">
+      <button type="submit" value="cancel">Cancel</button>
+      <button type="submit" value="load" class="primary">Continue loading</button>
+    </div>
+  </form>
+</dialog>
+
 <dialog class="app-modal" id="aboutModal">
   <div class="app-modal-header"><h2>About</h2><button class="icon-button" aria-label="Close" onclick="closeModal('aboutModal')">×</button></div>
   <div class="app-modal-body">
