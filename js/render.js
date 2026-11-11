@@ -94,6 +94,12 @@ function editorCard(item,i){
             <label>Beer style<input list="styleOptions" value="${esc(item.style)}" oninput="setItem(${i},'style',this.value)"></label>
             <label>Accent color<input type="color" value="${esc(item.color)}" oninput="setItem(${i},'color',this.value);this.closest('fieldset').style.setProperty('--item-color',this.value)"></label>
           </div>
+          <label>Beer name font size
+            <div class="range-with-value">
+              <input class="beer-name-font-slider" data-item-index="${i}" type="range" min="12" max="36" step="0.5" value="${esc(clampBeerNameFontSize(item.nameFontSize))}" oninput="setItem(${i},\'nameFontSize\',Number(this.value));document.getElementById(\'nameFontSizeValue-${i}\').value=formatBeerNameFontSize(Number(this.value))">
+              <output id="nameFontSizeValue-${i}">${esc(formatBeerNameFontSize(item.nameFontSize))}</output>
+            </div>
+          </label>
           <div class="grid2">
             <label class="checkbox-row"><input class="item-outline-enabled" type="checkbox" ${item.outlineEnabled?"checked":""} onchange="setItem(${i},'outlineEnabled',this.checked)"> Black outline on beer name</label>
             <label>Outline thickness
@@ -255,6 +261,7 @@ function renderEditor(){
   set("watermarkScaleValue",`${Math.round(Number(sizes.watermarkScale)*100)}%`);
   set("globalDescriptionFontSize",clampDescriptionFontSize(sizes.globalDescriptionFontSize));
   updateGlobalDescriptionControl();
+  updateGlobalBeerNameControl();
   updateGlobalOutlineControl();
   set("taproomLabel",s.taproomLabel);
   set("taproomHours",s.taproomHours);
@@ -306,7 +313,7 @@ function renderTapRow(item){
     <div class="icon-wrap${item.hideIcon?" icon-wrap-hidden":""}">${item.hideIcon?"":renderedIcon(item)}</div>
     <div class="tap-divider"></div>
     <div class="item-copy">
-      <h2 class="item-name" style="--outline-w:${item.outlineEnabled?clampNumber(item.outlineWidth,0.5,3,1.5):0}px">${esc(item.name)}${item.isNew?newBadgeMarkup(item):''}${item.glutenFree?`<span class="badge">${glutenFreeBadge()}</span>`:''}</h2>
+      <h2 class="item-name" style="--outline-w:${item.outlineEnabled?clampNumber(item.outlineWidth,0.5,3,1.5):0}px;--name-font-size:${clampBeerNameFontSize(item.nameFontSize)}pt">${esc(item.name)}${item.isNew?newBadgeMarkup(item):''}${item.glutenFree?`<span class="badge">${glutenFreeBadge()}</span>`:''}</h2>
       <p class="desc" style="--desc-font-size:${clampDescriptionFontSize(item.descriptionFontSize)}pt">${esc(item.description)}</p>
     </div>
     <div class="stats">
