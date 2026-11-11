@@ -155,6 +155,7 @@ test("file import merges beverage library only after confirmation and retains so
   const entries=JSON.parse(h.saved.get("mhbSavedBeveragesV1"));
   assert.equal(entries[0].item.name,"Imported Beer");
   assert.equal(entries[0].appVersion,"v1.9.0");
+  assert.equal(entries[0].version,2.45);
 });
 
 test("library JSON keeps legacy array shape, stamps new entries, and checks version before adding",async()=>{
