@@ -178,7 +178,7 @@ function dividerEditorCard(item,i){
               <output id="dividerFontSizeValue-${i}">${item.fontSize} pt</output>
             </div>
           </label>
-          <p class="help">A divider prints as a horizontal rule across the menu, with this text centered on it if provided. Leave blank for a plain line.</p>
+          <p class="help">A divider overlays the boundary between items without using extra vertical space. Optional text is centered on the line; leave it blank for a plain rule.</p>
         </div>
       </details>
       <div class="card-actions">
