@@ -138,7 +138,7 @@ function editorCard(item,i){
           <label>Description<textarea oninput="setItem(${i},'description',this.value)">${esc(item.description)}</textarea></label>
           <label>Description font size
             <div class="range-with-value">
-              <input class="description-font-slider" data-item-index="${i}" type="range" min="8" max="16" step="0.25" value="${esc(clampDescriptionFontSize(item.descriptionFontSize))}" oninput="setItem(${i},'descriptionFontSize',Number(this.value));document.getElementById('descFontSizeValue-${i}').value=formatDescriptionFontSize(Number(this.value))">
+              <input class="description-font-slider" data-item-index="${i}" type="range" min="8" max="24" step="0.25" value="${esc(clampDescriptionFontSize(item.descriptionFontSize))}" oninput="setItem(${i},'descriptionFontSize',Number(this.value));document.getElementById('descFontSizeValue-${i}').value=formatDescriptionFontSize(Number(this.value))">
               <output id="descFontSizeValue-${i}">${esc(formatDescriptionFontSize(item.descriptionFontSize))}</o>
             </div>
           </label>
