@@ -1,6 +1,25 @@
 // Core app state: item/state normalization, item CRUD, settings, custom icon upload,
 // and the boot sequence that loads JSON data then does the first render.
 
+const STATS_SIZE_LIMITS={
+  statsWidth:[24,65,41],statsGap:[0,4,1.2],
+  styleFontSize:[6,24,11.5],abvValueFontSize:[8,36,18.5],ibuValueFontSize:[8,36,18.5],
+  abvLabelFontSize:[6,20,9],ibuLabelFontSize:[6,20,9],bitternessLabelFontSize:[6,24,11.5],
+  hopBarHeight:[1,8,3.2],hopMarkerSize:[2,10,4.2]
+};
+const STATS_DISPLAY_KEYS=[
+  "hideStats","hideStyle","hideAbv","hideAbvLabel","hideIbu","hideIbuLabel",
+  "hideStatsDivider","hideHopBar","hideHopMarker","hideBitternessLabel",
+  ...Object.keys(STATS_SIZE_LIMITS)
+];
+function clampStatsSize(key,value){
+  const [min,max,fallback]=STATS_SIZE_LIMITS[key];
+  return clampNumber(value,min,max,fallback);
+}
+function formatStatsSize(key,value){
+  const unit=["statsWidth","statsGap","hopBarHeight","hopMarkerSize"].includes(key)?"mm":"pt";
+  return `${Number(clampStatsSize(key,value).toFixed(1)).toString()} ${unit}`;
+}
 const SIZE_KEYS=["iconScale","statsScale","watermarkScale","watermarkOpacity","taproomFontSize","phoneFontSize","locationFontSize","globalDescriptionFontSize","globalBeerNameFontSize"];
 const defaultState={
   version:2.45,
@@ -117,6 +136,14 @@ function normalizeItem(item={},defaultLanguage="en"){
     hideIbu:Boolean(item.hideIbu),
     // Preserve older saved menus where hiding IBU also hid the bitterness meter.
     hideHopBar:item.hideHopBar===undefined?Boolean(item.hideIbu):Boolean(item.hideHopBar),
+    hideStats:Boolean(item.hideStats),
+    hideStyle:Boolean(item.hideStyle),
+    hideAbvLabel:Boolean(item.hideAbvLabel),
+    hideIbuLabel:Boolean(item.hideIbuLabel),
+    hideStatsDivider:Boolean(item.hideStatsDivider),
+    hideHopMarker:Boolean(item.hideHopMarker),
+    hideBitternessLabel:Boolean(item.hideBitternessLabel),
+    ...Object.fromEntries(Object.keys(STATS_SIZE_LIMITS).map(key=>[key,clampStatsSize(key,item[key])])),
     descriptionFontSize:clampDescriptionFontSize(item.descriptionFontSize),
     nameFontSize:clampBeerNameFontSize(item.nameFontSize),
     description,
@@ -344,10 +371,21 @@ function setSetting(key,value){
   autosave();renderPreview();
   if(key==="pageSize")renderEditor();
 }
+function applyStatsToAllBeers(index){
+  const source=state.items[index];
+  if(!source||source.type!=="beer")return;
+  pushItemsUndoSnapshot();
+  state.items.forEach((item,i)=>{
+    if(item.type!=="beer"||i===index)return;
+    STATS_DISPLAY_KEYS.forEach(key=>{item[key]=source[key]});
+  });
+  autosave();renderEditor();renderPreview();
+}
 function setItem(i,key,value,rerenderEditor=false){
   if(key==="descriptionFontSize")value=clampDescriptionFontSize(value);
   if(key==="nameFontSize")value=clampBeerNameFontSize(value);
   if(key==="outlineWidth")value=clampNumber(value,0.5,3,1.5);
+  if(Object.prototype.hasOwnProperty.call(STATS_SIZE_LIMITS,key))value=clampStatsSize(key,value);
   const item=state.items[i];
   item[key]=value;
   if(key==="name"||key==="description"){
