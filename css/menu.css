@@ -74,7 +74,7 @@
   display:grid;place-items:center;background:rgba(255,255,255,.13);position:relative
 }
 .icon-wrap-hidden{width:0;height:0;border:0;background:transparent}
-.tap-row-no-icon.tap-row-has-new .icon-wrap-hidden{width:calc(7mm * var(--layout-scale,1) * var(--density-icon,1));height:calc(19mm * var(--layout-scale,1) * var(--density-icon,1))}
+.tap-row-no-icon.tap-row-has-new .icon-wrap-hidden{width:calc(7mm * var(--layout-scale,1) * var(--density-icon,1));height:calc(13mm * var(--layout-scale,1) * var(--density-icon,1))}
 .new-badge-overlay{
   position:absolute;z-index:3;pointer-events:none;
   left:50%;top:calc(3mm * var(--layout-scale,1));
