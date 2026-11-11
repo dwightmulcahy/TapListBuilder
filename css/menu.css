@@ -76,7 +76,7 @@
 /* Keep style beside the beer name; wrap it below when a narrow menu runs out of room. */
 .item-title-line{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:calc(2.2mm * var(--layout-scale,1));row-gap:calc(.6mm * var(--layout-scale,1));min-width:0}
 .item-title-line .item-name{min-width:0;overflow-wrap:anywhere}
-.item-style{font-family:Arial,Helvetica,sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:.04em;font-size:calc(var(--style-font-size,11.5pt) * var(--fit) * var(--layout-scale,1));line-height:1.1;color:currentColor;opacity:.9;overflow-wrap:anywhere;min-width:0}
+.item-style{font-family:Arial,Helvetica,sans-serif;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:.04em;font-size:calc(var(--style-font-size,11.5pt) * var(--fit) * var(--layout-scale,1));line-height:1.1;color:#000;opacity:1;overflow-wrap:anywhere;min-width:0}
 .item-name{
   margin:0;color:currentColor;font-family:Impact,Haettenschweiler,"Arial Narrow Bold","Arial Narrow",sans-serif;
   font-size:calc(var(--name-font-size,18pt) * var(--fit) * var(--layout-scale,1));font-weight:900;line-height:.98;letter-spacing:.01em;
