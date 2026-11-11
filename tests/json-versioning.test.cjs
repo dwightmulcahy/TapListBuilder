@@ -137,20 +137,20 @@ test("JSON file import does not replace the menu or library until confirmed",asy
   assert.equal(JSON.parse(h.saved.get("mhbTapListBuilderV2")).appVersion,"v1.10.0");
 });
 
-test("library JSON uses stamped wrapper, reads legacy arrays, and checks version before adding",async()=>{
+test("library JSON keeps legacy array shape, stamps new entries, and checks version before adding",async()=>{
   const h=harness();
   const old=[{id:"old-beer",savedAt:"2026-01-01",item:{name:"Old Beer",icon:"beer"}}];
   h.saved.set("mhbSavedBeveragesV1",JSON.stringify(old));
   assert.equal(h.eval("loadSavedBeverages().length"),1);
   h.eval("savedBeverages=loadSavedBeverages();persistSavedBeverages()");
-  const wrapper=JSON.parse(h.saved.get("mhbSavedBeveragesV1"));
-  assert.equal(wrapper.appVersion,"v1.10.0");
-  assert.equal(wrapper.version,2.45);
-  assert.equal(wrapper.entries.length,1);
-  assert.equal(wrapper.entries[0].appVersion,null);
+  const entries=JSON.parse(h.saved.get("mhbSavedBeveragesV1"));
+  assert.equal(Array.isArray(entries),true);
+  assert.equal(entries.length,1);
+  assert.equal(entries[0].appVersion,null);
   h.eval('storeItemInLibrary({name:"New Beer",icon:"beer"},{confirmOverwrite:false})');
   const next=JSON.parse(h.saved.get("mhbSavedBeveragesV1"));
-  assert.equal(next.entries.find(e=>e.item.name==="New Beer").appVersion,"v1.10.0");
+  assert.equal(next.find(e=>e.item.name==="New Beer").appVersion,"v1.10.0");
+  assert.equal(next.find(e=>e.item.name==="New Beer").version,2.45);
   h.ctx.document.getElementById("savedBeverageSelect").value="old-beer";
   const pending=h.eval("addSavedBeverage()");
   assert.equal(h.dialog.open,true);
@@ -164,16 +164,15 @@ test("library JSON uses stamped wrapper, reads legacy arrays, and checks version
   assert.equal(h.eval("state.items.length"),2);
 });
 
-test("menu profile JSON uses stamped wrapper, reads legacy arrays, and checks version before switching",async()=>{
+test("menu profile JSON keeps legacy array shape, stamps new saves, and checks version before switching",async()=>{
   const h=harness();
   const old=[{id:"old-profile",name:"Old Menu",state:{version:2.3,items:[{name:"Older Beer"}]}}];
   h.saved.set("mhbMenuProfilesV1",JSON.stringify(old));
   assert.equal(h.eval("loadMenuProfiles().length"),1);
   h.eval("menuProfiles=loadMenuProfiles();persistMenuProfiles()");
-  const wrapper=JSON.parse(h.saved.get("mhbMenuProfilesV1"));
-  assert.equal(wrapper.appVersion,"v1.10.0");
-  assert.equal(wrapper.version,2.45);
-  assert.equal(wrapper.profiles[0].appVersion,null);
+  const profiles=JSON.parse(h.saved.get("mhbMenuProfilesV1"));
+  assert.equal(Array.isArray(profiles),true);
+  assert.equal(profiles[0].appVersion,null);
   h.ctx.document.getElementById("menuProfileSelect").value="old-profile";
   const pending=h.eval("loadSelectedProfile()");
   assert.equal(h.dialog.open,true);
@@ -187,8 +186,9 @@ test("menu profile JSON uses stamped wrapper, reads legacy arrays, and checks ve
   assert.equal(h.eval("state.items[0].name"),"Older Beer");
   h.eval('overwriteSelectedProfile()');
   const updated=JSON.parse(h.saved.get("mhbMenuProfilesV1"));
-  assert.equal(updated.profiles[0].appVersion,"v1.10.0");
-  assert.equal(updated.profiles[0].state.appVersion,"v1.10.0");
+  assert.equal(updated[0].appVersion,"v1.10.0");
+  assert.equal(updated[0].version,2.45);
+  assert.equal(updated[0].state.appVersion,"v1.10.0");
 });
 
 test("startup loads release metadata before checking browser autosave, without prompting on same version",()=>{
