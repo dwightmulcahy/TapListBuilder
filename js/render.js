@@ -1,9 +1,12 @@
 // DOM rendering: editor cards, tap-list preview, and small formatting helpers.
 function esc(v){return String(v??"").replace(/[&<>"']/g,s=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[s]))}
 
+function headerHasContent(slots){
+  return Array.isArray(slots)&&slots.some(slot=>slot&&(slot.type==="logo"||(slot.type==="text"&&String(slot.text??"").trim().length>0)));
+}
 function headerSlotContent(slot,scale){
   const transform=`rotate(${slot.rotation}deg) scale(${scale})`;
-  if(slot.type==="text"&&slot.text)return `<span class="header-slot-text" style="transform:${transform}">${esc(slot.text)}</span>`;
+  if(slot.type==="text"&&String(slot.text??"").trim())return `<span class="header-slot-text" style="transform:${transform}">${esc(slot.text)}</span>`;
   if(slot.type==="logo"){
     const src=slot.image||"assets/logo/mhb_logo_transparent.png";
     return `<img src="${esc(src)}" alt="" style="transform:${transform}">`;
@@ -56,7 +59,7 @@ function renderHeaderModalBody(){
   if(!body)return;
   const s=state.settings;
   const scales=s.sizesByPageSize[s.pageSize].headerSlotScales;
-  body.innerHTML=`<label class="checkbox-row"><input type="checkbox" ${s.showHeader?"checked":""} onchange="setSetting(\'showHeader\',this.checked)"> Show header on menu</label>`+s.headerSlots.map((slot,i)=>headerSlotEditor(slot,i,scales[i])).join("");
+  body.innerHTML=`<label class="checkbox-row"><input type="checkbox" ${s.showHeader?"checked":""} onchange="setSetting(\'showHeader\',this.checked)"> Show header on menu</label><p class="help">When all three header slots are empty, the header automatically collapses to give the beer list more room.</p>`+s.headerSlots.map((slot,i)=>headerSlotEditor(slot,i,scales[i])).join("");
 }
 
 const CURATED_BEER_STYLES=[
