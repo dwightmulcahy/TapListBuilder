@@ -46,7 +46,7 @@ test("visible icon has a badge over it, hidden icon has badge beside divider", (
   assert.match(visible, /class="icon-wrap"><svg class="test-icon"><\/svg><div class="new-badge-overlay"/);
   const hidden=tapRow(makeItem("pill"));
   assert.match(hidden, /class="icon-wrap icon-wrap-hidden"><div class="new-badge-overlay"/);
-  assert.match(css, /\.tap-row-no-icon\.tap-row-has-new\{--icon-column:calc\(19mm \* var\(--layout-scale,1\)\)\}/);
+  assert.match(css, /\.tap-row-no-icon\.tap-row-has-new\{--icon-column:calc\(19mm \* var\(--layout-scale,1\) \* var\(--density-icon,1\)\)\}/);
   assert.match(css, /\.tap-row-no-icon \.new-badge-overlay\{top:50%\}/);
   assert.match(css, /\.new-badge-overlay\{[\s\S]*?position:absolute;z-index:3/);
   assert.match(css, /\.icon-wrap\{[\s\S]*?position:relative/);
