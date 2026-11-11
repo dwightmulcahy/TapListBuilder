@@ -10,7 +10,9 @@ const css = fs.readFileSync(path.join(root, "css/menu.css"), "utf8");
 const context = vm.createContext({
   state: {settings: {language: "en"}},
   clampBeerNameFontSize: value => value || 18,
-  clampDescriptionFontSize: value => value || 12
+  clampDescriptionFontSize: value => value || 12,
+  // Badge tests do not exercise the separate bitterness meter module.
+  bitternessMeter: () => ""
 });
 vm.runInContext(render, context);
 const makeItem = style => ({
