@@ -11,7 +11,7 @@ test("icon column and icon both scale together without a fixed oversized gutter"
   assert.match(css, /--icon-column,calc\(22mm \* var\(--layout-scale,1\) \* var\(--icon-scale,1\)\)/);
   assert.match(css, /width:calc\(19mm \* var\(--layout-scale,1\) \* var\(--icon-scale,1\)\)/);
   assert.match(css, /height:calc\(19mm \* var\(--layout-scale,1\) \* var\(--icon-scale,1\)\)/);
-  assert.match(css, /gap:calc\(1\.8mm \* var\(--layout-scale,1\)\)/);
+  assert.match(css, /gap:calc\(1\.8mm \* var\(--layout-scale,1\) \* var\(--density-space,1\)\)/);
 });
 
 test("hidden icons reclaim their grid column without shifting the remaining cells", () => {
