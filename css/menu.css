@@ -19,6 +19,7 @@
   filter:grayscale(1) contrast(1.4) brightness(.45)
 }
 .page>*{position:relative;z-index:1}
+.page.hide-header .header,.page.hide-footer .footer{display:none}
 .corner-overlay{display:none;position:absolute;inset:0;z-index:4;pointer-events:none}
 .page.show-corner-overlay .corner-overlay{display:block}
 .corner-overlay .corner{position:absolute;width:var(--corner-cut);height:var(--corner-cut)}
