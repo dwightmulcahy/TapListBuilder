@@ -77,8 +77,7 @@ function renderStyleOptions(){
 
 function statsDisplayEditor(item,i){
   const toggles=[
-    ["hideStats","Hide entire stats section (reclaim space)"],
-    ["hideStyle","Hide beer style"],
+    ["hideStats","Hide entire ABV / IBU section (reclaim space)"],
     ["hideAbvLabel","Hide ABV label"],
     ["hideIbuLabel","Hide IBU label"],
     ["hideStatsDivider","Hide dotted ABV / IBU separator"],
@@ -88,7 +87,6 @@ function statsDisplayEditor(item,i){
   const sliders=[
     ["statsWidth","Stats column width",24,65,1],
     ["statsGap","Vertical spacing",0,4,.2],
-    ["styleFontSize","Beer style font size",6,24,.5],
     ["abvValueFontSize","ABV value font size",8,36,.5],
     ["ibuValueFontSize","IBU value font size",8,36,.5],
     ["abvLabelFontSize","ABV label font size",6,20,.5],
@@ -106,7 +104,7 @@ function statsDisplayEditor(item,i){
   return `<details class="advanced-stats">
     <summary>ABV / IBU section: visibility and sizing</summary>
     <div class="section-body">
-      <p class="help">ABV, IBU and the hop bar have separate quick visibility controls above. All sizes below apply to this beer; the Page stats-size control scales the entire section.</p>
+      <p class="help">ABV, IBU and the hop bar have separate quick visibility controls above. All sizes below apply to this beer; the Page stats-size control scales the entire section. Beer style settings are next to the beer name controls.</p>
       <div class="visibility-toggles">${toggles}</div>
       <div class="grid2">${sliders}</div>
       <button type="button" onclick="applyStatsToAllBeers(${i})">Apply this stats layout to all beers</button>
@@ -133,12 +131,24 @@ function editorCard(item,i){
             <label>Beer style<input list="styleOptions" value="${esc(item.style)}" oninput="setItem(${i},'style',this.value)"></label>
             <label>Accent color<input type="color" value="${esc(item.color)}" oninput="setItem(${i},'color',this.value);this.closest('fieldset').style.setProperty('--item-color',this.value)"></label>
           </div>
-          <label>Beer name font size
-            <div class="range-with-value">
-              <input class="beer-name-font-slider" data-item-index="${i}" type="range" min="12" max="36" step="0.5" value="${esc(clampBeerNameFontSize(item.nameFontSize))}" oninput="setItem(${i},\'nameFontSize\',Number(this.value));document.getElementById(\'nameFontSizeValue-${i}\').value=formatBeerNameFontSize(Number(this.value))">
-              <output id="nameFontSizeValue-${i}">${esc(formatBeerNameFontSize(item.nameFontSize))}</output>
-            </div>
-          </label>
+          <div class="grid2">
+            <label>Beer name font size
+              <div class="range-with-value">
+                <input class="beer-name-font-slider" data-item-index="${i}" type="range" min="12" max="36" step="0.5" value="${esc(clampBeerNameFontSize(item.nameFontSize))}" oninput="setItem(${i},\'nameFontSize\',Number(this.value));document.getElementById(\'nameFontSizeValue-${i}\').value=formatBeerNameFontSize(Number(this.value))">
+                <output id="nameFontSizeValue-${i}">${esc(formatBeerNameFontSize(item.nameFontSize))}</output>
+              </div>
+            </label>
+            <label>Beer style font size
+              <div class="range-with-value">
+                <input class="beer-style-font-slider" data-item-index="${i}" type="range" min="6" max="24" step="0.5" value="${clampStatsSize('styleFontSize',item.styleFontSize)}" oninput="setItem(${i},'styleFontSize',Number(this.value));document.getElementById('styleFontSizeValue-${i}').value=formatStatsSize('styleFontSize',Number(this.value))">
+                <output id="styleFontSizeValue-${i}">${formatStatsSize('styleFontSize',item.styleFontSize)}</output>
+              </div>
+            </label>
+          </div>
+          <div class="style-appearance-controls">
+            <label class="checkbox-row"><input type="checkbox" ${item.hideStyle?"":"checked"} onchange="setItem(${i},'hideStyle',!this.checked)"> Show beer style next to name</label>
+            <button type="button" onclick="applyStyleAppearanceToAllBeers(${i})">Apply style appearance to all beers</button>
+          </div>
           <div class="grid2">
             <label class="checkbox-row"><input class="item-outline-enabled" type="checkbox" ${item.outlineEnabled?"checked":""} onchange="setItem(${i},'outlineEnabled',this.checked)"> Black outline on beer name</label>
             <label>Outline thickness
@@ -350,9 +360,9 @@ function renderTapRow(item){
   if(!item.hideAbv)statCells.push('<div class="stat stat-abv"><div class="value value-abv">'+formatAbv(item.abv)+'</div>'+(item.hideAbvLabel?'':'<div class="stat-label stat-label-abv">ABV</div>')+'</div>');
   if(!item.hideIbu)statCells.push('<div class="stat stat-ibu"><div class="value value-ibu">'+formatIbu(item.ibu)+'</div>'+(item.hideIbuLabel?'':'<div class="stat-label stat-label-ibu">IBU</div>')+'</div>');
   const statsRowHtml=statCells.length?'<div class="stats-row'+(statCells.length===1?' stats-row-single':'')+(item.hideStatsDivider?' stats-row-no-divider':'')+'">'+statCells.join("")+'</div>':"";
-  const styleHtml=item.hideStyle||!item.style?"":'<div class="style-label">'+esc(item.style)+'</div>';
+  const styleHtml=item.hideStyle||!item.style?"":'<span class="item-style">'+esc(item.style)+'</span>';
   const meterHtml=bitternessMeter(item.ibu,item.sg,item.fg,{showTrack:!item.hideHopBar,showLabel:!item.hideBitternessLabel,showMarker:!item.hideHopMarker});
-  const hasStats=!item.hideStats&&Boolean(styleHtml||statsRowHtml||meterHtml);
+  const hasStats=!item.hideStats&&Boolean(statsRowHtml||meterHtml);
   const rowClass="tap-row"+(item.hideIcon?" tap-row-no-icon":"")+(hasStats?"":" tap-row-no-stats");
   const statsStyle=Object.keys(STATS_SIZE_LIMITS).map(key=>{
     const cssKey="--"+key.replace(/[A-Z]/g,letter=>"-"+letter.toLowerCase());
@@ -364,10 +374,10 @@ function renderTapRow(item){
     <div class="icon-wrap${item.hideIcon?" icon-wrap-hidden":""}">${item.hideIcon?"":renderedIcon(item)}</div>
     <div class="tap-divider"></div>
     <div class="item-copy">
-      <h2 class="item-name" style="--outline-w:${item.outlineEnabled?clampNumber(item.outlineWidth,0.5,3,1.5):0}px;--name-font-size:${clampBeerNameFontSize(item.nameFontSize)}pt">${esc(item.name)}${item.glutenFree?`<span class="badge">${glutenFreeBadge()}</span>`:''}</h2>
+      <div class="item-title-line"><h2 class="item-name" style="--outline-w:${item.outlineEnabled?clampNumber(item.outlineWidth,0.5,3,1.5):0}px;--name-font-size:${clampBeerNameFontSize(item.nameFontSize)}pt">${esc(item.name)}${item.glutenFree?`<span class="badge">${glutenFreeBadge()}</span>`:''}</h2>${styleHtml}</div>
       <p class="desc" style="--desc-font-size:${clampDescriptionFontSize(item.descriptionFontSize)}pt">${esc(item.description)}</p>
     </div>
-    <div class="stats">${hasStats?styleHtml+statsRowHtml+meterHtml:""}</div>
+    <div class="stats">${hasStats?statsRowHtml+meterHtml:""}</div>
   </article>`;
 }
 function renderPreview(){
