@@ -32,7 +32,8 @@ test("old menus keep existing stats, labels, divider, and hop bar", () => {
   assert.equal(item.ibuValueFontSize,18.5);
   assert.equal(item.hopBarHeight,3.2);
   const html=row(item);
-  assert.match(html,/class="style-label">Hazy IPA/);
+  assert.match(html,/class="item-title-line"><h2[^>]*>IPA<\/h2><span class="item-style">Hazy IPA<\/span><\/div>/);
+  assert.doesNotMatch(html,/<div class="stats">[^<]*<span class="item-style">/);
   assert.match(html,/class="stat-label stat-label-abv">ABV/);
   assert.match(html,/class="stat-label stat-label-ibu">IBU/);
   assert.match(html,/class="bitterness-track"/);
@@ -43,7 +44,7 @@ test("old menus keep existing stats, labels, divider, and hop bar", () => {
 test("each stats component can be hidden without hiding its neighbor", () => {
   const item=normalize({...base,hideStyle:true,hideAbvLabel:true,hideIbuLabel:true,hideStatsDivider:true,hideHopMarker:true,hideBitternessLabel:true});
   const html=row(item);
-  assert.doesNotMatch(html,/class="style-label"/);
+  assert.doesNotMatch(html,/class="item-style"/);
   assert.match(html,/class="value value-abv">6.5%/);
   assert.match(html,/class="value value-ibu">60/);
   assert.doesNotMatch(html,/class="stat-label/);
@@ -98,10 +99,10 @@ test("each numeric control is clamped and emitted as a typed CSS variable", () =
 
 test("stats editor exposes all independent visibility and size controls", () => {
   const html=vm.runInContext("statsDisplayEditor(" + JSON.stringify(normalize(base)) + ",0)",ctx);
-  for (const key of ["hideStats","hideStyle","hideAbvLabel","hideIbuLabel","hideStatsDivider","hideHopMarker","hideBitternessLabel"]) {
+  for (const key of ["hideStats","hideAbvLabel","hideIbuLabel","hideStatsDivider","hideHopMarker","hideBitternessLabel"]) {
     assert.match(html,new RegExp("setItem\\(0,'"+key+"',this\\.checked\\)"));
   }
-  for (const key of ["statsWidth","statsGap","styleFontSize","abvValueFontSize","ibuValueFontSize","abvLabelFontSize","ibuLabelFontSize","hopBarHeight","hopMarkerSize","bitternessLabelFontSize"]) {
+  for (const key of ["statsWidth","statsGap","abvValueFontSize","ibuValueFontSize","abvLabelFontSize","ibuLabelFontSize","hopBarHeight","hopMarkerSize","bitternessLabelFontSize"]) {
     assert.match(html,new RegExp("statsSize-0-"+key));
   }
   assert.match(html,/applyStatsToAllBeers\(0\)/);
@@ -115,8 +116,8 @@ test("apply-to-all copies only stats display settings, preserving beer values", 
   ctx.renderEditor=()=>{};
   ctx.renderPreview=()=>{};
   vm.runInContext(fn,ctx);
-  const source=normalize({...base,statsWidth:52,hideAbv:true,hideBitternessLabel:true});
-  const other=normalize({...base,name:"Stout",abv:"9.2",ibu:"20",statsWidth:41});
+  const source=normalize({...base,statsWidth:52,hideAbv:true,hideBitternessLabel:true,styleFontSize:19,hideStyle:true});
+  const other=normalize({...base,name:"Stout",abv:"9.2",ibu:"20",statsWidth:41,styleFontSize:12,hideStyle:false});
   const divider=normalize({type:"divider",text:"Seasonals"});
   ctx.stateForTest={items:[source,divider,other]};
   vm.runInContext("state=stateForTest",ctx);
@@ -126,5 +127,7 @@ test("apply-to-all copies only stats display settings, preserving beer values", 
   assert.equal(other.hideBitternessLabel,true);
   assert.equal(other.abv,"9.2");
   assert.equal(other.ibu,"20");
+  assert.equal(other.styleFontSize,12);
+  assert.equal(other.hideStyle,false);
   assert.equal(divider.type,"divider");
 });
