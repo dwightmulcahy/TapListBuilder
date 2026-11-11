@@ -27,7 +27,7 @@ const createHarness=(pageSize="letter")=>{
     },
     querySelector:()=>null
   };
-  const ctx=vm.createContext({document,console,currentShellScale:1});
+  const ctx=vm.createContext({document,console,currentShellScale:1,clampNumber:(v,min,max,fallback)=>Number.isFinite(Number(v))?Math.max(min,Math.min(max,Number(v))):fallback});
   vm.runInContext(render+"\n"+pdf,ctx);
   ctx.state={
     settings:{
