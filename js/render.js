@@ -167,7 +167,7 @@ function editorCard(item,i){
             <label class="checkbox-row"><input type="checkbox" ${item.hideIcon?"checked":""} onchange="setItem(${i},'hideIcon',this.checked)"> Hide icon</label>
             <label class="checkbox-row"><input type="checkbox" ${item.hideAbv?"checked":""} onchange="setItem(${i},'hideAbv',this.checked)"> Hide ABV</label>
             <label class="checkbox-row"><input type="checkbox" ${item.hideIbu?"checked":""} onchange="setItem(${i},'hideIbu',this.checked)"> Hide IBU</label>
-            <label class="checkbox-row"><input type="checkbox" ${item.hideHopBar?"checked":""} onchange="setItem(${i},'hideHopBar',this.checked)"> Hide hop bar / bitterness meter</label>
+            <label class="checkbox-row"><input type="checkbox" ${item.hideHopBar?"checked":""} onchange="setItem(${i},'hideHopBar',this.checked)"> Hide hop bar</label>
           </div>
           ${statsDisplayEditor(item,i)}
           <details class="advanced-abv" id="advancedAbv-${i}" ${isAbvCalculated(item)?"open":""}>
@@ -351,7 +351,7 @@ function renderTapRow(item){
   if(!item.hideIbu)statCells.push('<div class="stat stat-ibu"><div class="value value-ibu">'+formatIbu(item.ibu)+'</div>'+(item.hideIbuLabel?'':'<div class="stat-label stat-label-ibu">IBU</div>')+'</div>');
   const statsRowHtml=statCells.length?'<div class="stats-row'+(statCells.length===1?' stats-row-single':'')+(item.hideStatsDivider?' stats-row-no-divider':'')+'">'+statCells.join("")+'</div>':"";
   const styleHtml=item.hideStyle||!item.style?"":'<div class="style-label">'+esc(item.style)+'</div>';
-  const meterHtml=item.hideHopBar?"":bitternessMeter(item.ibu,item.sg,item.fg,{showLabel:!item.hideBitternessLabel,showMarker:!item.hideHopMarker});
+  const meterHtml=bitternessMeter(item.ibu,item.sg,item.fg,{showTrack:!item.hideHopBar,showLabel:!item.hideBitternessLabel,showMarker:!item.hideHopMarker});
   const hasStats=!item.hideStats&&Boolean(styleHtml||statsRowHtml||meterHtml);
   const rowClass="tap-row"+(item.hideIcon?" tap-row-no-icon":"")+(hasStats?"":" tap-row-no-stats");
   const statsStyle=Object.keys(STATS_SIZE_LIMITS).map(key=>{
