@@ -260,6 +260,8 @@ function renderEditor(){
   set("taproomHours",s.taproomHours);
   set("phone",s.phone);
   set("location",s.location);
+  const footerVisible=document.getElementById("showFooter");
+  if(footerVisible)footerVisible.checked=s.showFooter;
   set("footerAutoFit",String(Boolean(s.footerAutoFit)));
   set("taproomFontSize",sizes.taproomFontSize);
   set("taproomFontSizeValue",`${String(Number(sizes.taproomFontSize).toFixed(1)).replace(/\.0$/,"")} pt`);
