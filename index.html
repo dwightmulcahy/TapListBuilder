@@ -211,6 +211,13 @@
   <div class="app-modal-header"><h2>Page</h2><button class="icon-button" aria-label="Close" onclick="closeModal('pageModal')">×</button></div>
   <div class="app-modal-body">
     <p class="help">Sizes below are saved separately for each page size — currently editing: <strong class="page-size-context-label">US Letter</strong>.</p>
+    <label>Layout density (reclaim white space)
+      <div class="range-with-value">
+        <input id="pageDensity" type="range" min="0" max="100" step="5" value="0" oninput="setSetting('pageDensity',Number(this.value));document.getElementById('pageDensityValue').value=this.value+'%'">
+        <output id="pageDensityValue">0%</output>
+      </div>
+    </label>
+    <p class="help">0% keeps the original spacing. Move toward 100% to reduce page margins, column gaps and vertical padding, and pack beer rows more tightly. Beer font sizes are unchanged. US Letter and 4×6 remember separate settings; 4×6 keeps its corner-safe margins.</p>
     <label>Icon size
       <div class="range-with-value">
         <input id="iconScale" type="range" min="0.50" max="1.80" step="0.01" oninput="setSetting('iconScale',Number(this.value));document.getElementById('iconScaleValue').value=Math.round(Number(this.value)*100)+'%'">
