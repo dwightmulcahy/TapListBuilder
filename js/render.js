@@ -347,10 +347,19 @@ function renderTapRow(item){
     return `<div class="tap-text-row" style="grid-template-columns:repeat(${item.columns.length},1fr)">${cols}</div>`;
   }
   const statCells=[];
-  if(!item.hideAbv)statCells.push(`<div class="stat"><div class="value">${formatAbv(item.abv)}</div><div class="stat-label">ABV</div></div>`);
-  if(!item.hideIbu)statCells.push(`<div class="stat"><div class="value">${formatIbu(item.ibu)}</div><div class="stat-label">IBU</div></div>`);
-  const statsRowHtml=statCells.length?`<div class="stats-row${statCells.length===1?" stats-row-single":""}">${statCells.join("")}</div>`:"";
-  return `<article class="tap-row${item.hideIcon?" tap-row-no-icon":""}" style="color:${esc(item.color)}">
+  if(!item.hideAbv)statCells.push('<div class="stat stat-abv"><div class="value value-abv">'+formatAbv(item.abv)+'</div>'+(item.hideAbvLabel?'':'<div class="stat-label stat-label-abv">ABV</div>')+'</div>');
+  if(!item.hideIbu)statCells.push('<div class="stat stat-ibu"><div class="value value-ibu">'+formatIbu(item.ibu)+'</div>'+(item.hideIbuLabel?'':'<div class="stat-label stat-label-ibu">IBU</div>')+'</div>');
+  const statsRowHtml=statCells.length?'<div class="stats-row'+(statCells.length===1?' stats-row-single':'')+(item.hideStatsDivider?' stats-row-no-divider':'')+'">'+statCells.join("")+'</div>':"";
+  const styleHtml=item.hideStyle||!item.style?"":'<div class="style-label">'+esc(item.style)+'</div>';
+  const meterHtml=item.hideHopBar?"":bitternessMeter(item.ibu,item.sg,item.fg,{showLabel:!item.hideBitternessLabel,showMarker:!item.hideHopMarker});
+  const hasStats=!item.hideStats&&Boolean(styleHtml||statsRowHtml||meterHtml);
+  const rowClass="tap-row"+(item.hideIcon?" tap-row-no-icon":"")+(hasStats?"":" tap-row-no-stats");
+  const statsStyle=Object.keys(STATS_SIZE_LIMITS).map(key=>{
+    const cssKey="--"+key.replace(/[A-Z]/g,letter=>"-"+letter.toLowerCase());
+    const unit=["statsWidth","statsGap","hopBarHeight","hopMarkerSize"].includes(key)?"mm":"pt";
+    return cssKey+":"+clampStatsSize(key,item[key])+unit;
+  }).join(";");
+  return `<article class="${rowClass}" style="color:${esc(item.color)};${statsStyle}">
     ${item.isNew?`<div class="new-badge-rail" aria-label="${esc(newBadge())}">${newBadgeMarkup(item)}</div>`:""}
     <div class="icon-wrap${item.hideIcon?" icon-wrap-hidden":""}">${item.hideIcon?"":renderedIcon(item)}</div>
     <div class="tap-divider"></div>
@@ -358,11 +367,7 @@ function renderTapRow(item){
       <h2 class="item-name" style="--outline-w:${item.outlineEnabled?clampNumber(item.outlineWidth,0.5,3,1.5):0}px;--name-font-size:${clampBeerNameFontSize(item.nameFontSize)}pt">${esc(item.name)}${item.glutenFree?`<span class="badge">${glutenFreeBadge()}</span>`:''}</h2>
       <p class="desc" style="--desc-font-size:${clampDescriptionFontSize(item.descriptionFontSize)}pt">${esc(item.description)}</p>
     </div>
-    <div class="stats">
-      <div class="style-label">${esc(item.style||"")}</div>
-      ${statsRowHtml}
-      ${item.hideHopBar?"":bitternessMeter(item.ibu,item.sg,item.fg)}
-    </div>
+    <div class="stats">${hasStats?styleHtml+statsRowHtml+meterHtml:""}</div>
   </article>`;
 }
 function renderPreview(){
