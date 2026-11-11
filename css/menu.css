@@ -63,7 +63,7 @@
 .item-copy{min-width:0;align-self:center}
 .item-name{
   margin:0;color:currentColor;font-family:Impact,Haettenschweiler,"Arial Narrow Bold","Arial Narrow",sans-serif;
-  font-size:calc(6.25mm * var(--fit) * var(--layout-scale,1));font-weight:900;line-height:.98;letter-spacing:.01em;
+  font-size:calc(var(--name-font-size,18pt) * var(--fit) * var(--layout-scale,1));font-weight:900;line-height:.98;letter-spacing:.01em;
   text-transform:uppercase;white-space:normal;
   -webkit-text-stroke-width:calc(var(--outline-w,0) * var(--fit) * var(--layout-scale,1));
   -webkit-text-stroke-color:#000;
