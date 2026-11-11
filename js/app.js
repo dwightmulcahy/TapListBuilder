@@ -33,7 +33,7 @@ function clampNumber(value,min,max,fallback){
 }
 function clampDescriptionFontSize(value){
   const n=Number(value);
-  return Number.isFinite(n)?Math.min(16,Math.max(8,Math.round(n*4)/4)):11.75;
+  return Number.isFinite(n)?Math.min(24,Math.max(8,Math.round(n*4)/4)):11.75;
 }
 function formatDescriptionFontSize(value){
   return `${clampDescriptionFontSize(value).toFixed(2).replace(/\.00$/,"").replace(/0$/,"")} pt`;
