@@ -363,15 +363,14 @@ function renderTapRow(item){
   const styleHtml=item.hideStyle||!item.style?"":'<span class="item-style">'+esc(item.style)+'</span>';
   const meterHtml=bitternessMeter(item.ibu,item.sg,item.fg,{showTrack:!item.hideHopBar,showLabel:!item.hideBitternessLabel,showMarker:!item.hideHopMarker});
   const hasStats=!item.hideStats&&Boolean(statsRowHtml||meterHtml);
-  const rowClass="tap-row"+(item.hideIcon?" tap-row-no-icon":"")+(hasStats?"":" tap-row-no-stats");
+  const rowClass="tap-row"+(item.hideIcon?" tap-row-no-icon":"")+(item.isNew?" tap-row-has-new":"")+(hasStats?"":" tap-row-no-stats");
   const statsStyle=Object.keys(STATS_SIZE_LIMITS).map(key=>{
     const cssKey="--"+key.replace(/[A-Z]/g,letter=>"-"+letter.toLowerCase());
     const unit=["statsWidth","statsGap","hopBarHeight","hopMarkerSize"].includes(key)?"mm":"pt";
     return cssKey+":"+clampStatsSize(key,item[key])+unit;
   }).join(";");
   return `<article class="${rowClass}" style="color:${esc(item.color)};${statsStyle}">
-    ${item.isNew?`<div class="new-badge-rail" aria-label="${esc(newBadge())}">${newBadgeMarkup(item)}</div>`:""}
-    <div class="icon-wrap${item.hideIcon?" icon-wrap-hidden":""}">${item.hideIcon?"":renderedIcon(item)}</div>
+    <div class="icon-wrap${item.hideIcon?" icon-wrap-hidden":""}">${item.hideIcon?"":renderedIcon(item)}${item.isNew?`<div class="new-badge-overlay" aria-label="${esc(newBadge())}">${newBadgeMarkup(item)}</div>`:""}</div>
     <div class="tap-divider"></div>
     <div class="item-copy">
       <div class="item-title-line"><h2 class="item-name" style="--outline-w:${item.outlineEnabled?clampNumber(item.outlineWidth,0.5,3,1.5):0}px;--name-font-size:${clampBeerNameFontSize(item.nameFontSize)}pt">${esc(item.name)}${item.glutenFree?`<span class="badge">${glutenFreeBadge()}</span>`:''}</h2>${styleHtml}</div>
