@@ -142,7 +142,7 @@ function normalizeItem(item={},defaultLanguage="en"){
     hideIbuLabel:Boolean(item.hideIbuLabel),
     hideStatsDivider:Boolean(item.hideStatsDivider),
     hideHopMarker:Boolean(item.hideHopMarker),
-    hideBitternessLabel:Boolean(item.hideBitternessLabel),
+    hideBitternessLabel:item.hideBitternessLabel===undefined?Boolean(item.hideHopBar??item.hideIbu):Boolean(item.hideBitternessLabel),
     ...Object.fromEntries(Object.keys(STATS_SIZE_LIMITS).map(key=>[key,clampStatsSize(key,item[key])])),
     descriptionFontSize:clampDescriptionFontSize(item.descriptionFontSize),
     nameFontSize:clampBeerNameFontSize(item.nameFontSize),
