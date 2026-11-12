@@ -80,4 +80,4 @@ npm run test:unit
 npm run test:coverage
 ```
 
-The report is written to `coverage/index.html`, `coverage/coverage-summary.json`, and `coverage/lcov.info`. This initial baseline has no enforced threshold; browser scenarios and CI publication are added separately.
+The report is written to `coverage/index.html`, `coverage/coverage-summary.json`, and `coverage/lcov.info`. CI uploads a `browser-coverage` artifact with the HTML report, LCOV, JSON summary, and per-module metrics. Its GitHub Actions job summary shows the measured percentages. The initial regression floors (50% statements/lines, 45% branches, 40% functions) are deliberately below the first smoke-test baseline and should be raised as browser coverage improves. Run `npm run coverage:check` to enforce them locally; environment variables `COVERAGE_MIN_STATEMENTS`, `COVERAGE_MIN_BRANCHES`, `COVERAGE_MIN_FUNCTIONS`, and `COVERAGE_MIN_LINES` can override the floors. The report always includes unexecuted production modules, so exclusions cannot silently inflate coverage.
