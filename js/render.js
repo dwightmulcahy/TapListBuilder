@@ -32,7 +32,7 @@ function renderHeader(){
 }
 
 const HEADER_SLOT_LABELS=["Left","Center","Right"];
-function headerSlotEditor(slot,index,scale){
+function headerSlotEditor(slot,index,scale,yOffset=0){
   return `<fieldset class="header-slot-editor">
     <legend>${HEADER_SLOT_LABELS[index]}</legend>
     <label>Content
@@ -60,6 +60,13 @@ function headerSlotEditor(slot,index,scale){
           <output id="headerSlotRotationValue${index}">${slot.rotation}°</output>
         </div>
       </label>
+      ${index!==1?`<label>Vertical position (up / down)
+        <div class="range-with-value">
+          <input class="header-side-y-slider" type="range" min="-20" max="20" step="1" value="${yOffset}" oninput="setHeaderSlotYOffset(${index},Number(this.value));document.getElementById('headerSlotYOffsetValue${index}').value=this.value+' mm'">
+          <output id="headerSlotYOffsetValue${index}">${yOffset} mm</output>
+        </div>
+      </label>
+      <p class="help">Negative moves up, positive moves down. Position is saved separately for Letter and 4×6.</p>`:""}
     `:""}
   </fieldset>`;
 }
@@ -68,7 +75,8 @@ function renderHeaderModalBody(){
   if(!body)return;
   const s=state.settings;
   const scales=s.sizesByPageSize[s.pageSize].headerSlotScales;
-  body.innerHTML=`<label class="checkbox-row"><input type="checkbox" ${s.showHeader?"checked":""} onchange="setSetting(\'showHeader\',this.checked)"> Show header on menu</label><p class="help">Left and right share two half-width columns. The center image sits near the top margin and can overlap both side images. Size and rotation remain independent.</p><p class="help">When all three header slots are empty, the header automatically collapses to give the beer list more room.</p>`+s.headerSlots.map((slot,i)=>headerSlotEditor(slot,i,scales[i])).join("");
+  const yOffsets=s.sizesByPageSize[s.pageSize].headerSlotYOffsets;
+  body.innerHTML=`<label class="checkbox-row"><input type="checkbox" ${s.showHeader?"checked":""} onchange="setSetting(\'showHeader\',this.checked)"> Show header on menu</label><p class="help">Left and right share two half-width columns and can be moved up or down independently. The center image stays near the top margin and can overlap both side images. Size and rotation remain independent.</p><p class="help">When all three header slots are empty, the header automatically collapses to give the beer list more room.</p>`+s.headerSlots.map((slot,i)=>headerSlotEditor(slot,i,scales[i],yOffsets[i])).join("");
 }
 
 const CURATED_BEER_STYLES=[
