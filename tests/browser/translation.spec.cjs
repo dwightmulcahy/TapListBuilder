@@ -1,10 +1,15 @@
 const {test,expect}=require("./fixtures.cjs");
 test("language toggles and global font controls affect rendered browser content",async({page})=>{
+  // Never rely on the external translation API in deterministic CI.
+  await page.route("https://api.mymemory.translated.net/**",route=>route.fulfill({
+    status:200,contentType:"application/json",
+    body:JSON.stringify({responseData:{translatedText:"Traducción"},responseStatus:200})
+  }));
   await page.goto("/");
   await expect(page.locator("#tapList .tap-row").first()).toBeVisible();
   await page.locator(".app-menu-item").nth(3).locator("summary").click();
   await page.locator("#translateMenuButton").click();
-  expect(await page.evaluate(()=>state.settings.language)).toBe("es");
+  await expect.poll(()=>page.evaluate(()=>state.settings.language)).toBe("es");
   await page.evaluate(()=>{
     setAllBeerNameFontSizes(23);
     setAllDescriptionFontSizes(14.5);
