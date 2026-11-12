@@ -83,19 +83,32 @@
 .tap-row-no-icon.tap-row-no-stats:not(.tap-row-has-new){
   grid-template-columns:calc(.9mm * var(--layout-scale,1)) minmax(0,1fr)
 }
-/* Optional vertical gluten-free label uses its own narrow column left of the icon.
-   The normal icon, NEW overlay, divider, name and stats remain in their own columns. */
+/* Vertical gluten-free always owns the leftmost gutter, even without an icon.
+   A hidden icon releases its column unless it holds a vertical NEW badge. */
 .tap-row-gluten-side{
-  grid-template-columns:var(--gluten-column,calc(7mm * var(--layout-scale,1) * var(--density-icon,1))) var(--icon-column,calc(22mm * var(--layout-scale,1) * var(--icon-scale,1))) calc(.9mm * var(--layout-scale,1)) minmax(0,1fr) var(--stats-column,calc(var(--stats-width,41mm) * var(--layout-scale,1) * var(--stats-scale,1)))
+  --gluten-column:max(calc(7mm * var(--layout-scale,1) * var(--density-icon,1)),calc(var(--gluten-label-font-size,7pt) * var(--fit) * max(var(--layout-scale,1),0.75) * 1.2));
+  grid-template-columns:var(--gluten-column) var(--icon-column,calc(22mm * var(--layout-scale,1) * var(--icon-scale,1))) calc(.9mm * var(--layout-scale,1)) minmax(0,1fr) var(--stats-column,calc(var(--stats-width,41mm) * var(--layout-scale,1) * var(--stats-scale,1)))
 }
 .tap-row-gluten-side.tap-row-no-stats{
-  grid-template-columns:var(--gluten-column,calc(7mm * var(--layout-scale,1) * var(--density-icon,1))) var(--icon-column,calc(22mm * var(--layout-scale,1) * var(--icon-scale,1))) calc(.9mm * var(--layout-scale,1)) minmax(0,1fr)
+  grid-template-columns:var(--gluten-column) var(--icon-column,calc(22mm * var(--layout-scale,1) * var(--icon-scale,1))) calc(.9mm * var(--layout-scale,1)) minmax(0,1fr)
+}
+.tap-row-gluten-side.tap-row-no-icon:not(.tap-row-has-new){
+  grid-template-columns:var(--gluten-column) calc(.9mm * var(--layout-scale,1)) minmax(0,1fr) var(--stats-column,calc(var(--stats-width,41mm) * var(--layout-scale,1) * var(--stats-scale,1)))
+}
+.tap-row-gluten-side.tap-row-no-icon.tap-row-no-stats:not(.tap-row-has-new){
+  grid-template-columns:var(--gluten-column) calc(.9mm * var(--layout-scale,1)) minmax(0,1fr)
+}
+.tap-row-gluten-side.tap-row-no-icon.tap-row-has-new{
+  grid-template-columns:var(--gluten-column) var(--icon-column) calc(.9mm * var(--layout-scale,1)) minmax(0,1fr) var(--stats-column,calc(var(--stats-width,41mm) * var(--layout-scale,1) * var(--stats-scale,1)))
+}
+.tap-row-gluten-side.tap-row-no-icon.tap-row-has-new.tap-row-no-stats{
+  grid-template-columns:var(--gluten-column) var(--icon-column) calc(.9mm * var(--layout-scale,1)) minmax(0,1fr)
 }
 .gluten-side-label{
   justify-self:center;align-self:center;min-width:0;
   writing-mode:vertical-rl;transform:rotate(180deg);
   white-space:nowrap;font-family:Arial,Helvetica,sans-serif;
-  font-weight:900;font-size:calc(2.3mm * var(--fit) * max(var(--layout-scale,1),0.75));
+  font-weight:900;font-size:calc(var(--gluten-label-font-size,7pt) * var(--fit) * max(var(--layout-scale,1),0.75));
   line-height:1;letter-spacing:.02em;color:currentColor
 }
 .icon-wrap{
@@ -139,6 +152,8 @@
   display:inline-block;font-family:Arial,Helvetica,sans-serif;font-size:calc(2.5mm * var(--fit) * max(var(--layout-scale,1),0.75));
   line-height:1;vertical-align:middle;margin-left:calc(2.2mm * max(var(--layout-scale,1),0.75));letter-spacing:.02em;white-space:nowrap
 }
+.badge-gluten{font-size:calc(var(--gluten-label-font-size,7pt) * var(--fit) * max(var(--layout-scale,1),0.75));font-weight:900}
+
 .badge-new-pill{
   display:inline-block;background:#c4241e;color:#fff;font-weight:900;
   font-size:calc(4.2mm * var(--fit) * max(var(--layout-scale,1),0.75));
