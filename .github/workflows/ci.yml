@@ -35,3 +35,18 @@ jobs:
       smoke-command: |
         docker build --build-arg APP_VERSION=9.8.7 --build-arg VCS_REF=0123456789abcdef -t taplistbuilder:metadata .
         docker run --rm --entrypoint cat taplistbuilder:metadata /usr/share/nginx/html/version.json | node -e 'let s="";process.stdin.on("data",c=>s+=c);process.stdin.on("end",()=>{const v=JSON.parse(s);if(v.version!=="9.8.7"||v.sha!=="0123456789abcdef"||!v.buildDate)process.exit(1)})'
+
+  browser-coverage:
+    name: Browser V8 coverage smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Install browser test dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run instrumented browser smoke tests
+        run: npm run test:coverage
