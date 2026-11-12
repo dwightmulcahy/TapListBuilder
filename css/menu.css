@@ -193,9 +193,11 @@
   align-self:center;display:flex;flex-direction:column;justify-content:center;min-height:0;
   text-align:center;color:currentColor
 }
-.stats-row{display:grid;grid-template-columns:1fr 1fr;align-items:center}
-.stats-row-single{grid-template-columns:1fr}
-.stat{min-width:0;padding:0 calc(1mm * var(--layout-scale,1) * var(--stats-scale,1) * var(--density-space,1))}
+/* Draw the ABV and IBU pair closer together without changing the editable
+   stats-column width (or taking description space away from beer text). */
+.stats-row{display:grid;grid-template-columns:1fr 1fr;align-items:center;width:calc(100% - 4mm * var(--layout-scale,1) * var(--stats-scale,1));margin-inline:auto}
+.stats-row-single{grid-template-columns:1fr;width:100%}
+.stat{min-width:0;padding:0 calc(.6mm * var(--layout-scale,1) * var(--stats-scale,1) * var(--density-space,1))}
 .stat+.stat{border-left:.62mm dotted #4d4d4d}
 .stats-row-no-divider .stat+.stat{border-left:0}
 .value{
@@ -204,13 +206,17 @@
 }
 .value-abv{font-size:calc(var(--abv-value-font-size,18.5pt) * var(--fit) * var(--layout-scale,1) * var(--stats-scale,1))}
 .value-ibu{font-size:calc(var(--ibu-value-font-size,18.5pt) * var(--fit) * var(--layout-scale,1) * var(--stats-scale,1))}
-.stat-label{font-size:calc(3.2mm * var(--fit) * var(--layout-scale,1) * var(--stats-scale,1));font-weight:900;line-height:1;margin-top:calc(var(--stats-gap,1.2mm) * var(--layout-scale,1) * var(--stats-scale,1))}
+.stat-label{font-size:calc(3.2mm * var(--fit) * var(--layout-scale,1) * var(--stats-scale,1));font-weight:900;line-height:1;margin-top:calc(var(--stats-gap,1.2mm) * .5 * var(--layout-scale,1) * var(--stats-scale,1))}
 .stat-label-abv{font-size:calc(var(--abv-label-font-size,9pt) * var(--fit) * var(--layout-scale,1) * var(--stats-scale,1))}
 .stat-label-ibu{font-size:calc(var(--ibu-label-font-size,9pt) * var(--fit) * var(--layout-scale,1) * var(--stats-scale,1))}
 .bitterness-meter{margin-top:calc((var(--stats-gap,1.2mm) + .8mm) * var(--layout-scale,1) * var(--stats-scale,1) * var(--density-space,1));width:100%;color:currentColor}
 .bitterness-track{position:relative;height:calc(var(--hop-bar-height,3.2mm) * var(--layout-scale,1) * var(--stats-scale,1));border:calc(.32mm * var(--layout-scale,1) * var(--stats-scale,1)) solid currentColor;border-radius:999px;background:color-mix(in srgb,currentColor 42%,white);-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .bitterness-marker{position:absolute;top:50%;left:var(--bitterness-position,0%);width:calc(var(--hop-marker-size,4.2mm) * var(--layout-scale,1) * var(--stats-scale,1));height:calc(var(--hop-marker-size,4.2mm) * var(--layout-scale,1) * var(--stats-scale,1));border:calc(.4mm * var(--layout-scale,1) * var(--stats-scale,1)) solid currentColor;border-radius:50%;background:var(--paper);transform:translate(-50%,-50%);-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .bitterness-marker::before{content:"";position:absolute;inset:calc(-.3mm * var(--layout-scale,1) * var(--stats-scale,1));border-radius:50%;background:rgba(255,255,255,.7);z-index:-1;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+/* With the hop track hidden, put the taste descriptor directly under ABV/IBU
+   instead of preserving the marker clearance needed by a visible track. */
+.bitterness-meter-label-only{margin-top:calc((.2mm + var(--stats-gap,1.2mm) * .35) * var(--layout-scale,1) * var(--stats-scale,1) * var(--density-space,1))}
+.bitterness-meter-label-only .bitterness-labels{margin-top:0}
 .bitterness-labels{display:flex;justify-content:center;gap:1mm;margin-top:calc(var(--stats-gap,1.2mm) * .6667 * var(--layout-scale,1) * var(--stats-scale,1));font-family:Arial,Helvetica,sans-serif;font-size:calc(var(--bitterness-label-font-size,11.5pt) * var(--fit) * var(--layout-scale,1) * var(--stats-scale,1));font-weight:900;line-height:1.15;color:#222;letter-spacing:.02em}
 .bitterness-labels span{min-width:0;max-width:100%;white-space:normal;overflow:visible;text-align:center}
 
