@@ -88,10 +88,12 @@ function fitHeader(){
     const topClearance=Math.max(2,Math.round(5*layoutScale));
     const visualTop=(center.getBoundingClientRect().top-headerRect.top)/scale;
     const baseShift=Math.round(topClearance-visualTop);
-    // Clamp the visible edge to the printable header; negative slider values
-    // can move upward only until the image would be clipped.
+    // The slider is a true offset from the automatically aligned position.
+    // Do not clamp negative offsets to the header's top edge: the header allows
+    // visible overflow into the page's top margin. The page itself clips
+    // anything moved beyond the paper edge, matching print output.
     const offsetPx=clampNumber(offsets[1],-20,20,0)*96/25.4;
-    const desiredTop=Math.max(2,topClearance+offsetPx);
+    const desiredTop=topClearance+offsetPx;
     const shift=Math.round(desiredTop-visualTop);
     header.style.setProperty("--header-center-shift",`${shift}px`);
     centerBottom=(center.getBoundingClientRect().bottom-headerRect.top)/scale;
