@@ -262,7 +262,13 @@ function dividerEditorCard(item,i){
               <output id="dividerFontSizeValue-${i}">${item.fontSize} pt</output>
             </div>
           </label>
-          <p class="help">A divider overlays the boundary between items without using extra vertical space. Optional text is centered on the line; leave it blank for a plain rule.</p>
+          <label>Whitespace above divider
+            <div class="range-with-value">
+              <input class="divider-space-slider" type="range" min="0" max="20" step="0.5" value="${item.spaceAbove}" oninput="setItem(${i},'spaceAbove',Number(this.value));document.getElementById('dividerSpaceAboveValue-${i}').value=this.value+' mm'">
+              <output id="dividerSpaceAboveValue-${i}">${item.spaceAbove} mm</output>
+            </div>
+          </label>
+          <p class="help">Adds real space above the divider, reducing room for beer rows. At 0 mm the divider stays at the existing row boundary. Optional text is centered on the line.</p>
         </div>
       </details>
       <div class="card-actions">
@@ -383,9 +389,10 @@ function newBadgeMarkup(item){
 }
 function renderTapRow(item){
   if(item.type==="divider"){
+    const spacing=`style="--divider-space-above:${clampNumber(item.spaceAbove,0,20,0)}mm"`;
     return item.text
-      ? `<div class="tap-divider-row"><span style="--divider-font-size:${item.fontSize}pt">${esc(item.text)}</span></div>`
-      : `<div class="tap-divider-row tap-divider-row-plain"></div>`;
+      ? `<div class="tap-divider-row" ${spacing}><span style="--divider-font-size:${item.fontSize}pt">${esc(item.text)}</span></div>`
+      : `<div class="tap-divider-row tap-divider-row-plain" ${spacing}></div>`;
   }
   if(item.type==="text"){
     const cols=item.columns.map(c=>`<div class="tap-text-col">${c.title?`<div class="tap-text-col-title">${esc(c.title)}</div>`:""}${c.body?`<div class="tap-text-col-body">${esc(c.body)}</div>`:""}</div>`).join("");
