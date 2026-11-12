@@ -136,7 +136,7 @@ test("header image loading refits layout, and header editor explains overlay",()
   assert.match(render,/img&&!img\.complete/);
   assert.match(render,/addEventListener\("load"/);
   assert.match(render,/fitHeader\(\)/);
-  assert.match(render,/center image stays near the top margin and can overlap both side images/);
+  assert.match(render,/center image overlays them/);
 });
 
 test("left and right vertical offsets are independent and do not move the center",()=>{
@@ -164,4 +164,26 @@ test("a large downward side offset expands header without moving the other side"
   moved.run();
   assert.ok(moved.geometry().height>baseline.geometry().height);
   assert.equal(moved.geometry().sideTops[1],baseline.geometry().sideTops[1]);
+});
+
+test("center slider moves logo downward without changing side-column positions",()=>{
+  const baseline=fitHarness({sideHeights:[100,80],center:{visualTop:30,height:140}});
+  baseline.run();
+  const shifted=fitHarness({sideHeights:[100,80],center:{visualTop:30,height:140},yOffsets:[0,10,0]});
+  shifted.run();
+  assert.ok(shifted.geometry().centerTop>baseline.geometry().centerTop+35);
+  assert.ok(shifted.geometry().height>baseline.geometry().height);
+  assert.deepEqual(shifted.geometry().sideTops,baseline.geometry().sideTops);
+});
+test("center negative offset stops at visible top edge, including rotated logos",()=>{
+  const h=fitHarness({sideHeights:[120,100],center:{visualTop:-42,height:250},yOffsets:[0,-20,0]});
+  h.run();
+  assert.equal(h.geometry().centerTop,2);
+  assert.ok(h.geometry().height>=h.geometry().centerBottom+12);
+});
+test("center slider offsets account for preview shell zoom",()=>{
+  const a=fitHarness({scale:1,center:{visualTop:25,height:100},yOffsets:[0,8,0]});
+  const b=fitHarness({scale:.6,center:{visualTop:25,height:100},yOffsets:[0,8,0]});
+  a.run();b.run();
+  assert.equal(a.geometry().centerTop,b.geometry().centerTop);
 });
