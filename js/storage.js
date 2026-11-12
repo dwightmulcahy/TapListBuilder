@@ -78,7 +78,8 @@ function showSaveStatus(message,kind="dirty"){
   const el=document.getElementById("saveStatus");
   if(!el)return;
   el.textContent=message;
-  el.dataset.kind=kind;
+  // Minimal DOM stubs used by Node tests may not implement dataset.
+  if(el.dataset)el.dataset.kind=kind;
 }
 function openDraftDB(){
   return new Promise((resolve,reject)=>{
@@ -121,7 +122,7 @@ function autosave(){
       if(snapshot===draftSnapshot())showSaveStatus(dirty?"Unsaved changes · Draft backed up":"Saved to JSON",dirty?"backed-up":"saved");
     }catch(err){
       console.warn("Draft backup failed",err);
-      showSaveStatus("Unsaved changes · Backup failed","error");
+      if(snapshot===draftSnapshot())showSaveStatus("Unsaved changes · Backup failed","error");
     }
   },900);
 }
