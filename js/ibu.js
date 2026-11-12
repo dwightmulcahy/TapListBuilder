@@ -67,5 +67,6 @@ function bitternessMeter(ibu,sg,fg,options={}){
   const marker=options.showMarker===false?"":`<span class="bitterness-marker" style="--bitterness-position:${position.toFixed(1)}%"></span>`;
   const track=options.showTrack===false?"":`<div class="bitterness-track">${marker}</div>`;
   const description=options.showLabel===false?"":`<div class="bitterness-labels"><span>${classification}</span></div>`;
-  return `<div class="bitterness-meter" title="${label} — ${classification}">${track}${description}</div>`;
+  const meterClass=track?"bitterness-meter":"bitterness-meter bitterness-meter-label-only";
+  return `<div class="${meterClass}" title="${label} — ${classification}">${track}${description}</div>`;
 }
