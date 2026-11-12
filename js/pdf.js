@@ -73,8 +73,8 @@ function fitHeader(){
   const scale=printing?1:(typeof currentShellScale==="number"&&currentShellScale>0?currentShellScale:1);
   const layoutScale=state.settings.pageSize==="4x6"?.5:1;
   const density=clampNumber(state.settings.sizesByPageSize?.[state.settings.pageSize]?.pageDensity,0,100,0)/100;
-  const sideClearance=Math.max(4,Math.round(8*(1-.75*density)));
-  const bottomClearance=Math.max(4,Math.round(12*(1-.75*density)));
+  const sideClearance=Math.max(2,Math.round(5*(1-.75*density)));
+  const bottomClearance=Math.max(1,Math.round(4*(1-.75*density)));
 
   // A centered transform changes the visual top even when the slot itself is
   // top-anchored. Align the actual visible edge to the margin: shift smaller
