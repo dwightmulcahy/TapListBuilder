@@ -22,7 +22,7 @@ test("saved offsets are bounded to 20mm",()=>{
   const saved=normalizer({settings:{sizesByPageSize:{letter:{headerSlotYOffsets:[-100,0,999]}}},items:[]});
   assert.deepEqual(Array.from(saved.settings.sizesByPageSize.letter.headerSlotYOffsets),[-20,0,20]);
 });
-test("only left and right header slots show vertical position sliders",()=>{
+test("left, center, and right header slots show independent vertical position sliders",()=>{
   const ctx=vm.createContext({});
   vm.runInContext(render,ctx);
   const left=vm.runInContext('headerSlotEditor({type:"text",text:"Monkey Head",rotation:0},0,1,-6)',ctx);
@@ -31,11 +31,12 @@ test("only left and right header slots show vertical position sliders",()=>{
   assert.match(left,/class="header-side-y-slider"/);
   assert.match(left,/value="-6"/);
   assert.match(left,/setHeaderSlotYOffset\(0,Number\(this.value\)\)/);
-  assert.doesNotMatch(center,/header-side-y-slider/);
+  assert.match(center,/header-side-y-slider/);
+  assert.match(center,/setHeaderSlotYOffset\(1,Number\(this.value\)\)/);
   assert.match(right,/setHeaderSlotYOffset\(2,Number\(this.value\)\)/);
   assert.match(right,/value="8"/);
 });
-test("changing a side offset autosaves and rerenders without touching the center",()=>{
+test("changing any slot offset autosaves and rerenders without changing its neighbors",()=>{
   const ctx=vm.createContext({
     state:{settings:{pageSize:"letter",sizesByPageSize:{letter:{headerSlotYOffsets:[0,0,0]}}}},
     clampNumber:(value,min,max,fallback)=>Number.isFinite(Number(value))?Math.min(max,Math.max(min,Number(value))):fallback,
@@ -45,14 +46,15 @@ test("changing a side offset autosaves and rerenders without touching the center
   });
   const source=app.slice(app.indexOf("function setHeaderSlotYOffset("),app.indexOf("function uploadHeaderSlotImage("));
   vm.runInContext(source,ctx);
-  vm.runInContext("setHeaderSlotYOffset(0,-7);setHeaderSlotYOffset(2,99);setHeaderSlotYOffset(1,5)",ctx);
-  assert.deepEqual(Array.from(ctx.state.settings.sizesByPageSize.letter.headerSlotYOffsets),[-7,0,20]);
-  assert.equal(ctx.saved,2);
-  assert.equal(ctx.rendered,2);
+  vm.runInContext("setHeaderSlotYOffset(0,-7);setHeaderSlotYOffset(2,99);setHeaderSlotYOffset(1,5);setHeaderSlotYOffset(3,2)",ctx);
+  assert.deepEqual(Array.from(ctx.state.settings.sizesByPageSize.letter.headerSlotYOffsets),[-7,5,20]);
+  assert.equal(ctx.saved,3);
+  assert.equal(ctx.rendered,3);
 });
 test("header fit accounts for the visible edge of rotated/scaled side content",()=>{
   assert.match(pdf,/slot\.style\.top="0px"/);
   assert.match(pdf,/visualTopAtZero=\(rect\.top-headerRect\.top\)\/scale/);
   assert.match(pdf,/desiredTop=Math\.max\(2,\(naturalHeight-height\)\/2\+offsetPx\)/);
   assert.match(pdf,/neededPx=Math\.max\(neededPx,\(content\.getBoundingClientRect\(\)\.bottom-headerRect\.top\)\/scale\+sideClearance\)/);
+  assert.match(pdf,/baseCenterBottom=centerBottom\+baseShift-shift/);
 });
