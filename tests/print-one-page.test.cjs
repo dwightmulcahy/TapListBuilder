@@ -32,7 +32,7 @@ test("print dimensions are set from the selected page size for Letter and 4x6",(
 
 test("print hooks refit header and menu, then restore screen layout",()=>{
   assert.match(app,/addEventListener\("beforeprint",preparePrintLayout\)/);
-  assert.match(app,/addEventListener\("afterprint",restorePreviewAfterPrint\)/);
+  assert.match(app,/addEventListener\("afterprint",\(\)=>\{clearThreeUpPrint\(\);restorePreviewAfterPrint\(\);\}\)/);
   assert.match(pdf,/function preparePrintLayout\(\)\{fitHeader\(\);fitMenu\(\)\}/);
   assert.match(pdf,/function restorePreviewAfterPrint\(\)\{[\s\S]*fitAppShell\(\);[\s\S]*fitHeader\(\);[\s\S]*fitMenu\(\)/);
   assert.match(pdf,/const scale=printing\?1:/);
