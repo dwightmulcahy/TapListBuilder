@@ -31,7 +31,7 @@
    ordinary one-card printing are unaffected. */
 #printThreeUpSheet{display:none}
 @media print{
-  body.printing-three-up,body.printing-three-up html{
+  html.printing-three-up,body.printing-three-up{
     width:8.5in!important;height:11in!important;max-height:11in!important;
   }
   body.printing-three-up #appShellViewport{display:none!important}
