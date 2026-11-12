@@ -52,6 +52,9 @@ Importing a JSON file restores the menu settings and content; the JSON itself is
 
 In the browser/printer dialog, verify that the **paper size matches the toolbar**, set **margins to None**, **scale to 100%**, and disable browser **headers and footers**. If the preview still shows more than one sheet, cancel instead of printing and check the browser/printer paper size. Printer drivers can override the CSS `@page` size; no web application can force an arbitrary physical printer to accept the requested stock. Save as PDF first when sending a menu to another computer, and verify that the PDF has one page before sharing.
 
+## Gluten-free labels
+Each beer can display **GLUTEN FREE** (or **SIN GLUTEN** in Spanish) inline beside its name or vertically in a slim gutter to the left of its icon. The vertical label remains in that gutter even when the icon is hidden; if a vertical NEW badge is also shown, the two use separate adjacent columns. The per-beer gluten-free label font size is adjustable from 6 to 20 pt and saved in JSON. Older menus default to 7 pt.
+
 ## Header layout
 The header uses **two side columns**: left and right images/text each occupy half the printable width. The center logo/image is a separate top-aligned overlay that may overlap both side columns and renders above them. The header automatically adjusts its height to fit the visible, rotated/scaled content, including on 4×6 cards. Each slot retains its independent size and rotation settings. Images loaded asynchronously trigger a fresh layout fit.
 
