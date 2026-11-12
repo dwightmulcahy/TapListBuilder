@@ -567,7 +567,7 @@ function setHeaderSlotScale(index,value){
   autosave();renderPreview();
 }
 function setHeaderSlotYOffset(index,value){
-  if(index!==0&&index!==2)return;
+  if(!Number.isInteger(index)||index<0||index>2)return;
   const offsets=state.settings.sizesByPageSize[state.settings.pageSize].headerSlotYOffsets;
   offsets[index]=clampNumber(value,-20,20,0);
   autosave();renderPreview();
