@@ -175,11 +175,35 @@ test("center slider moves logo downward without changing side-column positions",
   assert.ok(shifted.geometry().height>baseline.geometry().height);
   assert.deepEqual(shifted.geometry().sideTops,baseline.geometry().sideTops);
 });
-test("center negative offset stops at visible top edge, including rotated logos",()=>{
-  const h=fitHarness({sideHeights:[120,100],center:{visualTop:-42,height:250},yOffsets:[0,-20,0]});
-  h.run();
-  assert.equal(h.geometry().centerTop,2);
-  assert.ok(h.geometry().height>=h.geometry().centerBottom+12);
+test("center negative offset moves upward across the entire slider range",()=>{
+  const positions=[0,-1,-5,-10,-20].map(offset=>{
+    const h=fitHarness({sideHeights:[120,100],center:{visualTop:-42,height:250},yOffsets:[0,offset,0]});
+    h.run();
+    return h.geometry();
+  });
+  assert.equal(positions[0].centerTop,5);
+  for(let i=1;i<positions.length;i++){
+    assert.ok(positions[i].centerTop<positions[i-1].centerTop,
+      `offset ${i} must move above the previous value`);
+  }
+  assert.ok(positions[4].centerTop<-60, "−20 mm must actually move the center logo upward");
+  assert.deepEqual(positions[4].sideTops,positions[0].sideTops);
+  assert.equal(positions[4].height,positions[0].height);
+});
+test("negative offset also moves rotated center images on 4x6 cards",()=>{
+  const baseline=fitHarness({pageSize:"4x6",sideHeights:[60,50],center:{visualTop:-30,height:85}});
+  const shifted=fitHarness({pageSize:"4x6",sideHeights:[60,50],center:{visualTop:-30,height:85},yOffsets:[0,-10,0]});
+  baseline.run();shifted.run();
+  assert.equal(baseline.geometry().centerTop,3);
+  assert.ok(shifted.geometry().centerTop<baseline.geometry().centerTop-30);
+  assert.deepEqual(shifted.geometry().sideTops,baseline.geometry().sideTops);
+});
+test("header permits upward movement into page margin but page still clips at paper edge",()=>{
+  assert.match(css,/\.header\{[^}]*overflow:visible/s);
+  assert.match(css,/\.page\{[^}]*overflow:hidden/s);
+  assert.match(pdf,/const desiredTop=topClearance\+offsetPx/);
+  assert.doesNotMatch(pdf,/desiredTop=Math\.max\(2,topClearance\+offsetPx\)/);
+  assert.match(render,/moving past the paper edge crops it in preview and print/);
 });
 test("center slider offsets account for preview shell zoom",()=>{
   const a=fitHarness({scale:1,center:{visualTop:25,height:100},yOffsets:[0,8,0]});
