@@ -35,8 +35,8 @@ const defaultState={
       {type:"none",text:"",image:"",rotation:0}
     ],
     sizesByPageSize:{
-      letter:{pageDensity:0,iconScale:1,statsScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,globalBeerNameFontSize:18,outlineEnabled:true,outlineWidth:1.5,headerSlotScales:[1,0.67,1]},
-      "4x6":{pageDensity:0,iconScale:1,statsScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,globalBeerNameFontSize:18,outlineEnabled:true,outlineWidth:1.5,headerSlotScales:[1,0.67,1]}
+      letter:{pageDensity:0,iconScale:1,statsScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,globalBeerNameFontSize:18,outlineEnabled:true,outlineWidth:1.5,headerSlotScales:[1,0.67,1],headerSlotYOffsets:[0,0,0]},
+      "4x6":{pageDensity:0,iconScale:1,statsScale:1,watermarkScale:1.33,watermarkOpacity:0.83,taproomFontSize:16,phoneFontSize:20,locationFontSize:28,globalDescriptionFontSize:15.75,globalBeerNameFontSize:18,outlineEnabled:true,outlineWidth:1.5,headerSlotScales:[1,0.67,1],headerSlotYOffsets:[0,0,0]}
     }
   },
   items:[] // populated from data/beer-styles.json during boot()
@@ -155,6 +155,7 @@ function normalizeItem(item={},defaultLanguage="en"){
 function clampSizeBucket(src){
   src=src&&typeof src==="object"?src:{};
   const rawScales=Array.isArray(src.headerSlotScales)?src.headerSlotScales:null;
+  const rawYOffsets=Array.isArray(src.headerSlotYOffsets)?src.headerSlotYOffsets:null;
   const legacyLogoScale=clampNumber(src.logoScale,.30,2.50,.67); // pre-header-slots format
   return {
     pageDensity:clampNumber(src.pageDensity,0,100,0),
@@ -169,7 +170,8 @@ function clampSizeBucket(src){
     globalBeerNameFontSize:clampBeerNameFontSize(src.globalBeerNameFontSize),
     outlineEnabled:src.outlineEnabled===undefined?true:Boolean(src.outlineEnabled),
     outlineWidth:clampNumber(src.outlineWidth,0.5,3,1.5),
-    headerSlotScales:rawScales?[0,1,2].map(i=>clampNumber(rawScales[i],.30,2.50,1)):[1,legacyLogoScale,1]
+    headerSlotScales:rawScales?[0,1,2].map(i=>clampNumber(rawScales[i],.30,2.50,1)):[1,legacyLogoScale,1],
+    headerSlotYOffsets:[0,1,2].map(i=>clampNumber(rawYOffsets?.[i],-20,20,0))
   };
 }
 function clampHeaderSlot(src,defaultType){
@@ -556,6 +558,12 @@ function setHeaderSlot(index,key,value){
 function setHeaderSlotScale(index,value){
   const scales=state.settings.sizesByPageSize[state.settings.pageSize].headerSlotScales;
   scales[index]=clampNumber(value,.30,2.50,1);
+  autosave();renderPreview();
+}
+function setHeaderSlotYOffset(index,value){
+  if(index!==0&&index!==2)return;
+  const offsets=state.settings.sizesByPageSize[state.settings.pageSize].headerSlotYOffsets;
+  offsets[index]=clampNumber(value,-20,20,0);
   autosave();renderPreview();
 }
 function uploadHeaderSlotImage(index,event){
