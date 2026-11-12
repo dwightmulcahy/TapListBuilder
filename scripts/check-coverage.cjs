@@ -10,10 +10,10 @@ if(!fs.existsSync(report)){
 }
 const coverage=JSON.parse(fs.readFileSync(report,"utf8"));
 const limits={
-  statements:Number(process.env.COVERAGE_MIN_STATEMENTS??50),
-  branches:Number(process.env.COVERAGE_MIN_BRANCHES??45),
-  functions:Number(process.env.COVERAGE_MIN_FUNCTIONS??40),
-  lines:Number(process.env.COVERAGE_MIN_LINES??50)
+  statements:Number(process.env.COVERAGE_MIN_STATEMENTS??80),
+  branches:Number(process.env.COVERAGE_MIN_BRANCHES??60),
+  functions:Number(process.env.COVERAGE_MIN_FUNCTIONS??80),
+  lines:Number(process.env.COVERAGE_MIN_LINES??80)
 };
 let failed=false;
 for(const [key,min] of Object.entries(limits)){
