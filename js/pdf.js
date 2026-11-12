@@ -110,7 +110,7 @@ function fitHeader(){
     // Rotation and scaling can extend the visible content above its own box.
     const visualTopAtZero=(rect.top-headerRect.top)/scale;
     slot.style.top=`${Math.round(desiredTop-visualTopAtZero)}px`;
-    neededPx=Math.max(neededPx,(content.getBoundingClientRect().bottom-headerRect.top)/scale+bottomClearance);
+    neededPx=Math.max(neededPx,(content.getBoundingClientRect().bottom-headerRect.top)/scale+sideClearance);
   }
   neededPx=Math.ceil(neededPx);
   if(Number.isFinite(neededPx)&&neededPx>0)pageEl.style.setProperty("--header-height",`${neededPx}px`);
