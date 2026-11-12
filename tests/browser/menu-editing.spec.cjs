@@ -18,6 +18,7 @@ test("beer edits, duplication, removal and undo update the real preview",async({
   await card.locator("textarea").first().fill("Real browser editing test");
   await expect(page.locator("#tapList .item-name").last()).toContainText("Coverage Citrus IPA");
   await expect(page.locator("#tapList .desc").last()).toContainText("Real browser editing test");
+  await card.locator(".beer-card-details > summary").click();
   await card.getByRole("button",{name:"Duplicate"}).click();
   await expect(page.locator("#tapList .item-name").last()).toContainText("Coverage Citrus IPA Copy");
   await page.locator("#editor .beer-card").last().locator(".beer-card-details > summary").click();
