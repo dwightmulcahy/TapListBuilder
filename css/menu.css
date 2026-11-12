@@ -32,7 +32,9 @@
      instead of taking a third column away from them. */
   position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
   grid-template-rows:minmax(0,1fr);align-items:center;border-bottom:.32mm solid var(--rule);
-  overflow:hidden;padding:0 calc(4mm * var(--layout-scale,1) * var(--density-space,1))
+  /* Permit a negative center Y offset to extend into the page's top margin.
+     The .page clips at the actual paper edge, not the header's top edge. */
+  overflow:visible;padding:0 calc(4mm * var(--layout-scale,1) * var(--density-space,1))
 }
 .header-slot{display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;overflow:visible}
 /* Absolute top anchors keep side images/text at their requested vertical position
