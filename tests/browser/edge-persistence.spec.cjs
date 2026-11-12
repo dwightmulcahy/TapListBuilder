@@ -28,8 +28,9 @@ test("saved beverage library supports save all, overwrite, and delete",async({pa
   await page.evaluate(()=>{
     saveAllItemsToLibrary();
     setItem(0,"abv","7.5");
-    saveItemToLibrary(0);
   });
+  page.once("dialog",dialog=>dialog.accept());
+  await page.evaluate(()=>saveItemToLibrary(0));
   const items=await page.evaluate(()=>JSON.parse(localStorage.getItem("mhbSavedBeveragesV1")));
   expect(items.length).toBeGreaterThan(1);
   expect(items.find(item=>item.item.name==="America IPA").item.abv).toBe("7.5");
