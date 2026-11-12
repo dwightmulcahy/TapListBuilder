@@ -191,7 +191,13 @@ function editorCard(item,i){
               <option value="vertical" ${item.glutenFreePlacement==="vertical"?"selected":""}>Vertical, left of icon</option>
             </select>
           </label>
-          <p class="help">When the icon is hidden, the gluten-free label stays beside the beer name so it doesn't compete with the vertical NEW badge.</p>
+          <label>Gluten-free label font size
+            <div class="range-with-value">
+              <input class="gluten-free-font-slider" data-item-index="${i}" type="range" min="6" max="20" step="0.5" value="${clampGlutenFreeFontSize(item.glutenFreeFontSize)}" oninput="setItem(${i},'glutenFreeFontSize',Number(this.value));document.getElementById('glutenFreeFontSizeValue-${i}').value=this.value+' pt'">
+              <output id="glutenFreeFontSizeValue-${i}">${clampGlutenFreeFontSize(item.glutenFreeFontSize)} pt</output>
+            </div>
+          </label>
+          <p class="help">Vertical placement stays left of the icon or vertical NEW tag even when the icon is hidden. The font size applies to both vertical and inline labels.</p>
           <div class="visibility-toggles">
             <label class="checkbox-row"><input type="checkbox" ${item.hideIcon?"checked":""} onchange="setItem(${i},'hideIcon',this.checked)"> Hide icon</label>
             <label class="checkbox-row"><input type="checkbox" ${item.hideAbv?"checked":""} onchange="setItem(${i},'hideAbv',this.checked)"> Hide ABV</label>
@@ -387,19 +393,19 @@ function renderTapRow(item){
   // A lone ABV/IBU value needs only its intrinsic width, not the two-stat column.
   // Keep the configured width when a bitterness meter/label also needs the space.
   const compactSingleStat=hasStats&&statCells.length===1&&!meterHtml;
-  const sideGluten=item.glutenFree&&item.glutenFreePlacement==="vertical"&&!item.hideIcon;
+  const sideGluten=item.glutenFree&&item.glutenFreePlacement==="vertical";
   const rowClass="tap-row"+(item.hideIcon?" tap-row-no-icon":"")+(sideGluten?" tap-row-gluten-side":"")+(item.isNew?" tap-row-has-new":"")+(hasStats?"":" tap-row-no-stats")+(compactSingleStat?" tap-row-single-stat":"");
   const statsStyle=Object.keys(STATS_SIZE_LIMITS).map(key=>{
     const cssKey="--"+key.replace(/[A-Z]/g,letter=>"-"+letter.toLowerCase());
     const unit=["statsWidth","statsGap","hopBarHeight","hopMarkerSize"].includes(key)?"mm":"pt";
     return cssKey+":"+clampStatsSize(key,item[key])+unit;
   }).join(";");
-  return `<article class="${rowClass}" style="color:${esc(item.color)};${statsStyle}">
+  return `<article class="${rowClass}" style="color:${esc(item.color)};${statsStyle}${item.glutenFree?`;--gluten-label-font-size:${clampGlutenFreeFontSize(item.glutenFreeFontSize)}pt`:""}">
     ${sideGluten?`<span class="gluten-side-label">${glutenFreeBadge()}</span>`:""}
     <div class="icon-wrap${item.hideIcon?" icon-wrap-hidden":""}">${item.hideIcon?"":renderedIcon(item)}${item.isNew?`<div class="new-badge-overlay" aria-label="${esc(newBadge())}">${newBadgeMarkup(item)}</div>`:""}</div>
     <div class="tap-divider"></div>
     <div class="item-copy">
-      <div class="item-title-line"><h2 class="item-name" style="--outline-w:${item.outlineEnabled?clampNumber(item.outlineWidth,0.5,3,1.5):0}px;--name-font-size:${clampBeerNameFontSize(item.nameFontSize)}pt">${esc(item.name)}${item.glutenFree&&!sideGluten?`<span class="badge">${glutenFreeBadge()}</span>`:''}</h2>${styleHtml}</div>
+      <div class="item-title-line"><h2 class="item-name" style="--outline-w:${item.outlineEnabled?clampNumber(item.outlineWidth,0.5,3,1.5):0}px;--name-font-size:${clampBeerNameFontSize(item.nameFontSize)}pt">${esc(item.name)}${item.glutenFree&&!sideGluten?`<span class="badge badge-gluten">${glutenFreeBadge()}</span>`:''}</h2>${styleHtml}</div>
       <p class="desc" style="--desc-font-size:${clampDescriptionFontSize(item.descriptionFontSize)}pt">${esc(item.description)}</p>
     </div>
     <div class="stats">${hasStats?statsRowHtml+meterHtml:""}</div>
