@@ -207,8 +207,8 @@
   </div>
 </dialog>
 
-<dialog class="app-modal" id="pageModal">
-  <div class="app-modal-header"><h2>Page</h2><button class="icon-button" aria-label="Close" onclick="closeModal('pageModal')">×</button></div>
+<dialog class="app-modal draggable-modal" id="pageModal">
+  <div class="app-modal-header" tabindex="0" aria-label="Move Page dialog with arrow keys or drag this title bar" title="Drag to move; arrow keys also work"><h2>Page</h2><button class="icon-button" aria-label="Close" onclick="closeModal('pageModal')">×</button></div>
   <div class="app-modal-body">
     <p class="help">Sizes below are saved separately for each page size — currently editing: <strong class="page-size-context-label">US Letter</strong>.</p>
     <label>Layout density (reclaim white space)
@@ -268,8 +268,8 @@
   </div>
 </dialog>
 
-<dialog class="app-modal" id="headerModal">
-  <div class="app-modal-header"><h2>Header</h2><button class="icon-button" aria-label="Close" onclick="closeModal('headerModal')">×</button></div>
+<dialog class="app-modal draggable-modal" id="headerModal">
+  <div class="app-modal-header" tabindex="0" aria-label="Move Header dialog with arrow keys or drag this title bar" title="Drag to move; arrow keys also work"><h2>Header</h2><button class="icon-button" aria-label="Close" onclick="closeModal('headerModal')">×</button></div>
   <div class="app-modal-body">
     <p class="help">Sizes are saved separately for each page size — currently editing: <strong class="page-size-context-label">US Letter</strong>.</p>
     <div id="headerModalBody"></div>
