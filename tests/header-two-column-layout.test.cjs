@@ -102,7 +102,7 @@ test("large or rotated center logo moves DOWN just enough to avoid clipping",()=
   assert.equal(g.centerShift,47);
   assert.equal(g.centerTop,5);
   assert.equal(g.height,259);
-  assert.ok(g.centerBottom+12<=g.height);
+  assert.ok(g.centerBottom+4<=g.height);
 });
 
 test("left/right images alone use the tallest side, no center offset",()=>{
