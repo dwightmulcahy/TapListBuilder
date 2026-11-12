@@ -7,6 +7,7 @@ const v8toIstanbul=require("v8-to-istanbul");
 const libCoverage=require("istanbul-lib-coverage");
 const libReport=require("istanbul-lib-report");
 const reports=require("istanbul-reports");
+const {mergeFunctionCoverage}=require("./merge-v8-coverage.cjs");
 
 const root=path.resolve(__dirname,"..");
 const jsDir=path.join(root,"js");
@@ -33,8 +34,7 @@ async function main(){
     const converter=v8toIstanbul(file,0,{source:fs.readFileSync(file,"utf8")});
     await converter.load();
     const coverages=collected.get(file);
-    if(!coverages.length)converter.applyCoverage([]);
-    for(const functions of coverages)converter.applyCoverage(functions);
+    converter.applyCoverage(mergeFunctionCoverage(coverages));
     map.merge(converter.toIstanbul());
   }
   fs.mkdirSync(outDir,{recursive:true});
