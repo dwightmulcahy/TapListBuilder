@@ -579,6 +579,55 @@ function resetSample(){
 function closeAppMenus(){
   document.querySelectorAll(".app-menu-item[open]").forEach(menu=>{menu.open=false});
 }
+// Page and Header controls change the preview live. Keep those dialogs
+// draggable so the user can move them away from the menu while adjusting.
+function enableDraggableDialog(dialog){
+  const handle=dialog?.querySelector(".app-modal-header");
+  if(!handle)return;
+  let drag=null;
+  const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
+  function position(left,top){
+    const rect=dialog.getBoundingClientRect();
+    dialog.style.position="fixed";
+    dialog.style.margin="0";
+    dialog.style.right="auto";
+    dialog.style.bottom="auto";
+    dialog.style.left=`${Math.round(clamp(left,0,Math.max(0,window.innerWidth-rect.width)))}px`;
+    dialog.style.top=`${Math.round(clamp(top,0,Math.max(0,window.innerHeight-rect.height)))}px`;
+  }
+  handle.addEventListener("pointerdown",event=>{
+    if(event.button!==0||event.target.closest("button,a,input,select,textarea"))return;
+    const rect=dialog.getBoundingClientRect();
+    position(rect.left,rect.top);
+    drag={id:event.pointerId,x:event.clientX,y:event.clientY,left:rect.left,top:rect.top};
+    handle.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  });
+  handle.addEventListener("pointermove",event=>{
+    if(!drag||drag.id!==event.pointerId)return;
+    position(drag.left+event.clientX-drag.x,drag.top+event.clientY-drag.y);
+  });
+  function stop(event){
+    if(!drag||drag.id!==event.pointerId)return;
+    drag=null;
+    if(handle.hasPointerCapture(event.pointerId))handle.releasePointerCapture(event.pointerId);
+  }
+  handle.addEventListener("pointerup",stop);
+  handle.addEventListener("pointercancel",stop);
+  handle.addEventListener("keydown",event=>{
+    if(event.target!==handle||!["ArrowLeft","ArrowRight","ArrowUp","ArrowDown"].includes(event.key))return;
+    const rect=dialog.getBoundingClientRect();
+    const step=event.shiftKey?50:20;
+    position(rect.left+(event.key==="ArrowLeft"?-step:event.key==="ArrowRight"?step:0),
+      rect.top+(event.key==="ArrowUp"?-step:event.key==="ArrowDown"?step:0));
+    event.preventDefault();
+  });
+  window.addEventListener("resize",()=>{
+    if(!dialog.open||!dialog.style.left)return;
+    const rect=dialog.getBoundingClientRect();
+    position(rect.left,rect.top);
+  });
+}
 function openModal(id){
   document.getElementById(id)?.showModal();
 }
@@ -667,6 +716,7 @@ async function boot(){
       if(!menu.contains(event.target))menu.open=false;
     });
   });
+  ["pageModal","headerModal"].forEach(id=>enableDraggableDialog(document.getElementById(id)));
   document.querySelectorAll(".app-modal").forEach(dialog=>{
     dialog.addEventListener("click",(event)=>{
       if(event.target===dialog)dialog.close();
