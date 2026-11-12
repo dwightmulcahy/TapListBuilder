@@ -111,7 +111,8 @@ test("no beer rows or overfilled menus do not produce negative or phantom height
 test("fit routine remeasures density on every text-fit iteration and printing",()=>{
   assert.match(pdf,/function fitMenu\(\)\{[\s\S]*?pageEl\.style\.setProperty\("--fit",fit\);\s*applyDensityRowSpacing\(\)/);
   assert.match(pdf,/while\(overflows\(\)&&fit>\.76\)\{[\s\S]*?applyDensityRowSpacing\(\)/);
-  assert.match(pdf,/function printMenu\(\)\{fitMenu\(\);window\.print\(\)\}/);
+  assert.match(pdf,/function preparePrintLayout\(\)\{fitHeader\(\);fitMenu\(\)\}/);
+  assert.match(pdf,/async function printMenu\(\)\{[\s\S]*?preparePrintLayout\(\);\s*window\.print\(\)/);
   assert.match(css,/\.tap-list\.density-layout \.tap-row\{flex:0 0 auto;min-height:var\(--row-target-height,0px\)\}/);
 });
 
