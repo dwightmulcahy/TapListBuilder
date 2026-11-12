@@ -194,7 +194,12 @@ async function printMenu(){
   const images=[...document.querySelectorAll("#page img")];
   if(images.length){
     const ready=Promise.all(images.map(img=>typeof img.decode==="function"?img.decode().catch(()=>{}):Promise.resolve()));
-    await Promise.race([ready,new Promise(resolve=>setTimeout(resolve,4000))]);
+    let timeoutId;
+    try{
+      await Promise.race([ready,new Promise(resolve=>{timeoutId=setTimeout(resolve,4000)})]);
+    }finally{
+      clearTimeout(timeoutId);
+    }
   }
   preparePrintLayout();
   window.print();
