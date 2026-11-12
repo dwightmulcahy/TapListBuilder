@@ -1,11 +1,28 @@
 @media print{
-  html,body{background:#fff;overflow:visible;margin:0;padding:0;width:auto;height:auto}
-  body{min-height:100vh}
-  #appShellViewport{overflow:visible;width:auto!important;height:auto!important}
-  #appShell{display:block;min-height:0;width:auto!important;transform:none!important}
+  /* A print job is one physical sheet, not a responsive editor viewport.
+     100vh and flex centering can add blank/split pages in some browsers. */
+  html,body{
+    width:var(--page-w)!important;height:var(--page-h)!important;
+    min-height:0!important;max-height:var(--page-h)!important;
+    margin:0!important;padding:0!important;
+    overflow:hidden!important;background:#fff!important
+  }
+  #appShellViewport,#appShell,.app,.display-area,.preview-wrap{
+    display:block!important;position:static!important;
+    width:var(--page-w)!important;height:var(--page-h)!important;
+    min-width:0!important;min-height:0!important;
+    max-width:var(--page-w)!important;max-height:var(--page-h)!important;
+    margin:0!important;padding:0!important;
+    overflow:hidden!important;transform:none!important
+  }
   .panel,.corner-overlay,.app-menubar,.app-toolbar,.display-tabs,.status-bar,dialog.app-modal{display:none!important}
-  .app{display:block;min-height:0}
-  .display-area{display:block}
-  .preview-wrap{display:flex;justify-content:center;align-items:center;min-height:100vh;padding:0;overflow:visible}
-  .page{box-shadow:none;margin:0 auto;flex:0 0 auto}
+  .page{
+    display:grid!important;position:relative!important;
+    width:var(--page-w)!important;height:var(--page-h)!important;
+    min-width:0!important;min-height:0!important;
+    margin:0!important;padding:var(--page-pad-top) var(--page-pad-right) var(--page-pad-bottom) var(--page-pad-left)!important;
+    flex:none!important;box-shadow:none!important;
+    break-before:avoid;break-after:avoid;break-inside:avoid;page-break-inside:avoid;
+    overflow:hidden!important
+  }
 }
