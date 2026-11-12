@@ -44,6 +44,7 @@ function harness(){
   const ctx=vm.createContext({
     ICONS:{beer:"icon"},inferIcon:()=>"beer",esc:value=>String(value),
     localStorage:{setItem:(k,v)=>saved.set(k,v),getItem:k=>saved.get(k)??null},
+    setTimeout:(fn)=>{fn();return 1},clearTimeout:()=>{},
     document,FileReader,
     window:{
       TapListBuildInfo:{badgeText:info=>"v"+info.version},
@@ -71,11 +72,11 @@ function harness(){
 test("export and autosave stamp actual app version without replacing numeric schema revision",async()=>{
   const h=harness();
   h.eval("autosave()");
-  const saved=JSON.parse(h.saved.get("mhbTapListBuilderV2"));
+  const saved=JSON.parse(h.eval("draftSnapshot()"));
   assert.equal(saved.appVersion,"v1.10.0");
   assert.equal(saved.version,2.45);
   assert.equal(saved.items[0].name,"Current");
-  assert.equal(h.eval("loadAutosave().appVersion"),"v1.10.0");
+  assert.equal(h.eval("savedJsonAppVersion(JSON.parse(draftSnapshot()))"),"v1.10.0");
   await h.eval("downloadJSON()");
   const exported=JSON.parse(h.writes[0]);
   assert.equal(exported.appVersion,"v1.10.0");
@@ -134,7 +135,7 @@ test("JSON file import does not replace the menu or library until confirmed",asy
   h.dialog.close("load");
   await h.reader().finished;
   assert.equal(h.eval("state.items[0].name"),"Imported");
-  assert.equal(JSON.parse(h.saved.get("mhbTapListBuilderV2")).appVersion,"v1.10.0");
+  assert.equal(h.eval("savedJsonAppVersion(JSON.parse(draftSnapshot()))"),"v1.10.0");
 });
 
 test("file import merges beverage library only after confirmation and retains source version",async()=>{

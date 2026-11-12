@@ -702,7 +702,7 @@ async function boot(){
   defaultState.items=beerStyles.defaultItems;
   initTranslationData(beerStyles.styleNameTranslations,translations);
 
-  const browserSave=loadAutosave();
+  const browserSave=await loadAutosave();
   let restore=Boolean(browserSave);
   if(browserSave&&compareJsonAppVersions(savedJsonAppVersion(browserSave))!=="match"){
     restore=await confirmJsonLoad(browserSave,"Browser autosave","Continue restoring the saved menu? Cancel starts with the sample menu without immediately overwriting your browser save.");
@@ -716,6 +716,7 @@ async function boot(){
 
   Object.entries(footerSvgs).forEach(([key,svg])=>document.getElementById(`${key}Icon`).innerHTML=svg);
   renderEditor();renderPreview();
+  showSaveStatus(browserSave?"Draft restored · Export JSON to save":"Not saved to JSON", "dirty");
   fitAppShell();
   fitHeader();
   window.addEventListener("resize",()=>requestAnimationFrame(fitMenu));
