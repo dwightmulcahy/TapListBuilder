@@ -384,8 +384,11 @@ function renderTapRow(item){
   const styleHtml=item.hideStyle||!item.style?"":'<span class="item-style">'+esc(item.style)+'</span>';
   const meterHtml=bitternessMeter(item.ibu,item.sg,item.fg,{showTrack:!item.hideHopBar,showLabel:!item.hideBitternessLabel,showMarker:!item.hideHopMarker});
   const hasStats=!item.hideStats&&Boolean(statsRowHtml||meterHtml);
+  // A lone ABV/IBU value needs only its intrinsic width, not the two-stat column.
+  // Keep the configured width when a bitterness meter/label also needs the space.
+  const compactSingleStat=hasStats&&statCells.length===1&&!meterHtml;
   const sideGluten=item.glutenFree&&item.glutenFreePlacement==="vertical"&&!item.hideIcon;
-  const rowClass="tap-row"+(item.hideIcon?" tap-row-no-icon":"")+(sideGluten?" tap-row-gluten-side":"")+(item.isNew?" tap-row-has-new":"")+(hasStats?"":" tap-row-no-stats");
+  const rowClass="tap-row"+(item.hideIcon?" tap-row-no-icon":"")+(sideGluten?" tap-row-gluten-side":"")+(item.isNew?" tap-row-has-new":"")+(hasStats?"":" tap-row-no-stats")+(compactSingleStat?" tap-row-single-stat":"");
   const statsStyle=Object.keys(STATS_SIZE_LIMITS).map(key=>{
     const cssKey="--"+key.replace(/[A-Z]/g,letter=>"-"+letter.toLowerCase());
     const unit=["statsWidth","statsGap","hopBarHeight","hopMarkerSize"].includes(key)?"mm":"pt";
