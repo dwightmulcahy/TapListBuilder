@@ -65,6 +65,8 @@
 .tap-row-no-icon{--icon-column:0px}
 /* A vertical NEW tag needs only a slim gutter next to the divider. */
 .tap-row-no-icon.tap-row-has-new{--icon-column:calc(8.5mm * var(--layout-scale,1) * var(--density-icon,1))}
+/* A single ABV or IBU (with no bitterness meter) should not reserve the full\n   two-value stats width; the description gets the reclaimed horizontal space. */
+.tap-row-single-stat{--stats-column:max-content}
 .tap-row-no-stats{--stats-column:0px}
 .tap-row-no-stats .stats{display:none}
 /* Remove phantom grid gaps left by zero-width icon/stats columns. Keep the NEW badge slot. */
