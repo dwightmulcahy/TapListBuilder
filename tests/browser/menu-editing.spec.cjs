@@ -20,6 +20,7 @@ test("beer edits, duplication, removal and undo update the real preview",async({
   await expect(page.locator("#tapList .desc").last()).toContainText("Real browser editing test");
   await card.getByRole("button",{name:"Duplicate"}).click();
   await expect(page.locator("#tapList .item-name").last()).toContainText("Coverage Citrus IPA Copy");
+  await page.locator("#editor .beer-card").last().locator(".beer-card-details > summary").click();
   page.once("dialog",dialog=>dialog.accept());
   await page.locator("#editor .beer-card").last().getByRole("button",{name:"Remove"}).click();
   await expect(page.locator("#tapList .tap-row")).toHaveCount(initial+1);
