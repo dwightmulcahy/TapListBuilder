@@ -39,6 +39,10 @@ jobs:
   browser-coverage:
     name: Browser V8 coverage smoke
     runs-on: ubuntu-latest
+    # Pin the browser runtime to its matching OS image. GitHub's latest host
+    # currently uses Ubuntu 26.04, unsupported by older Playwright installers.
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -46,7 +50,5 @@ jobs:
           node-version: '22'
       - name: Install browser test dependencies
         run: npm install --no-audit --no-fund
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
       - name: Run instrumented browser smoke tests
         run: npm run test:coverage
