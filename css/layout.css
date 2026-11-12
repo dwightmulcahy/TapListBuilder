@@ -114,6 +114,13 @@ dialog.app-modal::backdrop{background:rgba(20,20,20,.45)}
   border-bottom:1px solid #e2e2e2;position:sticky;top:0;background:#fff;border-radius:11px 11px 0 0
 }
 .app-modal-header h2{margin:0;font-size:16px}
+/* Keep the menu readable while moving live Page/Header controls.
+   The title bar is the drag handle; buttons remain clickable. */
+.draggable-modal::backdrop{background:rgba(20,20,20,.08)}
+.draggable-modal .app-modal-header{cursor:move;touch-action:none;user-select:none}
+.draggable-modal .app-modal-header button{cursor:pointer}
+.draggable-modal .app-modal-header:focus-visible{outline:2px solid #164c86;outline-offset:-3px}
+
 .app-modal-body{padding:14px 16px;overflow:auto}
 #aboutModal .app-modal-body p{font-size:15px;line-height:1.5}
 #aboutModal .app-modal-body p.help{font-size:13px;color:#555}
