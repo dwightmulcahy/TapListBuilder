@@ -9,7 +9,7 @@ const css=fs.readFileSync(path.join(root,"css/menu.css"),"utf8");
 const pdf=fs.readFileSync(path.join(root,"js/pdf.js"),"utf8");
 const render=fs.readFileSync(path.join(root,"js/render.js"),"utf8");
 
-function fitHarness({pageSize="letter",scale=1,sideHeights=[120,100],center=null,showHeader=true}={}){
+function fitHarness({pageSize="letter",scale=1,sideHeights=[120,100],center=null,showHeader=true,yOffsets=[0,0,0]}={}){
   let headerHeight=220;
   let centerShift=0;
   const values={};
@@ -25,26 +25,31 @@ function fitHarness({pageSize="letter",scale=1,sideHeights=[120,100],center=null
     }},
     getBoundingClientRect:()=>({top:0,height:headerHeight*scale})
   };
-  const side=i=>sideHeights[i]===null?null:{
-    getBoundingClientRect:()=>({
-      top:(headerHeight-sideHeights[i])*scale/2,
-      height:sideHeights[i]*scale,
-      bottom:(headerHeight+sideHeights[i])*scale/2
-    })
-  };
-  const centerEl=center===null?null:{
-    getBoundingClientRect:()=>{
-      const top=(center.visualTop+centerShift)*scale;
-      return {top,bottom:top+center.height*scale,height:center.height*scale};
-    }
-  };
-  const slots=[side(0),centerEl,side(1)];
+  const slots=[0,1,2].map(()=>({style:{top:"0px"},firstElementChild:null}));
+  for(const [index,height] of [[0,sideHeights[0]],[2,sideHeights[1]]]){
+    if(height===null)continue;
+    slots[index].firstElementChild={
+      getBoundingClientRect:()=>({
+        top:parseFloat(slots[index].style.top)*scale,
+        height:height*scale,
+        bottom:(parseFloat(slots[index].style.top)+height)*scale
+      })
+    };
+  }
+  if(center!==null){
+    slots[1].firstElementChild={
+      getBoundingClientRect:()=>{
+        const top=(center.visualTop+centerShift)*scale;
+        return {top,bottom:top+center.height*scale,height:center.height*scale};
+      }
+    };
+  }
   const ctx=vm.createContext({
     currentShellScale:scale,
     state:{settings:{
       showHeader,pageSize,
-      headerSlots:slots.map(slot=>({type:slot?"logo":"none"})),
-      sizesByPageSize:{[pageSize]:{pageDensity:0}}
+      headerSlots:slots.map(slot=>({type:slot.firstElementChild?"logo":"none"})),
+      sizesByPageSize:{[pageSize]:{pageDensity:0,headerSlotYOffsets:yOffsets}}
     }},
     headerHasContent:slots=>slots.some(slot=>slot.type==="logo"),
     clampNumber:(v,min,max,fallback)=>Number.isFinite(Number(v))?Math.max(min,Math.min(max,Number(v))):fallback,
@@ -52,7 +57,7 @@ function fitHarness({pageSize="letter",scale=1,sideHeights=[120,100],center=null
       getElementById:id=>{
         if(id==="page")return page;
         const match=/^headerSlot([012])$/.exec(id);
-        return match?{firstElementChild:slots[Number(match[1])]}:null;
+        return match?slots[Number(match[1])]:null;
       },
       querySelector:selector=>selector===".header"?header:null
     }
@@ -62,13 +67,16 @@ function fitHarness({pageSize="letter",scale=1,sideHeights=[120,100],center=null
     run:()=>vm.runInContext("fitHeader()",ctx),
     values,headerVars,
     geometry:()=>({height:headerHeight,centerShift,centerTop:center?center.visualTop+centerShift:null,
-      centerBottom:center?center.visualTop+centerShift+center.height:null})
+      centerBottom:center?center.visualTop+centerShift+center.height:null,
+      sideTops:[parseFloat(slots[0].style.top),parseFloat(slots[2].style.top)]})
   };
 }
 
 test("side images occupy two full half-width columns, center overlays them near top",()=>{
   assert.match(css,/\.header\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/s);
   assert.match(css,/\.header-slot:first-child\{[^}]*grid-column:1/);
+  assert.match(css,/\.header-slot:first-child\{[^}]*position:absolute;left:/);
+  assert.match(css,/\.header-slot:last-child\{[^}]*position:absolute;right:/);
   assert.match(css,/\.header-slot:last-child\{[^}]*grid-column:2/);
   assert.match(css,/\.header-slot:nth-child\(2\)\{[^}]*position:absolute;left:50%;top:calc\(1\.5mm/s);
   assert.match(css,/\.header-slot:nth-child\(2\)\{[^}]*z-index:2/s);
@@ -129,4 +137,22 @@ test("header image loading refits layout, and header editor explains overlay",()
   assert.match(render,/addEventListener\("load"/);
   assert.match(render,/fitHeader\(\)/);
   assert.match(render,/center image sits near the top margin and can overlap both side images/);
+});
+
+test("left and right vertical offsets are independent and do not move the center",()=>{
+  const neutral=fitHarness({sideHeights:[50,50],center:{visualTop:30,height:140}});
+  neutral.run();
+  const baseline=neutral.geometry();
+  const shifted=fitHarness({sideHeights:[50,50],center:{visualTop:30,height:140},yOffsets:[-10,0,10]});
+  shifted.run();
+  const actual=shifted.geometry();
+  assert.equal(actual.centerTop,baseline.centerTop);
+  assert.ok(actual.sideTops[0]<baseline.sideTops[0]);
+  assert.ok(actual.sideTops[1]>baseline.sideTops[1]);
+  assert.ok(actual.height>baseline.height);
+});
+test("large negative offset clamps side content inside header",()=>{
+  const h=fitHarness({sideHeights:[120,100],yOffsets:[-20,0,0]});
+  h.run();
+  assert.ok(h.geometry().sideTops[0]>=2);
 });
