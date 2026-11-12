@@ -47,6 +47,11 @@ Required repo secrets (Settings → Secrets and variables → Actions):
 ### Running on a QNAP (Container Station)
 `docker-compose.yml` is a ready-to-import example — set your Docker Hub username in it, then in Container Station: Create → Create Application → paste or upload the file. Defaults to `http://<nas-ip>:8081`; see comments in the file for adjusting the port or mounting your own `data/` folder to override the sample menu without rebuilding.
 
+## Printing a saved menu on one page
+Importing a JSON file restores the menu settings and content; the JSON itself is **not** a printable PDF. Choose **US Letter** or **4×6 Card** in the toolbar, then **File → Print**. The print stylesheet isolates one physical page at that exact size, removes editor viewport scaling/centering, and waits for imported header images to decode before opening the browser print dialog.
+
+In the browser/printer dialog, verify that the **paper size matches the toolbar**, set **margins to None**, **scale to 100%**, and disable browser **headers and footers**. If the preview still shows more than one sheet, cancel instead of printing and check the browser/printer paper size. Printer drivers can override the CSS `@page` size; no web application can force an arbitrary physical printer to accept the requested stock. Save as PDF first when sending a menu to another computer, and verify that the PDF has one page before sharing.
+
 ## Header layout
 The header uses **two side columns**: left and right images/text each occupy half the printable width. The center logo/image is a separate top-aligned overlay that may overlap both side columns and renders above them. The header automatically adjusts its height to fit the visible, rotated/scaled content, including on 4×6 cards. Each slot retains its independent size and rotation settings. Images loaded asynchronously trigger a fresh layout fit.
 
