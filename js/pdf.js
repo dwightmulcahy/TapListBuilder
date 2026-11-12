@@ -237,3 +237,52 @@ async function printMenu(){
   preparePrintLayout();
   window.print();
 }
+
+/**
+ * Print three identical 4×6 cards on US Letter without changing the menu's
+ * stored page size. Two cards remain portrait; the third is rotated 90°.
+ * The printable sheet uses 0.25in outer margins and a 0.25in row gap.
+ */
+async function printThreeUp(){
+  if(state.settings.pageSize!=="4x6"){
+    alert("Select 4×6 Card in Page Setup before printing three per sheet.");
+    return;
+  }
+  // Use the same image-decode and layout preparation as the normal print path.
+  const images=[...document.querySelectorAll("#page img")];
+  if(images.length){
+    const ready=Promise.all(images.map(img=>typeof img.decode==="function"?img.decode().catch(()=>{}):Promise.resolve()));
+    let timeoutId;
+    try{await Promise.race([ready,new Promise(resolve=>{timeoutId=setTimeout(resolve,4000)})]);}
+    finally{clearTimeout(timeoutId);}
+  }
+  preparePrintLayout();
+  clearThreeUpPrint();
+  const sheet=document.createElement("div");
+  sheet.id="printThreeUpSheet";
+  sheet.setAttribute("aria-hidden","true");
+  const source=document.getElementById("page");
+  for(let i=0;i<3;i++){
+    const card=document.createElement("div");
+    card.className="three-up-card three-up-card-"+i;
+    const copy=source.cloneNode(true);
+    // Avoid duplicate DOM ids while preserving class-based print styling.
+    copy.removeAttribute("id");
+    copy.querySelectorAll("[id]").forEach(el=>el.removeAttribute("id"));
+    card.appendChild(copy);
+    sheet.appendChild(card);
+  }
+  document.body.appendChild(sheet);
+  document.body.classList.add("printing-three-up");
+  document.getElementById("printPageStyle").textContent="@page{size:letter portrait;margin:0}";
+  try{window.print();}
+  catch(err){clearThreeUpPrint();throw err;}
+}
+function clearThreeUpPrint(){
+  document.getElementById("printThreeUpSheet")?.remove();
+  document.body.classList.remove("printing-three-up");
+  if(state?.settings){
+    document.getElementById("printPageStyle").textContent=
+      state.settings.pageSize==="4x6"?"@page{size:4in 6in;margin:0}":"@page{size:letter portrait;margin:0}";
+  }
+}
