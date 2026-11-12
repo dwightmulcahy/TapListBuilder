@@ -69,7 +69,8 @@ function fitHeader(){
   if(!contents.some(Boolean))return; // empty slots already collapsed by applySettings()
   const headerRect=header.getBoundingClientRect();
   if(headerRect.height<=0)return; // not laid out (e.g. hidden)
-  const scale=typeof currentShellScale==="number"&&currentShellScale>0?currentShellScale:1;
+  const printing=typeof window!=="undefined"&&typeof window.matchMedia==="function"&&window.matchMedia("print").matches;
+  const scale=printing?1:(typeof currentShellScale==="number"&&currentShellScale>0?currentShellScale:1);
   const layoutScale=state.settings.pageSize==="4x6"?.5:1;
   const density=clampNumber(state.settings.sizesByPageSize?.[state.settings.pageSize]?.pageDensity,0,100,0)/100;
   const sideClearance=Math.max(4,Math.round(8*(1-.75*density)));
@@ -177,4 +178,24 @@ function setDisplayMode(mode){
   if(viewToggle)viewToggle.textContent=isPreview?"Edit":"Preview";
   requestAnimationFrame(fitMenu);
 }
-function printMenu(){fitMenu();window.print()}
+// Re-measure after print CSS removes the editor's responsive zoom. Otherwise
+// the header fit can use the on-screen scale while printing at physical size.
+function preparePrintLayout(){fitHeader();fitMenu()}
+function restorePreviewAfterPrint(){
+  requestAnimationFrame(()=>{
+    fitAppShell();
+    fitHeader();
+    fitMenu();
+  });
+}
+async function printMenu(){
+  // Imported JSON can contain large embedded header images. Wait for their
+  // first decode (bounded to 4s) before opening the browser print dialog.
+  const images=[...document.querySelectorAll("#page img")];
+  if(images.length){
+    const ready=Promise.all(images.map(img=>typeof img.decode==="function"?img.decode().catch(()=>{}):Promise.resolve()));
+    await Promise.race([ready,new Promise(resolve=>setTimeout(resolve,4000))]);
+  }
+  preparePrintLayout();
+  window.print();
+}
