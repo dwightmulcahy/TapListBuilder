@@ -79,13 +79,25 @@ function fitHeader(){
   // A centered transform changes the visual top even when the slot itself is
   // top-anchored. Align the actual visible edge to the margin: shift smaller
   // logos upward and large/rotated logos downward as needed.
+  const offsets=state.settings.sizesByPageSize[state.settings.pageSize].headerSlotYOffsets||[0,0,0];
   header.style.setProperty("--header-center-shift","0px");
   const center=contents[1];
+  let centerBottom=0;
+  let baseCenterBottom=0;
   if(center){
     const topClearance=Math.max(2,Math.round(5*layoutScale));
     const visualTop=(center.getBoundingClientRect().top-headerRect.top)/scale;
-    const shift=Math.round(topClearance-visualTop);
+    const baseShift=Math.round(topClearance-visualTop);
+    // Clamp the visible edge to the printable header; negative slider values
+    // can move upward only until the image would be clipped.
+    const offsetPx=clampNumber(offsets[1],-20,20,0)*96/25.4;
+    const desiredTop=Math.max(2,topClearance+offsetPx);
+    const shift=Math.round(desiredTop-visualTop);
     header.style.setProperty("--header-center-shift",`${shift}px`);
+    centerBottom=(center.getBoundingClientRect().bottom-headerRect.top)/scale;
+    // Side positions are based on the unshifted center's natural height.
+    // Moving the center down may grow the header, but must not move the sides.
+    baseCenterBottom=centerBottom+baseShift-shift;
   }
 
   // Establish the original, centered side-column baseline using the *natural*
@@ -95,10 +107,8 @@ function fitHeader(){
   sideSlots.forEach(slot=>{if(slot)slot.style.top="0px"});
   const sideHeight=Math.max(0,...[contents[0],contents[2]]
     .filter(Boolean).map(el=>el.getBoundingClientRect().height/scale));
-  const centerBottom=center?(center.getBoundingClientRect().bottom-headerRect.top)/scale:0;
-  const naturalHeight=Math.max(sideHeight+2*sideClearance,centerBottom+bottomClearance);
-  const offsets=state.settings.sizesByPageSize[state.settings.pageSize].headerSlotYOffsets||[0,0,0];
-  let neededPx=naturalHeight;
+  const naturalHeight=Math.max(sideHeight+2*sideClearance,baseCenterBottom+bottomClearance);
+  let neededPx=Math.max(naturalHeight,centerBottom+bottomClearance);
   for(const i of [0,2]){
     const slot=document.getElementById(`headerSlot${i}`);
     const content=contents[i];
