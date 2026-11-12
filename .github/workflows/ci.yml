@@ -50,5 +50,18 @@ jobs:
           node-version: '22'
       - name: Install browser test dependencies
         run: npm install --no-audit --no-fund
-      - name: Run instrumented browser smoke tests
+      - name: Run instrumented browser tests
         run: npm run test:coverage
+      - name: Enforce measured browser coverage floor
+        run: npm run coverage:check
+      - name: Publish browser coverage in job summary
+        if: always()
+        run: node scripts/publish-coverage-summary.cjs
+      - name: Upload browser coverage HTML, LCOV, and JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-coverage
+          path: coverage/
+          if-no-files-found: warn
+          retention-days: 14
