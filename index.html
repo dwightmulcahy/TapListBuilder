@@ -20,6 +20,7 @@
       <summary>File</summary>
       <div class="app-menu-dropdown">
         <button onclick="printMenu();closeAppMenus()">Print</button>
+        <button onclick="printThreeUp();closeAppMenus()">Print 3 × 4×6 on Letter</button>
         <hr>
         <button onclick="downloadJSON();closeAppMenus()">Save</button>
         <label class="file-label">Load<input type="file" accept=".json,application/json" onchange="loadJSON(event);closeAppMenus()"></label>
@@ -218,7 +219,7 @@
       </div>
     </label>
     <p class="help">0% keeps the original spacing. Move toward 100% to reduce page margins, column gaps and vertical padding, and pack beer rows more tightly. Beer font sizes are unchanged. US Letter and 4×6 remember separate settings; 4×6 keeps its corner-safe margins.</p>
-    <p class="help"><strong>Printing:</strong> Match the printer paper size to the selected menu size (US Letter or 4×6), choose margins None, scale 100%, and turn off browser headers/footers. The print preview should show one page.</p>
+    <p class="help"><strong>Printing:</strong> Match the printer paper size to the selected menu size (US Letter or 4×6), choose margins None, scale 100%, and turn off browser headers/footers. The print preview should show one page. For three 4×6 cards on a Letter sheet, choose File → Print 3 × 4×6 on Letter while 4×6 Card is selected.</p>
     <label>Icon size
       <div class="range-with-value">
         <input id="iconScale" type="range" min="0.50" max="1.80" step="0.01" oninput="setSetting('iconScale',Number(this.value));document.getElementById('iconScaleValue').value=Math.round(Number(this.value)*100)+'%'">
