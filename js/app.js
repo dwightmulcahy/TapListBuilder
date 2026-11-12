@@ -50,6 +50,10 @@ function clampNumber(value,min,max,fallback){
   const n=Number(value);
   return Number.isFinite(n)?Math.min(max,Math.max(min,n)):fallback;
 }
+function clampGlutenFreeFontSize(value){
+  const n=Number(value);
+  return Number.isFinite(n)?Math.min(20,Math.max(6,Math.round(n*2)/2)):7;
+}
 function clampDescriptionFontSize(value){
   const n=Number(value);
   return Number.isFinite(n)?Math.min(24,Math.max(8,Math.round(n*4)/4)):11.75;
@@ -125,6 +129,7 @@ function normalizeItem(item={},defaultLanguage="en"){
     ibu:String(item.ibu??""),
     glutenFree:Boolean(item.glutenFree),
     glutenFreePlacement:item.glutenFreePlacement==="vertical"?"vertical":"inline",
+    glutenFreeFontSize:clampGlutenFreeFontSize(item.glutenFreeFontSize),
     isNew:Boolean(item.isNew),
     newBadgeStyle:["pill","text","outline","starburst"].includes(item.newBadgeStyle)?item.newBadgeStyle:"pill",
     color:/^#[0-9a-f]{6}$/i.test(item.color||"")?item.color:"#444444",
@@ -398,6 +403,7 @@ function applyStyleAppearanceToAllBeers(index){
 }
 function setItem(i,key,value,rerenderEditor=false){
   if(key==="glutenFreePlacement")value=value==="vertical"?"vertical":"inline";
+  if(key==="glutenFreeFontSize")value=clampGlutenFreeFontSize(value);
   if(key==="descriptionFontSize")value=clampDescriptionFontSize(value);
   if(key==="nameFontSize")value=clampBeerNameFontSize(value);
   if(key==="outlineWidth")value=clampNumber(value,0.5,3,1.5);
