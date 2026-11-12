@@ -66,3 +66,18 @@ The header uses **two side columns**: left and right images/text each occupy hal
 - `data/translations.json` — the exact-match and phrase-level English→Spanish description translation dictionary.
 
 Editing either file changes the sample menu / translation behavior without touching any JS.
+
+## Test coverage
+
+Production JavaScript coverage is measured by **Chromium V8** during real Playwright browser tests, then converted to Istanbul. Unlike the Node VM and source-inspection tests, this records execution of the scripts served to users. All `js/*.js` modules are included in the denominator, including untouched files.
+
+Run locally with Node 22+, Python 3 and Chromium dependencies:
+
+```sh
+npm install
+npx playwright install chromium
+npm run test:unit
+npm run test:coverage
+```
+
+The report is written to `coverage/index.html`, `coverage/coverage-summary.json`, and `coverage/lcov.info`. This initial baseline has no enforced threshold; browser scenarios and CI publication are added separately.
