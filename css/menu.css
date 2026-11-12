@@ -237,9 +237,13 @@
 .footer-bottom{height:calc(10.5mm * var(--layout-scale,1));display:flex;justify-content:center;align-items:center;gap:calc(2.5mm * var(--layout-scale,1) * var(--density-space,1));white-space:nowrap;overflow:hidden}
 .location-text{font-size:calc(var(--location-font-size,19pt) * var(--footer-bottom-scale,1) * var(--layout-scale,1));line-height:1;letter-spacing:.025em;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 
+/* The divider itself supplies the separator line, so avoid a duplicate beer
+   border at the top of a user-adjusted whitespace gap. */
+.tap-row:has(+ .tap-divider-row){border-bottom:0}
 .tap-divider-row{
-  /* Decorative separator at the row boundary: do not steal height from beers. */
-  flex:0 0 0;height:0;min-height:0;margin:0;padding:0;
+  /* Keep the decorative line zero-height; only the explicit top margin uses
+     real vertical space. This also works in density/print layouts. */
+  flex:0 0 0;height:0;min-height:0;margin:0;margin-top:calc(var(--divider-space-above,0mm) * var(--layout-scale,1));padding:0;
   position:relative;z-index:2;overflow:visible;
   display:flex;align-items:center;gap:calc(3mm * var(--layout-scale,1));color:#333
 }
