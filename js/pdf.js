@@ -274,6 +274,7 @@ async function printThreeUp(){
   }
   document.body.appendChild(sheet);
   document.body.classList.add("printing-three-up");
+  document.documentElement.classList.add("printing-three-up");
   document.getElementById("printPageStyle").textContent="@page{size:letter portrait;margin:0}";
   try{window.print();}
   catch(err){clearThreeUpPrint();throw err;}
@@ -281,6 +282,7 @@ async function printThreeUp(){
 function clearThreeUpPrint(){
   document.getElementById("printThreeUpSheet")?.remove();
   document.body.classList.remove("printing-three-up");
+  document.documentElement.classList.remove("printing-three-up");
   if(state?.settings){
     document.getElementById("printPageStyle").textContent=
       state.settings.pageSize==="4x6"?"@page{size:4in 6in;margin:0}":"@page{size:letter portrait;margin:0}";
