@@ -7,7 +7,8 @@
     "test:unit": "node --test tests/*.test.cjs",
     "test:browser": "playwright test",
     "coverage:report": "node scripts/coverage-report.cjs",
-    "test:coverage": "npm run test:browser && npm run coverage:report"
+    "test:coverage": "node -e \"require('node:fs').rmSync('coverage/raw',{recursive:true,force:true})\" && npm run test:browser && npm run coverage:report",
+    "coverage:check": "node scripts/check-coverage.cjs"
   },
   "devDependencies": {
     "@playwright/test": "1.56.1",
