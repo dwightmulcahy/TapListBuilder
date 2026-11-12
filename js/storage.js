@@ -69,8 +69,76 @@ function confirmJsonLoad(raw,source="JSON file",impact="Loading replaces the cur
     dialog.showModal();
   });
 }
-function autosave(){try{localStorage.setItem("mhbTapListBuilderV2",JSON.stringify(stampJson(state)))}catch(e){}}
-function loadAutosave(){try{const raw=localStorage.getItem("mhbTapListBuilderV2");return raw?JSON.parse(raw):null}catch(e){return null}}
+// IndexedDB is the durable draft store; legacy localStorage is retained for migration.
+const DRAFT_KEY="mhbTapListBuilderV2";
+let draftTimer=null;
+let exportedSnapshot=null;
+function draftSnapshot(){return JSON.stringify(stampJson(state))}
+function showSaveStatus(message,kind="dirty"){
+  const el=document.getElementById("saveStatus");
+  if(!el)return;
+  el.textContent=message;
+  el.dataset.kind=kind;
+}
+function openDraftDB(){
+  return new Promise((resolve,reject)=>{
+    if(!window.indexedDB)return reject(new Error("IndexedDB unavailable"));
+    const request=indexedDB.open("mhb-tap-list-drafts",1);
+    request.onupgradeneeded=()=>request.result.createObjectStore("drafts");
+    request.onsuccess=()=>resolve(request.result);
+    request.onerror=()=>reject(request.error);
+  });
+}
+async function draftDBRead(){
+  const db=await openDraftDB();
+  try{return await new Promise((resolve,reject)=>{
+    const tx=db.transaction("drafts","readonly");
+    const request=tx.objectStore("drafts").get("current");
+    request.onsuccess=()=>resolve(request.result||null);
+    request.onerror=()=>reject(request.error);
+  })}finally{db.close()}
+}
+async function draftDBWrite(payload){
+  const db=await openDraftDB();
+  try{await new Promise((resolve,reject)=>{
+    const tx=db.transaction("drafts","readwrite");
+    tx.objectStore("drafts").put(payload,"current");
+    tx.oncomplete=resolve;
+    tx.onerror=()=>reject(tx.error);
+    tx.onabort=()=>reject(tx.error);
+  })}finally{db.close()}
+}
+function autosave(){
+  if(!state)return;
+  const snapshot=draftSnapshot();
+  const dirty=snapshot!==exportedSnapshot;
+  showSaveStatus(dirty?"Unsaved changes · Backing up…":"Saved to JSON",dirty?"dirty":"saved");
+  clearTimeout(draftTimer);
+  draftTimer=setTimeout(async()=>{
+    try{
+      await draftDBWrite({snapshot,updatedAt:Date.now()});
+      // A newer edit may have arrived while the transaction was pending.
+      if(snapshot===draftSnapshot())showSaveStatus(dirty?"Unsaved changes · Draft backed up":"Saved to JSON",dirty?"backed-up":"saved");
+    }catch(err){
+      console.warn("Draft backup failed",err);
+      showSaveStatus("Unsaved changes · Backup failed","error");
+    }
+  },900);
+}
+async function loadAutosave(){
+  let legacy=null;
+  try{const raw=localStorage.getItem(DRAFT_KEY);legacy=raw?JSON.parse(raw):null}catch(err){console.warn("Legacy draft unavailable",err)}
+  try{
+    const backup=await draftDBRead();
+    if(backup?.snapshot)return JSON.parse(backup.snapshot);
+  }catch(err){console.warn("IndexedDB draft unavailable",err)}
+  return legacy;
+}
+function markJsonExported(snapshot){
+  exportedSnapshot=snapshot;
+  if(snapshot===draftSnapshot())showSaveStatus("Saved to JSON","saved");
+}
+
 
 function mergeSavedBeverages(entries,sourceAppVersion=null,sourceSchemaVersion=null){
   if(!Array.isArray(entries))return 0;
@@ -92,6 +160,7 @@ function mergeSavedBeverages(entries,sourceAppVersion=null,sourceSchemaVersion=n
 async function downloadJSON(){
   const exportData={...stampJson(state),savedBeverages:deepCopy(savedBeverages)};
   const json=JSON.stringify(exportData,null,2);
+  const exportedMenuSnapshot=draftSnapshot();
   const defaultName="mhb-tap-list-and-library.json";
   if(typeof window.showSaveFilePicker==="function"){
     try{
@@ -102,6 +171,7 @@ async function downloadJSON(){
       const writable=await handle.createWritable();
       await writable.write(json);
       await writable.close();
+      markJsonExported(exportedMenuSnapshot);
       return;
     }catch(err){
       if(err&&err.name==="AbortError")return; // user cancelled the save dialog
@@ -115,6 +185,8 @@ async function downloadJSON(){
   if(!/\.json$/i.test(fileName))fileName+=".json";
   const blob=new Blob([json],{type:"application/json"});
   const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=fileName;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  // A download click cannot guarantee the browser wrote the file.
+  showSaveStatus("Download started · Verify JSON file","dirty");
 }
 function loadJSON(event){
   const file=event.target.files?.[0];if(!file)return;
