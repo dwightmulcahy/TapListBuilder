@@ -44,8 +44,9 @@ test("saved beverage library supports save all, overwrite, and delete",async({pa
 test("invalid JSON import is rejected without changing menu, newer versions show warning",async({page})=>{
   const input=page.locator('.app-menu-item input[type="file"][accept*=".json"]');
   const before=await page.evaluate(()=>state.items[0].name);
-  page.once("dialog",dialog=>dialog.accept());
+  const invalidAlert=new Promise(resolve=>page.once("dialog",async dialog=>{await dialog.accept();resolve()}));
   await input.setInputFiles({name:"broken.json",mimeType:"application/json",buffer:Buffer.from("{bad json")});
+  await invalidAlert;
   expect(await page.evaluate(()=>state.items[0].name)).toBe(before);
   await input.setInputFiles({name:"future.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify({
     version:999,appVersion:"v99.0.0",items:[{name:"Future Beer"}]
