@@ -1,0 +1,19 @@
+{
+  "name": "taplistbuilder",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Browser-based tap menu editor",
+  "scripts": {
+    "test:unit": "node --test tests/*.test.cjs",
+    "test:browser": "playwright test",
+    "coverage:report": "node scripts/coverage-report.cjs",
+    "test:coverage": "npm run test:browser && npm run coverage:report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "istanbul-lib-coverage": "3.2.2",
+    "istanbul-lib-report": "3.0.1",
+    "istanbul-reports": "3.2.0",
+    "v8-to-istanbul": "9.3.0"
+  }
+}
