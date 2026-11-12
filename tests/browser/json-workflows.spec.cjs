@@ -64,7 +64,7 @@ test("named profiles restore an edited menu after confirmation",async({page})=>{
 test("saved beverage library adds a real item after version confirmation",async({page})=>{
   await page.evaluate(()=>saveItemToLibrary(0));
   await page.evaluate(()=>openModal("libraryModal"));
-  await expect(page.locator("#savedLibraryStatus")).toContainText("saved item");
+  await expect(page.locator("#savedLibraryStatus")).toContainText("Saved “America IPA”");
   const before=await page.locator("#tapList .tap-row").count();
   await page.locator("#addSavedBeverageButton").click();
   await expect(page.locator("#jsonVersionModal")).toBeVisible();
