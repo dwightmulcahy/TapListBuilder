@@ -66,7 +66,7 @@ function headerSlotEditor(slot,index,scale,yOffset=0){
           <output id="headerSlotYOffsetValue${index}">${yOffset} mm</output>
         </div>
       </label>
-      <p class="help">Negative moves up, positive moves down. Position is saved separately for Letter and 4×6. Content stays inside the header.</p>
+      <p class="help">Negative moves up, positive moves down. The center can move into the top page margin; moving past the paper edge crops it in preview and print. Left and right stay inside the header. Position is saved separately for Letter and 4×6.</p>
     `:""}
   </fieldset>`;
 }
