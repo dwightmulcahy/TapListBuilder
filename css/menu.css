@@ -38,8 +38,8 @@
 /* Absolute top anchors keep side images/text at their requested vertical position
    even if the header grows to accommodate the center overlay. Each side retains
    half the printable width and remains behind the center. */
-.header-slot:first-child{grid-column:1;justify-content:flex-start;position:absolute;left:0;top:0;width:50%;z-index:1}
-.header-slot:last-child{grid-column:2;justify-content:flex-end;position:absolute;right:0;top:0;width:50%;z-index:1}
+.header-slot:first-child{grid-column:1;justify-content:flex-start;position:absolute;left:calc(4mm * var(--layout-scale,1) * var(--density-space,1));top:0;width:calc(50% - 4mm * var(--layout-scale,1) * var(--density-space,1));z-index:1}
+.header-slot:last-child{grid-column:2;justify-content:flex-end;position:absolute;right:calc(4mm * var(--layout-scale,1) * var(--density-space,1));top:0;width:calc(50% - 4mm * var(--layout-scale,1) * var(--density-space,1));z-index:1}
 .header-slot:nth-child(2){
   /* Top-align the center logo near the printable margin; it may overlap both
      side columns. fitHeader() adjusts --header-center-shift for rotated images. */
