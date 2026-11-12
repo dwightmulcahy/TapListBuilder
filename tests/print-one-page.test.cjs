@@ -47,7 +47,7 @@ test("printMenu waits for embedded image decoding before invoking browser print"
   const ctx=vm.createContext({
     document:{querySelectorAll:()=>[image]},
     window:{print:()=>{printed++}},
-    setTimeout,
+    setTimeout,clearTimeout,
     Promise,
     fitHeader:()=>calls.push("header"),
     fitMenu:()=>calls.push("menu")
@@ -68,7 +68,7 @@ test("printMenu still opens the dialog if an imported image cannot decode",async
   const ctx=vm.createContext({
     document:{querySelectorAll:()=>[{decode:()=>Promise.reject(new Error("invalid image"))}]},
     window:{print:()=>{printed++}},
-    setTimeout,Promise,
+    setTimeout,clearTimeout,Promise,
     fitHeader:()=>{},fitMenu:()=>{}
   });
   vm.runInContext(pdf.slice(pdf.indexOf("function preparePrintLayout()")),ctx);
