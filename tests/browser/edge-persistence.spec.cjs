@@ -27,6 +27,9 @@ test("profile create, overwrite, rename and delete preserve current menu state",
 test("saved beverage library supports save all, overwrite, and delete",async({page})=>{
   await page.evaluate(()=>{
     saveAllItemsToLibrary();
+    // ABV is calculated while SG/FG are set; clear both to edit it manually.
+    setItem(0,"sg","");
+    setItem(0,"fg","");
     setItem(0,"abv","7.5");
   });
   page.once("dialog",dialog=>dialog.accept());
