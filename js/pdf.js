@@ -88,10 +88,31 @@ function fitHeader(){
     header.style.setProperty("--header-center-shift",`${shift}px`);
   }
 
+  // Establish the original, centered side-column baseline using the *natural*
+  // header height, independent of the user's offsets. If a moved side extends
+  // lower, grow the header without moving the other side or the center logo.
+  const sideSlots=[0,2].map(i=>document.getElementById(`headerSlot${i}`));
+  sideSlots.forEach(slot=>{if(slot)slot.style.top="0px"});
   const sideHeight=Math.max(0,...[contents[0],contents[2]]
     .filter(Boolean).map(el=>el.getBoundingClientRect().height/scale));
   const centerBottom=center?(center.getBoundingClientRect().bottom-headerRect.top)/scale:0;
-  const neededPx=Math.ceil(Math.max(sideHeight+2*sideClearance,centerBottom+bottomClearance));
+  const naturalHeight=Math.max(sideHeight+2*sideClearance,centerBottom+bottomClearance);
+  const offsets=state.settings.sizesByPageSize[state.settings.pageSize].headerSlotYOffsets||[0,0,0];
+  let neededPx=naturalHeight;
+  for(const i of [0,2]){
+    const slot=document.getElementById(`headerSlot${i}`);
+    const content=contents[i];
+    if(!slot||!content)continue;
+    const rect=content.getBoundingClientRect();
+    const height=rect.height/scale;
+    const offsetPx=clampNumber(offsets[i],-20,20,0)*96/25.4;
+    const desiredTop=Math.max(2,(naturalHeight-height)/2+offsetPx);
+    // Rotation and scaling can extend the visible content above its own box.
+    const visualTopAtZero=(rect.top-headerRect.top)/scale;
+    slot.style.top=`${Math.round(desiredTop-visualTopAtZero)}px`;
+    neededPx=Math.max(neededPx,(content.getBoundingClientRect().bottom-headerRect.top)/scale+bottomClearance);
+  }
+  neededPx=Math.ceil(neededPx);
   if(Number.isFinite(neededPx)&&neededPx>0)pageEl.style.setProperty("--header-height",`${neededPx}px`);
 }
 function fitFooter(){
