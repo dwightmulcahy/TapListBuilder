@@ -98,7 +98,7 @@ function isAbvCalculated(item){
 }
 function normalizeItem(item={},defaultLanguage="en"){
   if(item.type==="divider"){
-    return {type:"divider",text:String(item.text??""),fontSize:clampNumber(item.fontSize,8,24,12)};
+    return {type:"divider",text:String(item.text??""),fontSize:clampNumber(item.fontSize,8,24,12),spaceAbove:clampNumber(item.spaceAbove,0,20,0)};
   }
   if(item.type==="text"){
     const rawColumns=Array.isArray(item.columns)&&item.columns.length?item.columns:[{title:"",body:""}];
@@ -409,6 +409,7 @@ function setItem(i,key,value,rerenderEditor=false){
   if(key==="outlineWidth")value=clampNumber(value,0.5,3,1.5);
   if(Object.prototype.hasOwnProperty.call(STATS_SIZE_LIMITS,key))value=clampStatsSize(key,value);
   const item=state.items[i];
+  if(item?.type==="divider"&&key==="spaceAbove")value=clampNumber(value,0,20,0);
   item[key]=value;
   if(key==="name"||key==="description"){
     item.translations=item.translations||{en:{name:"",description:""},es:{name:"",description:""}};
