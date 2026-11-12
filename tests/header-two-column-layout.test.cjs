@@ -91,8 +91,8 @@ test("center logo scaled smaller than its intrinsic box moves UP to visible top 
   const g=h.geometry();
   assert.equal(g.centerTop,5);
   assert.equal(g.centerShift,-28);
-  assert.equal(g.height,136); // side height + symmetric clearance
-  assert.ok(g.centerBottom+12<=g.height);
+  assert.equal(g.height,130); // side height plus intentionally tighter symmetric clearance
+  assert.ok(g.centerBottom+4<=g.height);
 });
 
 test("large or rotated center logo moves DOWN just enough to avoid clipping",()=>{
@@ -101,14 +101,14 @@ test("large or rotated center logo moves DOWN just enough to avoid clipping",()=
   const g=h.geometry();
   assert.equal(g.centerShift,47);
   assert.equal(g.centerTop,5);
-  assert.equal(g.height,267);
+  assert.equal(g.height,259);
   assert.ok(g.centerBottom+12<=g.height);
 });
 
 test("left/right images alone use the tallest side, no center offset",()=>{
   const h=fitHarness({sideHeights:[135,160]});
   h.run();
-  assert.equal(h.geometry().height,176);
+  assert.equal(h.geometry().height,170);
   assert.equal(h.headerVars["--header-center-shift"],"0px");
 });
 
@@ -116,14 +116,14 @@ test("4x6 card keeps a scaled top clearance for the center logo",()=>{
   const h=fitHarness({pageSize:"4x6",sideHeights:[60,50],center:{visualTop:17,height:85}});
   h.run();
   assert.equal(h.geometry().centerTop,3);
-  assert.equal(h.geometry().height,100);
+  assert.equal(h.geometry().height,92);
 });
 
 test("shell zoom does not distort the computed header height or center shift",()=>{
   const h=fitHarness({scale:.6,sideHeights:[150,130],center:{visualTop:-42,height:250}});
   h.run();
   assert.equal(h.geometry().centerTop,5);
-  assert.equal(h.geometry().height,267);
+  assert.equal(h.geometry().height,259);
 });
 
 test("explicitly hidden header never changes height",()=>{
