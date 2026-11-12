@@ -40,6 +40,11 @@ async function main(){
   fs.mkdirSync(outDir,{recursive:true});
   const summary=map.getCoverageSummary().toJSON();
   fs.writeFileSync(path.join(outDir,"coverage-summary.json"),JSON.stringify(summary,null,2)+"\n");
+  const byFile=Object.fromEntries(map.files().map(file=>[
+    path.relative(root,file).replaceAll(path.sep,"/"),
+    map.fileCoverageFor(file).toSummary().toJSON()
+  ]));
+  fs.writeFileSync(path.join(outDir,"coverage-by-file.json"),JSON.stringify(byFile,null,2)+"\n");
   const context=libReport.createContext({dir:outDir,coverageMap:map});
   for(const format of ["text-summary","lcovonly","html"])reports.create(format).execute(context);
   console.log("Production JS modules: "+files.length);
