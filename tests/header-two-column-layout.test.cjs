@@ -136,7 +136,7 @@ test("header image loading refits layout, and header editor explains overlay",()
   assert.match(render,/img&&!img\.complete/);
   assert.match(render,/addEventListener\("load"/);
   assert.match(render,/fitHeader\(\)/);
-  assert.match(render,/center image sits near the top margin and can overlap both side images/);
+  assert.match(render,/center image stays near the top margin and can overlap both side images/);
 });
 
 test("left and right vertical offsets are independent and do not move the center",()=>{
