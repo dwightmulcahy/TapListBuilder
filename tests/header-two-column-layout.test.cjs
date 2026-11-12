@@ -149,10 +149,19 @@ test("left and right vertical offsets are independent and do not move the center
   assert.equal(actual.centerTop,baseline.centerTop);
   assert.ok(actual.sideTops[0]<baseline.sideTops[0]);
   assert.ok(actual.sideTops[1]>baseline.sideTops[1]);
-  assert.ok(actual.height>baseline.height);
+  assert.ok(actual.height>=baseline.height);
 });
 test("large negative offset clamps side content inside header",()=>{
   const h=fitHarness({sideHeights:[120,100],yOffsets:[-20,0,0]});
   h.run();
   assert.ok(h.geometry().sideTops[0]>=2);
+});
+
+test("a large downward side offset expands header without moving the other side",()=>{
+  const baseline=fitHarness({sideHeights:[120,80]});
+  baseline.run();
+  const moved=fitHarness({sideHeights:[120,80],yOffsets:[20,0,0]});
+  moved.run();
+  assert.ok(moved.geometry().height>baseline.geometry().height);
+  assert.equal(moved.geometry().sideTops[1],baseline.geometry().sideTops[1]);
 });
