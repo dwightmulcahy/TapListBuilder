@@ -205,3 +205,10 @@ textarea{min-height:72px;resize:vertical;line-height:1.3}
 @container (min-width:520px){
   .grid-name-row{grid-template-columns:2fr 1.3fr 1fr}
 }
+
+/* Distinguish an exported JSON file from an automatically backed-up browser draft. */
+.save-status{font-weight:700;text-align:center}
+.save-status[data-kind="dirty"]{color:#9a5b00}
+.save-status[data-kind="backed-up"]{color:#805000}
+.save-status[data-kind="error"]{color:#b42318}
+.save-status[data-kind="saved"]{color:#18733b}
