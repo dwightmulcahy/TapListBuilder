@@ -22,9 +22,8 @@ test("JSON import shows versions, cancellation preserves menu, acceptance replac
   await dialog.locator('button[value="load"]').click();
   await expect(page.locator("#tapList .item-name")).toHaveCount(1);
   await expect(page.locator("#tapList .item-name").first()).toHaveText("Imported Mango Cider");
-  const saved=await page.evaluate(async()=>{const backup=await draftDBRead();return backup?.snapshot?JSON.parse(backup.snapshot):null});
   await expect.poll(()=>page.evaluate(async()=>{const backup=await draftDBRead();return backup?.snapshot?JSON.parse(backup.snapshot).items[0].name:null})).toBe("Imported Mango Cider");
-  expect(saved.appVersion).toBeTruthy();
+  await expect.poll(()=>page.evaluate(async()=>{const backup=await draftDBRead();return backup?.snapshot?JSON.parse(backup.snapshot).appVersion:null})).toBeTruthy();
 });
 test("Save produces version-stamped JSON containing current menu and settings",async({page})=>{
   await page.evaluate(()=>{
