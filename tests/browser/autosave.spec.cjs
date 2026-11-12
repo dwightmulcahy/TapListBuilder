@@ -32,6 +32,5 @@ test("legacy browser autosave gets stamped after explicit acceptance",async({pag
   await expect(page.locator("#jsonSavedAppVersion")).toContainText("legacy");
   await page.locator('#jsonVersionModal button[value="load"]').click();
   await expect(page.locator("#tapList .item-name").first()).toHaveText("Restored Brewery Special");
-  const persisted=await page.evaluate(()=>JSON.parse(localStorage.getItem("mhbTapListBuilderV2")));
-  expect(persisted.appVersion).toBeTruthy();
+  await expect.poll(()=>page.evaluate(async()=>{const backup=await draftDBRead();return backup?.snapshot?JSON.parse(backup.snapshot).appVersion:null})).toBeTruthy();
 });
