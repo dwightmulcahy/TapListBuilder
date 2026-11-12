@@ -656,7 +656,8 @@ async function boot(){
   fitHeader();
   window.addEventListener("resize",()=>requestAnimationFrame(fitMenu));
   window.addEventListener("resize",()=>requestAnimationFrame(()=>{fitAppShell();fitHeader();}));
-  window.addEventListener("beforeprint",fitMenu);
+  window.addEventListener("beforeprint",preparePrintLayout);
+  window.addEventListener("afterprint",restorePreviewAfterPrint);
   if(typeof ResizeObserver!=="undefined"){
     const shellEl=document.getElementById("appShell");
     if(shellEl)new ResizeObserver(()=>requestAnimationFrame(fitAppShell)).observe(shellEl);
