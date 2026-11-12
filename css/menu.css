@@ -19,6 +19,11 @@
   filter:grayscale(1) contrast(1.4) brightness(.45)
 }
 .page>*{position:relative;z-index:1}
+/* Grid placement must stay fixed when optional header/footer are display:none.
+   Otherwise the tap list auto-flows into the zero-height header track. */
+.page>.header{grid-row:1}
+.page>.tap-list{grid-row:2}
+.page>.footer{grid-row:3}
 .page.hide-header .header,.page.hide-footer .footer{display:none}
 .corner-overlay{display:none;position:absolute;inset:0;z-index:4;pointer-events:none}
 .page.show-corner-overlay .corner-overlay{display:block}
