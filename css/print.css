@@ -26,3 +26,35 @@
     overflow:hidden!important
   }
 }
+
+/* Three-up output exists only for a dedicated print action. The editor and
+   ordinary one-card printing are unaffected. */
+#printThreeUpSheet{display:none}
+@media print{
+  html.printing-three-up,body.printing-three-up{
+    width:8.5in!important;height:11in!important;max-height:11in!important;
+  }
+  body.printing-three-up #appShellViewport{display:none!important}
+  body.printing-three-up #printThreeUpSheet{
+    display:block!important;position:absolute!important;inset:0!important;
+    width:8.5in!important;height:11in!important;overflow:hidden!important;
+    background:white!important;
+  }
+  body.printing-three-up .three-up-card{
+    position:absolute!important;width:4in!important;height:6in!important;
+    margin:0!important;padding:0!important;overflow:visible!important;
+    break-inside:avoid!important;
+  }
+  body.printing-three-up .three-up-card .page{
+    width:4in!important;height:6in!important;min-width:4in!important;
+    min-height:6in!important;max-width:4in!important;max-height:6in!important;
+    transform:none!important;box-shadow:none!important;
+  }
+  body.printing-three-up .three-up-card-0{left:.25in;top:.25in}
+  body.printing-three-up .three-up-card-1{left:4.25in;top:.25in}
+  body.printing-three-up .three-up-card-2{
+    left:1.25in;top:6.5in;
+    transform-origin:top left!important;
+    transform:translateX(6in) rotate(90deg)!important;
+  }
+}
