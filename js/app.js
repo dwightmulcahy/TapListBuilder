@@ -692,6 +692,7 @@ function fitAppShell(){
 
 async function boot(){
   void window.TapListBuildInfo.updateBadge();
+  window.TapListBuildInfo.startUpdateMonitor();
   const [beerStyles,translations]=await Promise.all([
     fetch("data/beer-styles.json").then(r=>r.json()),
     fetch("data/translations.json").then(r=>r.json()),
