@@ -29,7 +29,7 @@ jobs:
 
   docker-smoke:
     name: Shared Docker build verification
-    uses: dwightmulcahy/repo-template/.github/workflows/reusable-docker-smoke.yml@47b1132d8102fe52ee47054ba72b7502fbd934a8
+    uses: dwightmulcahy/repo-template/.github/workflows/reusable-docker-smoke.yml@1b2a8ace955cd3a6d0641017aa8e4d621a183c21
     with:
       image: taplistbuilder:ci
       smoke-command: |
