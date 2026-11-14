@@ -59,7 +59,7 @@ jobs:
         run: node scripts/publish-coverage-summary.cjs
       - name: Upload browser coverage HTML, LCOV, and JSON
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: browser-coverage
           path: coverage/
