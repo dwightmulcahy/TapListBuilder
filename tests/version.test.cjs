@@ -80,3 +80,56 @@ test("development builds link to their commit, with a safe fallback", async () =
   assert.equal(badge.textContent, "dev-abcdef0");
   assert.equal(client.versionUrl({version: "dev", sha: "unknown"}), "https://github.com/dwightmulcahy/TapListBuilder/releases");
 });
+
+
+test("deployment monitor checks fresh metadata and never forces an automatic reload", async () => {
+  const initial = {version: "1.0.0", sha: "aaa111", buildDate: "today"};
+  const updated = {version: "1.0.1", sha: "bbb222", buildDate: "tomorrow"};
+  let deployed = initial;
+  let reloads = 0;
+  const nodes = [];
+  const body = {appendChild: node => nodes.push(node)};
+  const document = {
+    body,
+    hidden: false,
+    getElementById: id => id === "deploymentUpdateNotice" ? nodes.find(node => node.id === id) : null,
+    createElement: () => ({
+      style: {},
+      children: [],
+      setAttribute() {},
+      addEventListener(type, callback) { this.callback = callback; },
+      append(...children) { this.children.push(...children); }
+    }),
+    addEventListener() {}
+  };
+  const window = {
+    document,
+    location: {reload: () => { reloads++; }},
+    fetch: async (_url, options) => {
+      assert.equal(options.cache, "no-store");
+      return {ok: true, json: async () => deployed};
+    }
+  };
+  vm.runInNewContext(source, {window}, {filename: "js/version.js"});
+  const client = window.TapListBuildInfo;
+  await client.load();
+  assert.equal(await client.checkForUpdate(), false);
+  deployed = updated;
+  assert.equal(await client.checkForUpdate(), true);
+  assert.equal(await client.checkForUpdate(), true);
+  assert.equal(nodes.length, 1, "only one notice is shown");
+  assert.equal(reloads, 0, "an update must never discard unsaved edits automatically");
+  nodes[0].children[1].callback();
+  assert.equal(reloads, 1, "reload only after the user clicks Refresh");
+});
+
+test("deployment monitor ignores offline failures", async () => {
+  let calls = 0;
+  const {client} = createVersionClient(async () => {
+    calls++;
+    if (calls > 1) throw new Error("offline");
+    return {ok: true, json: async () => ({version: "1.0.0", sha: "aaa"})};
+  });
+  await client.load();
+  assert.equal(await client.checkForUpdate(), false);
+});
