@@ -114,7 +114,7 @@ jobs:
     name: Publish tagged Docker image
     if: startsWith(github.ref, 'refs/tags/')
     needs: validate
-    uses: dwightmulcahy/repo-template/.github/workflows/reusable-docker-publish.yml@0ecc636387ef04b46acf232b3a9ef49cc2980eca
+    uses: dwightmulcahy/repo-template/.github/workflows/reusable-docker-publish.yml@1b2a8ace955cd3a6d0641017aa8e4d621a183c21
     with:
       image: dwightmulcahy/taplistbuilder
       tag: ${{ github.ref_name }}
