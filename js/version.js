@@ -74,5 +74,60 @@
     }
   }
 
-  global.TapListBuildInfo = {normalize, badgeText, aboutText, versionUrl, load, updateBadge};
+
+  // Detect a replaced container without silently discarding an in-progress menu.
+  // The user chooses when to refresh; browser autosave can then restore the draft.
+  function buildIdentity(info) {
+    return info.sha && info.sha !== "unknown"
+      ? "sha:" + info.sha
+      : "version:" + info.version + "|date:" + info.buildDate;
+  }
+
+  function showUpdateNotice() {
+    const doc = global.document;
+    if (!doc || !doc.body || doc.getElementById("deploymentUpdateNotice")) return;
+    const notice = doc.createElement("div");
+    notice.id = "deploymentUpdateNotice";
+    notice.setAttribute("role", "status");
+    notice.style.cssText = "position:fixed;z-index:2147483647;left:16px;right:16px;bottom:16px;padding:12px 16px;background:#173b2e;color:white;border:2px solid #e8d7a0;border-radius:8px;box-shadow:0 3px 16px #0006;font:16px system-ui,sans-serif;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap";
+    const message = doc.createElement("span");
+    message.textContent = "A new Tap List Builder version is available. Save/export your work before refreshing.";
+    const button = doc.createElement("button");
+    button.type = "button";
+    button.textContent = "Refresh to update";
+    button.style.cssText = "padding:8px 12px;cursor:pointer";
+    button.addEventListener("click", () => global.location.reload());
+    notice.append(message, button);
+    doc.body.appendChild(notice);
+  }
+
+  async function checkForUpdate() {
+    try {
+      const initial = await load();
+      const response = await global.fetch("version.json", {cache: "no-store"});
+      if (!response.ok) return false;
+      const current = normalize(await response.json());
+      if (buildIdentity(initial) !== buildIdentity(current)) {
+        showUpdateNotice();
+        return true;
+      }
+    } catch (_) {
+      // Offline or transient network errors must not interrupt editing.
+    }
+    return false;
+  }
+
+  function startUpdateMonitor() {
+    if (!global.setInterval || !global.document) return;
+    global.setInterval(() => {
+      if (!global.document.hidden) void checkForUpdate();
+    }, 60000);
+    if (global.document.addEventListener) {
+      global.document.addEventListener("visibilitychange", () => {
+        if (!global.document.hidden) void checkForUpdate();
+      });
+    }
+  }
+
+  global.TapListBuildInfo = {normalize, badgeText, aboutText, versionUrl, load, updateBadge, checkForUpdate, startUpdateMonitor};
 })(window);
