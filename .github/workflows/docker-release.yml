@@ -39,7 +39,7 @@ jobs:
       - name: Validate SemVer tag and release ancestry
         if: startsWith(github.ref, 'refs/tags/')
         id: release-check
-        uses: dwightmulcahy/repo-template/.github/actions/validate-release@1b2a8ace955cd3a6d0641017aa8e4d621a183c21
+        uses: dwightmulcahy/repo-template/.github/actions/validate-release@f508f4b91a429dcbe7cfa6cdb6205f8d90f28042
         with:
           tag: ${{ github.ref_name }}
           branch: release
