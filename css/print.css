@@ -58,3 +58,25 @@
     transform:translateX(6in) rotate(90deg)!important;
   }
 }
+
+/* Firefox paginates nested, paper-sized block wrappers even when overflow is
+   hidden. Remove those wrappers from print flow and anchor the actual menu to
+   the physical page. Chrome also supports this layout. The three-up sheet has
+   its own positioning and must not inherit the single-menu rules. */
+@media print{
+  body:not(.printing-three-up) #appShellViewport,
+  body:not(.printing-three-up) #appShell,
+  body:not(.printing-three-up) .app,
+  body:not(.printing-three-up) .display-area,
+  body:not(.printing-three-up) .preview-wrap{
+    height:0!important;min-height:0!important;max-height:0!important;
+    overflow:visible!important;background:transparent!important;
+  }
+  body:not(.printing-three-up) #page{
+    position:fixed!important;top:0!important;left:0!important;
+    margin:0!important;z-index:1;
+  }
+  body:not(.printing-three-up) .page{
+    background-color:#fff!important;
+  }
+}
