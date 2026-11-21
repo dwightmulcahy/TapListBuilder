@@ -92,3 +92,28 @@ function deleteSavedBeverage(){
   persistSavedBeverages();
   renderSavedBeverageLibrary(`Deleted “${entry.item.name}” from the saved library.`);
 }
+
+
+function savedBeverageOptions(){
+  return '<option value="">Select a saved beer…</option>' + savedBeverages.map(entry => {
+    const abv=entry.item.abv?` — ${entry.item.abv}% ABV`:"";
+    return `<option value="${esc(entry.id)}">${esc(entry.item.name)}${esc(abv)}</option>`;
+  }).join("");
+}
+
+async function fillItemFromLibrary(index,id){
+  if(!id)return;
+  const entry=savedBeverages.find(saved=>saved.id===id);
+  const item=state.items[index];
+  if(!entry||!item||item.type==="divider"||item.type==="text")return;
+  const picker=document.getElementById(`itemLibrarySelect-${index}`);
+  if(!await confirmJsonLoad(entry,`Saved beverage: ${entry.item.name}`,`This replaces “${item.name}” and all its fields and settings with the saved beverage.`)){
+    if(picker)picker.value="";
+    return;
+  }
+  pushItemsUndoSnapshot();
+  state.items[index]=deepCopy(normalizeItem(entry.item));
+  expandedItemIndices.add(index);
+  autosave();renderEditor();renderPreview();
+  document.querySelectorAll("#editor fieldset")[index]?.scrollIntoView({behavior:"smooth",block:"center"});
+}
