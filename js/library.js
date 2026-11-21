@@ -107,11 +107,7 @@ async function fillItemFromLibrary(index,id){
   const item=state.items[index];
   if(!entry||!item||item.type==="divider"||item.type==="text")return;
   const picker=document.getElementById(`itemLibrarySelect-${index}`);
-  if(!await confirmJsonLoad(entry,`Saved beverage: ${entry.item.name}`,"This replaces every field and setting on the selected menu item with the saved beverage.")){
-    if(picker)picker.value="";
-    return;
-  }
-  if(!confirm(`Replace “${item.name}” with “${entry.item.name}” and all its saved settings?`)){
+  if(!await confirmJsonLoad(entry,`Saved beverage: ${entry.item.name}`,"This replaces “${item.name}” and all its fields and settings with the saved beverage.")){
     if(picker)picker.value="";
     return;
   }
