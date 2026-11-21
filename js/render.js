@@ -146,6 +146,7 @@ function editorCard(item,i){
           </span>
         </summary>
         <div class="beer-card-body">
+          <label class="item-library-picker">Fill from saved beverage library<select id="itemLibrarySelect-${i}" aria-label="Fill item ${i+1} from saved beverage library" onchange="fillItemFromLibrary(${i},this.value)" ${savedBeverages.length?"":"disabled"}>${savedBeverageOptions()}</select></label>
           <div class="grid-name-row">
             <label>Name<input value="${esc(item.name)}" oninput="setItem(${i},'name',this.value)"></label>
             <label>Beer style<input list="styleOptions" value="${esc(item.style)}" oninput="setItem(${i},'style',this.value)"></label>
