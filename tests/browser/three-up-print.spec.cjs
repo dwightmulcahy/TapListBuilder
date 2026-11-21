@@ -2,6 +2,7 @@ const {test,expect}=require("./fixtures.cjs");
 
 test("three-up printing creates two portrait and one rotated card on Letter",async({page})=>{
   await page.goto("/");
+  await expect(page.locator("#tapList .tap-row").first()).toBeVisible();
   await page.evaluate(()=>setSetting("pageSize","4x6"));
   await page.evaluate(()=>{window.print=()=>{window.__printInvoked=true}});
   await page.evaluate(()=>printThreeUp());
@@ -34,6 +35,7 @@ test("three-up printing creates two portrait and one rotated card on Letter",asy
 
 test("three-up printing requires a 4x6 menu and does not change settings",async({page})=>{
   await page.goto("/");
+  await expect(page.locator("#tapList .tap-row").first()).toBeVisible();
   await page.evaluate(()=>{window.__alerts=[];window.alert=msg=>window.__alerts.push(msg);window.print=()=>{throw Error("must not print")}});
   await page.evaluate(()=>printThreeUp());
   expect(await page.evaluate(()=>window.__alerts)).toEqual([expect.stringContaining("Select 4×6 Card")]);
