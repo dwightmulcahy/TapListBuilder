@@ -75,3 +75,11 @@ test("printMenu still opens the dialog if an imported image cannot decode",async
   await vm.runInContext("printMenu()",ctx);
   assert.equal(printed,1);
 });
+
+test("single-page printing removes nested wrappers from Firefox pagination",()=>{
+  assert.match(css,/body:not\(\.printing-three-up\) #appShellViewport,/);
+  assert.match(css,/body:not\(\.printing-three-up\) \.preview-wrap\{[\s\S]*?height:0!important/);
+  assert.match(css,/body:not\(\.printing-three-up\) #page\{[\s\S]*?position:fixed!important;top:0!important;left:0!important/);
+  assert.match(css,/body:not\(\.printing-three-up\) \.page\{[\s\S]*?background-color:#fff!important/);
+  assert.match(css,/body\.printing-three-up #printThreeUpSheet/);
+});
