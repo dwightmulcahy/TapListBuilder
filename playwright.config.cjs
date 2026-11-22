@@ -12,6 +12,7 @@ module.exports=defineConfig({
     viewport:{width:1600,height:1000},
     trace:"retain-on-failure"
   },
+  projects:[{name:"chromium",use:{browserName:"chromium"},testIgnore:"**/firefox-print.spec.cjs"},{name:"firefox",use:{browserName:"firefox"},testMatch:"**/firefox-print.spec.cjs"}],
   webServer:{
     command:"python3 -m http.server 8765 --bind 127.0.0.1",
     url:"http://127.0.0.1:8765/",
