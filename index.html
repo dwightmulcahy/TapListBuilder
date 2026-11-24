@@ -54,6 +54,7 @@
     <details class="app-menu-item" name="app-menu">
       <summary>Help</summary>
       <div class="app-menu-dropdown">
+        <button data-whats-new onclick="closeAppMenus()">What's new</button>
         <button onclick="showAbout();closeAppMenus()">About</button>
       </div>
     </details>
@@ -317,5 +318,7 @@
 <script src="js/pdf.js"></script>
 <script src="js/version.js"></script>
 <script src="js/app.js"></script>
+<!-- "What's new" after an upgrade; changelog.json is a placeholder replaced at release time -->
+<script src="js/whats-new.js" data-src="changelog.json" data-key="taplist.seenVersion" defer></script>
 </body>
 </html>
