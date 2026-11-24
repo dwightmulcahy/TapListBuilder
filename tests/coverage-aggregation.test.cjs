@@ -33,3 +33,16 @@ test("keeps ranges in start-offset order with outer range before inner range",()
   assert.equal(merged[0].ranges[0].startOffset,0);
   assert.equal(merged[0].ranges[1].startOffset,10);
 });
+test("a block missing from one sample inherits its parent's count there",()=>{
+  // scenario A skipped the 20-40 block (listed with 0); scenario B ran it (V8 omits it)
+  const a=[{functionName:"show",isBlockCoverage:true,ranges:[{startOffset:0,endOffset:100,count:1},{startOffset:20,endOffset:40,count:0}]}];
+  const b=[{functionName:"show",isBlockCoverage:true,ranges:[{startOffset:0,endOffset:100,count:1},{startOffset:50,endOffset:60,count:0}]}];
+  const [merged]=mergeFunctionCoverage([a,b]);
+  assert.deepEqual(merged.ranges,[
+    {startOffset:0,endOffset:100,count:1},
+    {startOffset:20,endOffset:40,count:1},
+    {startOffset:50,endOffset:60,count:1}
+  ]);
+  const [never]=mergeFunctionCoverage([a,a]);
+  assert.equal(never.ranges[1].count,0);
+});
