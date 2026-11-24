@@ -35,6 +35,9 @@ jobs:
       smoke-command: |
         docker build --build-arg APP_VERSION=9.8.7 --build-arg VCS_REF=0123456789abcdef -t taplistbuilder:metadata .
         docker run --rm --entrypoint cat taplistbuilder:metadata /usr/share/nginx/html/version.json | node -e 'let s="";process.stdin.on("data",c=>s+=c);process.stdin.on("end",()=>{const v=JSON.parse(s);if(v.version!=="9.8.7"||v.sha!=="0123456789abcdef"||!v.buildDate)process.exit(1)})'
+        docker run --rm --entrypoint cat taplistbuilder:metadata /usr/share/nginx/html/changelog.json | node -e 'let s="";process.stdin.on("data",c=>s+=c);process.stdin.on("end",()=>{if(JSON.parse(s).current!=="dev")process.exit(1)})'
+        docker build --build-arg CHANGELOG_B64="$(printf '{"current":"9.8.7","releases":[]}' | base64 -w0)" -t taplistbuilder:changelog .
+        docker run --rm --entrypoint cat taplistbuilder:changelog /usr/share/nginx/html/changelog.json | node -e 'let s="";process.stdin.on("data",c=>s+=c);process.stdin.on("end",()=>{if(JSON.parse(s).current!=="9.8.7")process.exit(1)})'
 
   browser-coverage:
     name: Browser V8 coverage smoke

@@ -9,6 +9,8 @@ FROM nginx:1.29-alpine
 ARG APP_VERSION=dev
 ARG BUILD_DATE
 ARG VCS_REF=unknown
+# Release notes for the "What's new" dialog (base64 JSON from scripts/build_changelog.py)
+ARG CHANGELOG_B64=
 LABEL org.opencontainers.image.title="TapListBuilder" \
       org.opencontainers.image.version="${APP_VERSION}" \
       org.opencontainers.image.created="${BUILD_DATE}" \
@@ -20,7 +22,8 @@ COPY . /usr/share/nginx/html/
 # Overwrite the placeholder version.json with the real values for this build, so the
 # in-app About dialog (Help -> About) can show the actual tag/commit/build date.
 RUN BUILD_DATE="${BUILD_DATE:-$(date -u +%Y-%m-%dT%H:%M:%SZ)}" \
-    && printf '{"version":"%s","sha":"%s","buildDate":"%s"}' "${APP_VERSION}" "${VCS_REF}" "${BUILD_DATE}" > /usr/share/nginx/html/version.json
+    && printf '{"version":"%s","sha":"%s","buildDate":"%s"}' "${APP_VERSION}" "${VCS_REF}" "${BUILD_DATE}" > /usr/share/nginx/html/version.json \
+    && if [ -n "${CHANGELOG_B64}" ]; then printf '%s' "${CHANGELOG_B64}" | base64 -d > /usr/share/nginx/html/changelog.json; fi
 
 # Cache-bust every local css/js reference in index.html with this build's version+sha.
 # This makes a new image always serve genuinely different URLs for its assets, so no
