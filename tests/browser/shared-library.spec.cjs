@@ -21,4 +21,12 @@ test("shared library migrates local beers and confirms server writes",async({pag
   await page.route("**/api/library",r=>r.fulfill({status:409,json:{error:"conflict"}}));
   await page.evaluate(()=>saveItemToLibrary(2));
   await expect.poll(()=>page.locator("#sharedLibraryStatus").textContent()).toContain("NOT saved to server");
+  await page.unroute("**/api/library");
+  await page.route("**/api/library",async route=>{
+    if(route.request().method()==="PUT")remote={revision:remote.revision+1,entries:route.request().postDataJSON().entries};
+    await route.fulfill({json:remote});
+  });
+  await page.evaluate(()=>recoverSharedLibrary());
+  expect(remote.entries.length).toBe(3);
+  await expect(page.locator("#sharedLibraryStatus")).toContainText("Recovered");
 });
