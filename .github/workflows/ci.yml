@@ -30,7 +30,7 @@ jobs:
         run: |
           python3 -m venv /tmp/library-test
           /tmp/library-test/bin/pip install coverage==7.10.7
-          /tmp/library-test/bin/coverage run --source=server -m unittest discover -s tests -p 'test_library_store.py'
+          /tmp/library-test/bin/coverage run --source=server -m unittest discover -s tests -p 'test_library_*.py'
           /tmp/library-test/bin/coverage report --fail-under=90
 
   docker-smoke:
