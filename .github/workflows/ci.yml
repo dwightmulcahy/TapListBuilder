@@ -91,3 +91,32 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Verify Firefox Letter, 4x6, and three-up print layouts
         run: npx playwright test tests/browser/firefox-print.spec.cjs --project=firefox
+
+  shared-library-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Verify real container and persistent library
+        run: |
+          docker build -t taplistbuilder:integration .
+          docker volume create taplist-integration
+          docker run -d --name taplist-integration -p 127.0.0.1:8089:80 -e LIBRARY_TOKEN=ci-test-token -v taplist-integration:/data taplistbuilder:integration
+          for i in $(seq 1 30); do
+            if curl -fsS -H 'Authorization: Bearer ci-test-token' http://127.0.0.1:8089/api/library; then break; fi
+            sleep 1
+          done
+          node tests/integration/shared-library.cjs
+          docker rm -f taplist-integration
+          docker run -d --name taplist-integration -p 127.0.0.1:8089:80 -e LIBRARY_TOKEN=ci-test-token -v taplist-integration:/data taplistbuilder:integration
+          for i in $(seq 1 30); do
+            if curl -fsS -H 'Authorization: Bearer ci-test-token' http://127.0.0.1:8089/api/library; then break; fi
+            sleep 1
+          done
+          curl -fsS -H 'Authorization: Bearer ci-test-token' http://127.0.0.1:8089/api/library | node -e 'let s="";process.stdin.on("data",c=>s+=c);process.stdin.on("end",()=>{if(JSON.parse(s).entries.length!==1)process.exit(1)})'
+      - if: always()
+        run: docker logs taplist-integration || true
