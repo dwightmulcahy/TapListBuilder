@@ -45,7 +45,7 @@ class LibraryTests(unittest.TestCase):
                 self.store.replace([], 1)
         self.assertEqual(self.store.read()["entries"], [entry()])
         self.assertEqual({p.name for p in Path(self.temp.name).iterdir()},
-                         {"library.json", "library.lock"})
+                         {"library.json", "library.lock", "backups"})
 
     def test_concurrent_writes(self):
         def write(i):
@@ -57,3 +57,13 @@ class LibraryTests(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=4) as pool:
             self.assertEqual(sum(pool.map(write, range(8))), 1)
         self.assertEqual(self.store.read()["revision"], 1)
+
+    def test_backup_retention(self):
+        import json
+        for revision in range(15):
+            self.store.replace([entry(str(revision))], revision)
+        backups = sorted((Path(self.temp.name) / "backups").glob("*.json"))
+        self.assertEqual(len(backups), 10)
+        self.assertEqual(json.loads(backups[-1].read_text())["revision"], 14)
+        self.assertEqual(json.loads(backups[0].read_text())["revision"], 5)
+        self.assertEqual(self.store.read()["revision"], 15)

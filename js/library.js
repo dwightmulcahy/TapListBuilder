@@ -188,3 +188,28 @@ function queueSharedLibrarySave(){
     }
   });
 }
+
+async function recoverSharedLibrary(){
+  if(!sharedLibraryToken||!sharedLibraryBlocked)return;
+  await sharedLibraryQueue;
+  if(!confirm("Compare local unsynced items with the server? Existing server items will be preserved. Export JSON first to retain conflicting edits and deletions."))return;
+  try{
+    const remote=await sharedLibraryRequest("GET",sharedLibraryToken);
+    const entries=remote.entries.map(normalizeSavedBeverage);
+    const names=new Set(entries.map(e=>e.item.name.trim().toLowerCase()));
+    const ids=new Set(entries.map(e=>e.id));
+    for(const entry of deepCopy(savedBeverages)){
+      const name=entry.item.name.trim().toLowerCase();
+      if(names.has(name))continue;
+      if(ids.has(entry.id))entry.id=makeSavedBeverageId();
+      names.add(name);ids.add(entry.id);entries.push(entry);
+    }
+    const result=await sharedLibraryRequest("PUT",sharedLibraryToken,{revision:remote.revision,entries});
+    sharedLibraryRevision=result.revision;
+    sharedLibraryBlocked=false;
+    savedBeverages=result.entries.map(normalizeSavedBeverage).sort((a,b)=>a.item.name.localeCompare(b.item.name));
+    localStorage.setItem(SAVED_BEVERAGES_KEY,JSON.stringify(savedBeverages));
+    renderEditor();
+    sharedLibraryStatus("Recovered · Server items preserved");
+  }catch(error){sharedLibraryStatus("Recovery failed: "+error.message)}
+}

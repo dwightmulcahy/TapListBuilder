@@ -57,6 +57,16 @@ class Library:
         with self.locked():
             return self._read()
 
+    def _backup(self, current):
+        if not self.path.exists():
+            return
+        folder = self.directory / "backups"
+        folder.mkdir(exist_ok=True)
+        target = folder / f"library-{current['revision']:020d}.json"
+        self._atomic_write(target, current)
+        for old in sorted(folder.glob("library-*.json"))[:-10]:
+            old.unlink()
+
     def replace(self, entries, revision):
         validate(entries)
         with self.locked():
@@ -64,19 +74,23 @@ class Library:
             if type(revision) is not int or revision != current["revision"]:
                 raise Conflict("Library changed; reload before saving")
             data = {"revision": revision + 1, "entries": entries}
-            fd, name = tempfile.mkstemp(dir=self.directory)
-            try:
-                with os.fdopen(fd, "w", encoding="utf-8") as target:
-                    json.dump(data, target, ensure_ascii=False, allow_nan=False)
-                    target.flush()
-                    os.fsync(target.fileno())
-                os.replace(name, self.path)
-                directory_fd = os.open(self.directory, os.O_DIRECTORY)
-                try:
-                    os.fsync(directory_fd)
-                finally:
-                    os.close(directory_fd)
-            finally:
-                if os.path.exists(name):
-                    os.unlink(name)
+            self._backup(current)
+            self._atomic_write(self.path, data)
             return data
+
+    def _atomic_write(self, path, data):
+        fd, name = tempfile.mkstemp(dir=path.parent)
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as target:
+                json.dump(data, target, ensure_ascii=False, allow_nan=False)
+                target.flush()
+                os.fsync(target.fileno())
+            os.replace(name, path)
+            directory_fd = os.open(path.parent, os.O_DIRECTORY)
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
+        finally:
+            if os.path.exists(name):
+                os.unlink(name)
