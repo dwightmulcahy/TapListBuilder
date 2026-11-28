@@ -15,8 +15,12 @@ services:
     restart: unless-stopped
     ports:
       - "8081:80"
+    environment:
+      LIBRARY_TOKEN: ${LIBRARY_TOKEN:-}
+      LIBRARY_DATA_DIR: /data
+    volumes:
+      - /share/Data/config/taplistbuilder:/data
     # Optional: override the sample data without rebuilding the image, e.g. to swap in
     # your own default beer list. Uncomment and point at a folder on the NAS containing
     # your own beer-styles.json / translations.json.
-    # volumes:
     #   - /share/Container/taplistbuilder/data:/usr/share/nginx/html/data:ro
