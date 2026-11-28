@@ -17,7 +17,7 @@ LABEL org.opencontainers.image.title="TapListBuilder" \
       org.opencontainers.image.revision="${VCS_REF}"
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY index.html version.json changelog.json /usr/share/nginx/html/
+COPY index.html favicon.ico version.json changelog.json /usr/share/nginx/html/
 COPY css /usr/share/nginx/html/css
 COPY js /usr/share/nginx/html/js
 COPY assets /usr/share/nginx/html/assets
