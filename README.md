@@ -1,6 +1,6 @@
 # MHB Tap List Builder
 
-Print-ready one-page tap menu builder for Monkey Head Brewing. Client-side only — no build step, no server-side code.
+Print-ready one-page tap menu builder for Monkey Head Brewing. Static frontend with optional authenticated shared JSON library in Docker.
 
 ## Structure
 ```
@@ -25,7 +25,7 @@ python3 -m http.server 8000
 Then open `http://localhost:8000`.
 
 ## Deploying
-Static files only — works as-is on GitHub Pages (Settings → Pages → deploy from branch, root of this folder).
+Local-only mode works as-is on GitHub Pages (Settings → Pages → deploy from branch, root of this folder).
 
 ### Docker
 `Dockerfile`, `.dockerignore`, and `nginx.conf` build a small nginx image serving these static files. `.github/workflows/docker-release.yml` builds a multi-arch (amd64 + arm64) image and pushes it to Docker Hub as `<DOCKERHUB_USERNAME>/taplistbuilder` on:
@@ -81,3 +81,12 @@ npm run test:coverage
 ```
 
 The report is written to `coverage/index.html`, `coverage/coverage-summary.json`, and `coverage/lcov.info`. CI uploads a `browser-coverage` artifact with the HTML report, LCOV, JSON summary, and per-module metrics. Its GitHub Actions job summary shows the measured percentages. The enforced production-JS coverage floors are **80% statements, 80% lines, 80% functions, and 60% branches**. Branch coverage is tracked separately because an 80% branch gate would be inaccurate without substantially more negative/error-path scenarios. The goal is to raise the branch floor as those tests are added. Run `npm run coverage:check` to enforce them locally; environment variables `COVERAGE_MIN_STATEMENTS`, `COVERAGE_MIN_BRANCHES`, `COVERAGE_MIN_FUNCTIONS`, and `COVERAGE_MIN_LINES` can override the floors. The report always includes unexecuted production modules, so exclusions cannot silently inflate coverage.
+
+
+## Shared beer library (Docker)
+
+Set a strong random `LIBRARY_TOKEN` in your Compose environment (for example generate one with `openssl rand -hex 32`). Mount a writable persistent directory at /data; the example Compose uses /share/Data/config/taplistbuilder. Use HTTPS when connecting, because the token is sent with API requests. Do not expose the plain HTTP port to the internet.
+
+Open the saved beverage library and choose Connect / reload shared library, then enter the token. Existing local items can be imported without overwriting matching server names. Reconnect after a page reload; the token is deliberately not persisted. Current menu drafts remain local. Without a configured token, the app remains local-only.
+
+The server stores library.json and the last ten prior revisions in backups/. Back up the entire directory separately. For manual restoration, stop the container, preserve the current file, copy a chosen backup to library.json and restart; reconnect all clients before editing. Prefer restoring with a revision greater than the previous live revision to avoid stale-client conflicts. Export JSON before resolving conflicting offline edits.

@@ -17,7 +17,15 @@ LABEL org.opencontainers.image.title="TapListBuilder" \
       org.opencontainers.image.revision="${VCS_REF}"
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY . /usr/share/nginx/html/
+COPY index.html favicon.ico version.json changelog.json /usr/share/nginx/html/
+COPY css /usr/share/nginx/html/css
+COPY js /usr/share/nginx/html/js
+COPY assets /usr/share/nginx/html/assets
+COPY data /usr/share/nginx/html/data
+RUN apk add --no-cache python3 py3-gunicorn
+COPY server /opt/taplistbuilder/server
+COPY scripts/start-library.sh /docker-entrypoint.d/40-start-library.sh
+RUN chmod +x /docker-entrypoint.d/40-start-library.sh
 
 # Overwrite the placeholder version.json with the real values for this build, so the
 # in-app About dialog (Help -> About) can show the actual tag/commit/build date.
