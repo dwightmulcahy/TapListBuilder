@@ -17,6 +17,7 @@ function loadSavedBeverages(){
   }catch(e){return []}
 }
 function persistSavedBeverages(){
+  if(sharedLibraryToken)queueSharedLibrarySave();
   try{localStorage.setItem(SAVED_BEVERAGES_KEY,JSON.stringify(savedBeverages))}catch(e){
     alert("The saved beverage library could not be stored. A custom icon may be too large for browser storage.");
   }
@@ -116,4 +117,74 @@ async function fillItemFromLibrary(index,id){
   expandedItemIndices.add(index);
   autosave();renderEditor();renderPreview();
   document.querySelectorAll("#editor fieldset")[index]?.scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+ // Shared mode is opt-in; credentials stay in memory and are never exported.
+let sharedLibraryToken="";
+let sharedLibraryRevision=0;
+let sharedLibraryQueue=Promise.resolve();
+let sharedLibraryBlocked=false;
+let sharedLibraryConnecting=false;
+function sharedLibraryStatus(message){
+  const el=document.getElementById("sharedLibraryStatus");
+  if(el)el.textContent=message;
+}
+async function sharedLibraryRequest(method,token,payload){
+  const response=await fetch("/api/library",{
+    method,cache:"no-store",headers:{Authorization:"Bearer "+token,
+      ...(payload?{"Content-Type":"application/json"}:{})},
+    ...(payload?{body:JSON.stringify(payload)}:{})
+  });
+  if(!response.ok)throw new Error(response.status===409?"Library changed on another device":`Server returned ${response.status}`);
+  const data=await response.json();
+  if(!Number.isSafeInteger(data.revision)||!Array.isArray(data.entries))throw new Error("Invalid server response");
+  return data;
+}
+async function connectSharedLibrary(){
+  if(sharedLibraryConnecting)return;
+  const token=prompt("Shared library access token:", "");
+  if(!token)return;
+  sharedLibraryConnecting=true;
+  try{
+    await sharedLibraryQueue;
+    const remote=await sharedLibraryRequest("GET",token);
+    const local=deepCopy(savedBeverages);
+    const entries=remote.entries.map(normalizeSavedBeverage);
+    const names=new Set(entries.map(e=>e.item.name.trim().toLowerCase()));
+    const ids=new Set(entries.map(e=>e.id));
+    const missing=local.filter(e=>!names.has(e.item.name.trim().toLowerCase()));
+    let result=remote;
+    if(missing.length&&confirm(`Import ${missing.length} local items into the shared library? Existing server items will not be overwritten.`)){
+      for(const e of missing){
+        if(ids.has(e.id))e.id=makeSavedBeverageId();
+        ids.add(e.id);
+        entries.push(e);
+      }
+      result=await sharedLibraryRequest("PUT",token,{revision:remote.revision,entries});
+    }else if(local.length&&!confirm("Load the server library? Export your local library first if you need to preserve local-only items or different versions."))return;
+    sharedLibraryToken=token;
+    sharedLibraryRevision=result.revision;
+    sharedLibraryBlocked=false;
+    savedBeverages=result.entries.map(normalizeSavedBeverage).sort((a,b)=>a.item.name.localeCompare(b.item.name));
+    localStorage.setItem(SAVED_BEVERAGES_KEY,JSON.stringify(savedBeverages));
+    renderEditor();
+    sharedLibraryStatus("Connected · Server library loaded");
+  }catch(error){sharedLibraryStatus("Connection failed: "+error.message)}
+  finally{sharedLibraryConnecting=false}
+}
+function queueSharedLibrarySave(){
+  const entries=deepCopy(savedBeverages);
+  const token=sharedLibraryToken;
+  sharedLibraryStatus("Local copy saved · Server save pending");
+  sharedLibraryQueue=sharedLibraryQueue.then(async()=>{
+    if(sharedLibraryBlocked||token!==sharedLibraryToken)return;
+    try{
+      const result=await sharedLibraryRequest("PUT",token,{revision:sharedLibraryRevision,entries});
+      sharedLibraryRevision=result.revision;
+      sharedLibraryStatus("Server save confirmed");
+    }catch(error){
+      sharedLibraryBlocked=true;
+      sharedLibraryStatus("NOT saved to server: "+error.message+". Export JSON before reconnecting.");
+    }
+  });
 }
